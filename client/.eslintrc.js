@@ -1,3 +1,5 @@
+const PropTypes = require('prop-types')
+
 module.exports = {
   // parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   parserOptions: {
@@ -18,6 +20,7 @@ module.exports = {
   ],
   plugins: ['react', 'react-hooks'],
   rules: {
+    'react/prop-types': 'off',
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",
   },
