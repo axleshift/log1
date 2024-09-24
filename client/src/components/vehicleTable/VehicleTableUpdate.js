@@ -24,10 +24,9 @@ const VehicleTableUpdate = ({ vehicle }) => {
     }
   }
   return (
-    <CTable responsive caption="top">
+    <CTable responsive caption="top" stripedColumns>
       <CTableCaption>List of Vehicle</CTableCaption>
       <CTableHead
-        responsive
         color="light"
         style={{
           textAlign: 'center',
@@ -44,7 +43,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
           <CTableHeaderCell scope="col">Action</CTableHeaderCell>
         </CTableRow>
       </CTableHead>
-      <CTableBody responsive color="dark" stripedColumns>
+      <CTableBody color="dark" >
         {vehicle.map((v) => (
           // eslint-disable-next-line react/jsx-key
           <CTableRow

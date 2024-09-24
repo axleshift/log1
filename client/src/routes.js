@@ -7,7 +7,7 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
 // // Base
 const vehicleManagement = React.lazy(
-  () => import('./views/fleetManagement/vehicleManagement/VehicleManagement'),
+  () => import('./views/fleetManagement/vehicleManagement/vehicleManagement'),
 )
 // const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react'
 import {
   CContainer,
@@ -26,15 +25,24 @@ import {
   CTableDataCell,
   CButtonGroup,
   CTableCaption,
+  CToast,
+  CToaster,
 } from '@coreui/react'
 import { CIcon } from '@coreui/icons-react'
 import { cilPlus } from '@coreui/icons'
 import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
 import VehicleTableUpdate from '../../../components/vehicleTable/VehicleTableUpdate'
+import Toast from '../../../components/toast/Toast'
 
 function vehicleManagement() {
   const [visible, setVisible] = useState(false)
+  const [toast, setToast] = useState({
+    visible: false,
+    title: '',
+    body: '',
+  })
+
   const randomId = Math.floor(Math.random() * 10000000000).toString()
   const [newVehicle, setNewVehicle] = useState({
     id: randomId,
@@ -49,7 +57,14 @@ function vehicleManagement() {
   const { createVehicle } = useVehicleStore()
   const handdleAddVehicle = async () => {
     const { success, message } = await createVehicle(newVehicle)
-    console.log(success, message)
+    if (success) {
+      setToast({
+        visible: true,
+        title: 'Vihicle Management',
+        body: message,
+      })
+      Toast(toast)
+    }
 
     setNewVehicle({
       id: randomId,
@@ -61,27 +76,32 @@ function vehicleManagement() {
       capacity: '',
     })
   }
-
   const { fetchVehicles, vehicle } = useVehicleStore()
   useEffect(() => {
     fetchVehicles()
+    setToast({
+      visible: true,
+      title: 'Vihicle Management',
+      body: 'te',
+    })
   }, [fetchVehicles])
   console.log(vehicle)
 
   return (
     <div>
+      <Toast toast={toast} />
       <h1 style={{ textAlign: 'center' }}>Vehicle Management</h1>
       <CContainer fluid>
         <CCol>
           <CButton
             color="primary"
-            size="md"
+            size="lg"
             onClick={() => setVisible(!visible)}
             style={{
               margin: '10px',
             }}
           >
-            <CIcon icon={cilPlus} size="md" space={2} style={{ marginRight: '5px' }} />
+            <CIcon icon={cilPlus} size="lg" space={2} style={{ marginRight: '5px' }} />
             Add
           </CButton>
           <CModal
