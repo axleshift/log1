@@ -34,8 +34,9 @@ import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
 import VehicleTableUpdate from '../../../components/vehicleTable/vehicleTableUpdate'
 import Toast from '../../../components/toast/Toast'
+import { detectOverflow } from '@popperjs/core'
 
-function vehicleManagement() {
+const vehicleManagement = () => {
   const [visible, setVisible] = useState(false)
   const [toast, setToast] = useState({
     visible: false,
@@ -109,6 +110,7 @@ function vehicleManagement() {
             <CIcon icon={cilPlus} size="lg" space={2} style={{ marginRight: '5px' }} />
             Add
           </CButton>
+          {/* Starting of the vehicle registration Modal */}
           <CModal
             visible={visible}
             onClose={() => setVisible(false)}
@@ -232,40 +234,13 @@ function vehicleManagement() {
           </CModal>
         </CCol>
       </CContainer>
-      {/* {vehicle.map((vehicle) => (
-        <VehicleTable key={vehicle._id} vehicle={vehicle} />
-      ))} */}
-
-      <CContainer
-        fluid
-        style={{
-          border: '1px solid black',
-          height: '500px',
-          overflowX: 'hidden',
-        }}
-      >
-        <CTable>
-          <CTableHead
-            color="light"
-            style={{ textAlign: 'center', position: 'sticky', top: 0, zIndex: 1 }}
-          >
-            <CTableRow>
-              <CTableHeaderCell scope="col">ID</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Brand</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Model</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Year</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Plate Number</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Type</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Capacity</CTableHeaderCell>
-              <CTableHeaderCell scope="col">Action</CTableHeaderCell>
-            </CTableRow>
-          </CTableHead>
-          <CTableBody>
-            {vehicle.map((vehicle) => (
-              <VehicleTableUpdate key={vehicle._id} vehicle={vehicle} />
-            ))}
-          </CTableBody>
-        </CTable>
+      {/* ending of the vehicle registration Modal */}
+      <CContainer>
+        {/* starting of the table  */}
+        <VehicleTableUpdate
+          vehicle={vehicle}
+          style={{ textAlign: 'center', position: 'sticky', top: 0, zIndex: 1 }}
+        />
         {vehicle.length === 0 && (
           <CCol>
             <p
@@ -283,8 +258,7 @@ function vehicleManagement() {
           </CCol>
         )}
       </CContainer>
-
-      {/* </CContainer> */}
+      {/* ending of the table  */}
     </div>
   )
 }

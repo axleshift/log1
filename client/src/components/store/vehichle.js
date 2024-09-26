@@ -24,6 +24,7 @@ export const useVehicleStore = create((set) => ({
       body: JSON.stringify(newVehicle),
     })
     const data = await res.json()
+    // update the ui immediately
     set((state) => ({ vehicle: [...state.vehicle, data.data] }))
     return { success: true, message: 'Vehicle created successfully' }
   },
@@ -39,6 +40,7 @@ export const useVehicleStore = create((set) => ({
     })
     const data = await res.json()
     if (!data.success) return { success: false, message: data.message }
+    // update the ui immediately
     set((state) => ({
       vehicle: state.vehicle.filter((vehicle) => vehicle._id !== vid),
     }))
