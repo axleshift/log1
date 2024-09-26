@@ -32,7 +32,7 @@ import { CIcon } from '@coreui/icons-react'
 import { cilPlus } from '@coreui/icons'
 import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
-import VehicleTableUpdate from '../../../components/vehicleTable/VehicleTableUpdate'
+import VehicleTableUpdate from '../../../components/vehicleTable/vehicleTableUpdate'
 import Toast from '../../../components/toast/Toast'
 
 function vehicleManagement() {
@@ -56,34 +56,39 @@ function vehicleManagement() {
 
   const { createVehicle } = useVehicleStore()
   const handdleAddVehicle = async () => {
-    const { success, message } = await createVehicle(newVehicle)
-    if (success) {
-      setToast({
-        visible: true,
-        title: 'Vihicle Management',
-        body: message,
-      })
-      Toast(toast)
+    if (
+      vehicle.find(
+        (vehicle) => vehicle.regisNumber && vehicle.regisNumber === newVehicle.regisNumber,
+      )
+    ) {
+      alert('Vehicle Registration Number all ready exist')
+
+      return
     }
 
-    setNewVehicle({
-      id: randomId,
-      brand: '',
-      model: '',
-      year: '',
-      regisNumber: '',
-      type: '',
-      capacity: '',
-    })
+    const { success, message } = await createVehicle(newVehicle)
+    if (success) {
+      setNewVehicle({
+        id: randomId,
+        brand: '',
+        model: '',
+        year: '',
+        regisNumber: '',
+        type: '',
+        capacity: '',
+      })
+      setToast({
+        visible: true,
+        title: 'Added Succesfull',
+        body: 'Success',
+      })
+    } else {
+      alert(message)
+    }
   }
   const { fetchVehicles, vehicle } = useVehicleStore()
   useEffect(() => {
     fetchVehicles()
-    setToast({
-      visible: true,
-      title: 'Vihicle Management',
-      body: 'te',
-    })
   }, [fetchVehicles])
   console.log(vehicle)
 
@@ -157,16 +162,18 @@ function vehicleManagement() {
                   type="number"
                   required
                   min="1900"
+                  placeholder="Vehicle Year"
+                  value={newVehicle.year}
                   max={new Date().getFullYear()}
                   style={{ width: '100%', marginBottom: '10px' }}
                   onChange={(e) => {
-                    const year = parseInt(e.target.value)
-                    if (year !== 1900 && year > new Date().getFullYear()) {
+                    let inputYear = parseInt(e.target.value)
+                    if (inputYear !== 1900 && inputYear > new Date().getFullYear()) {
                       // Handle invalid input (e.g., show an error message or prevent the value from changing)
-                      console.error('Invalid year: Must be 1900 or the current year.')
-                      e.preventDefault() // Prevent the value from changing
+                      setNewVehicle({ ...newVehicle, year: 1900 })
+                      alert('Invalid year: Must be 1900 or the current year.')
                     } else {
-                      setNewVehicle({ ...newVehicle, year: year })
+                      setNewVehicle({ ...newVehicle, year: inputYear })
                     }
                   }}
                 />
@@ -237,7 +244,28 @@ function vehicleManagement() {
           overflowX: 'hidden',
         }}
       >
-        <VehicleTableUpdate vehicle={vehicle} />
+        <CTable>
+          <CTableHead
+            color="light"
+            style={{ textAlign: 'center', position: 'sticky', top: 0, zIndex: 1 }}
+          >
+            <CTableRow>
+              <CTableHeaderCell scope="col">ID</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Brand</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Model</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Year</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Plate Number</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Type</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Capacity</CTableHeaderCell>
+              <CTableHeaderCell scope="col">Action</CTableHeaderCell>
+            </CTableRow>
+          </CTableHead>
+          <CTableBody>
+            {vehicle.map((vehicle) => (
+              <VehicleTableUpdate key={vehicle._id} vehicle={vehicle} />
+            ))}
+          </CTableBody>
+        </CTable>
         {vehicle.length === 0 && (
           <CCol>
             <p
