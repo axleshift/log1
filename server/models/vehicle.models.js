@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const vehicleSchema = new mongoose.Schema(
     {
-        id: {
+        idNum: {
             type: String,
             required: true,
         },

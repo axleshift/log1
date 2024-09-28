@@ -35,6 +35,7 @@ import { useVehicleStore } from '../../../components/store/vehichle'
 import VehicleTableUpdate from '../../../components/vehicleTable/vehicleTableUpdate'
 import Toast from '../../../components/toast/Toast'
 import { detectOverflow } from '@popperjs/core'
+import _nav from './../../../_nav'
 
 const vehicleManagement = () => {
   const [visible, setVisible] = useState(false)
@@ -46,7 +47,7 @@ const vehicleManagement = () => {
 
   const randomId = Math.floor(Math.random() * 10000000000).toString()
   const [newVehicle, setNewVehicle] = useState({
-    id: randomId,
+    idNum: randomId,
     brand: '',
     model: '',
     year: '',
@@ -70,7 +71,7 @@ const vehicleManagement = () => {
     const { success, message } = await createVehicle(newVehicle)
     if (success) {
       setNewVehicle({
-        id: randomId,
+        idNum: randomId,
         brand: '',
         model: '',
         year: '',
@@ -129,8 +130,8 @@ const vehicleManagement = () => {
                   placeholder="Enter ID"
                   required
                   style={{ width: '100%', marginBottom: '10px' }}
-                  value={newVehicle.id}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, id: e.target.value })}
+                  value={newVehicle.idNum}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, idNum: e.target.value })}
                   disabled
                 />
                 <CFormInput
@@ -237,10 +238,7 @@ const vehicleManagement = () => {
       {/* ending of the vehicle registration Modal */}
       <CContainer>
         {/* starting of the table  */}
-        <VehicleTableUpdate
-          vehicle={vehicle}
-          style={{ textAlign: 'center', position: 'sticky', top: 0, zIndex: 1 }}
-        />
+        <VehicleTableUpdate vehicle={vehicle} />
         {vehicle.length === 0 && (
           <CCol>
             <p

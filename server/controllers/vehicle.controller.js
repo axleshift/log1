@@ -13,7 +13,7 @@ export const getVehicles = async (req, res) => {
 export const createVehicle = async (req, res) => {
     const vehicle = req.body;
 
-    if (!vehicle.id || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity) {
+    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity) {
         return res.status(400).json({ success: false, message: "All fields are required" });
     }
 

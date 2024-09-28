@@ -6,7 +6,7 @@ export const useVehicleStore = create((set) => ({
   setVehicle: (vehicle) => set({ vehicle }),
   createVehicle: async (newVehicle) => {
     if (
-      !newVehicle.id ||
+      !newVehicle.idNum ||
       !newVehicle.brand ||
       !newVehicle.model ||
       !newVehicle.year ||
@@ -43,6 +43,23 @@ export const useVehicleStore = create((set) => ({
     // update the ui immediately
     set((state) => ({
       vehicle: state.vehicle.filter((vehicle) => vehicle._id !== vid),
+    }))
+    return { success: true, message: data.message }
+  },
+
+  updateVehicle: async (vid, updatedVehicle) => {
+    const res = await fetch(`/api/vehicle/${vid}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedVehicle),
+    })
+    const data = await res.json()
+    if (!data.success) return { success: false, message: data.message }
+    // update the ui immediately
+    set((state) => ({
+      vehicle: state.vehicle.map((vehicle) => (vehicle._id === vid ? data.data : vehicle)),
     }))
     return { success: true, message: data.message }
   },
