@@ -34,16 +34,15 @@ const VehicleTableUpdate = ({ vehicle }) => {
   }
   const [visible, setVisible] = useState(false)
   const handleUpdateVehicle = async (vid, updatedVehicle) => {
-    const { success, message } = await updateVehicle(vid, updatedVehicle)
+    const { success, message } = await updateVehicle(updatedVehicle._id, updatedVehicle)
     // onClose()
     if (!success) {
       alert(message)
     } else {
-      alert(message)
       setVisible(false)
     }
-    console.log('eto ung vid', vid)
-    console.log('ito ung updatedVehicle', updatedVehicle)
+    // console.log('eto ung vid', vid)
+    // console.log('ito ung updatedVehicle', updatedVehicle)
   }
 
   // table columns is may header itmes is my data from backend
@@ -136,16 +135,13 @@ const VehicleTableUpdate = ({ vehicle }) => {
         </CModalHeader>
         <CModalBody>
           <CForm>
-            <CFormInput
+            {/* <CFormInput
               className="hidden"
               type="text"
               required
               value={updatedVehicle._id}
               disabled
-              onChange={(e) => {
-                setUpdatedVehicle({ ...updatedVehicle, _id: e.target.value })
-              }}
-            />
+            /> */}
             <CFormInput
               id="floatingInput"
               floatingLabel="Vehicle ID"
