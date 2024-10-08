@@ -1,4 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+// import useNavigate from 'react-router-dom'
+import { useSelector } from 'react-redux'
+
 // import classNames from 'classnames'
 
 // import {
@@ -52,9 +55,35 @@ import React from 'react'
 
 // import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 // import MainChart from './MainChart'
 
 const Dashboard = () => {
+  const [message, setMessage] = useState()
+  const navigate = useNavigate()
+  axios.defaults.withCredentials = true
+  useEffect(() => {
+    axios
+      .get('/api/users/dashboard')
+      .then((res) => {
+        if (res.data.valid) {
+          setMessage(res.data.message)
+        } else {
+          navigate('/login')
+        }
+      })
+      .catch((err) => console.log(err))
+  })
+  // const navigate = useNavigate()
+  // const user = useSelector((state) => state.auth)
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate('/login')
+  //   }
+  // }, [user, navigate])
+
   // const progressExample = [
   //   { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
   //   { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
@@ -178,6 +207,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <h1>my message: {message}</h1>
       <WidgetsDropdown className="mb-4" />
       {/* <CCard className="mb-4">
         <CCardBody>

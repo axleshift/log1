@@ -19,7 +19,6 @@ import { useState } from 'react'
 // the whole table of vehicles with 2 buttons for update and delete
 const VehicleTableUpdate = ({ vehicle }) => {
   // geting the delete vehicle function from the store.js
-  const [updatedVehicle, setUpdatedVehicle] = useState(vehicle) // Initialize with first vehicle or empty object
 
   const { deleteVehicle, updateVehicle } = useVehicleStore()
 
@@ -33,6 +32,8 @@ const VehicleTableUpdate = ({ vehicle }) => {
     }
   }
   const [visible, setVisible] = useState(false)
+  const [updatedVehicle, setUpdatedVehicle] = useState(vehicle) // Initialize with first vehicle or empty object
+
   const handleUpdateVehicle = async (vid, updatedVehicle) => {
     const { success, message } = await updateVehicle(updatedVehicle._id, updatedVehicle)
     // onClose()
@@ -45,7 +46,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
     // console.log('ito ung updatedVehicle', updatedVehicle)
   }
 
-  // table columns is may header itmes is my data from backend
+  // table. columns is may header itmes is my data from backend
   const columns = [
     {
       key: 'idNum',
@@ -117,13 +118,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
   }))
 
   return (
-    <CContainer
-      style={{
-        height: '500px',
-        overflowX: 'hidden',
-        textAlign: 'center',
-      }}
-    >
+    <CContainer>
       {/* my modal form */}
       <CModal
         visible={visible}
@@ -135,15 +130,8 @@ const VehicleTableUpdate = ({ vehicle }) => {
         </CModalHeader>
         <CModalBody>
           <CForm>
-            {/* <CFormInput
-              className="hidden"
-              type="text"
-              required
-              value={updatedVehicle._id}
-              disabled
-            /> */}
             <CFormInput
-              id="floatingInput"
+              name="idNum"
               floatingLabel="Vehicle ID"
               className="mb-3"
               type="text"
@@ -157,7 +145,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
               }}
             />
             <CFormInput
-              id="floatingInput"
+              name="brand"
               floatingLabel="Vehicle Brand"
               floatingClassName="mb-3"
               type="text"
@@ -171,7 +159,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
               }}
             />
             <CFormInput
-              id="floatingInput"
+              name="model"
               floatingLabel="Vehicle Model"
               floatingClassName="mb-3"
               type="text"
@@ -185,7 +173,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
               }}
             />
             <CFormInput
-              id="floatingNumber"
+              name="year"
               floatingLabel="Vehicle Year"
               floatingClassName="mb-3"
               type="number"
@@ -210,7 +198,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
             />
 
             <CFormInput
-              id="floatingInput"
+              name="regisNumber"
               floatingLabel="Vehicle Registration Number"
               floatingClassName="mb-3"
               type="text"
@@ -224,7 +212,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
             />
 
             <CFormSelect
-              id="floatingSelect"
+              name="type"
               floatingLabel="Vehicle Type"
               floatingClassName="mb-3"
               required
@@ -242,7 +230,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
             />
 
             <CFormInput
-              id="floatingInput"
+              name="capacity"
               floatingLabel="Vehicle Capacity"
               floatingClassName="mb-3"
               type="number"

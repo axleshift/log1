@@ -33,7 +33,6 @@ import { cilPlus } from '@coreui/icons'
 import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
 import VehicleTableUpdate from '../../../components/vehicleTable/vehicleTableUpdate'
-import Toast from '../../../components/toast/Toast'
 import { detectOverflow } from '@popperjs/core'
 import _nav from './../../../_nav'
 
@@ -96,7 +95,6 @@ const vehicleManagement = () => {
 
   return (
     <div>
-      <Toast toast={toast} />
       <h1 style={{ textAlign: 'center' }}>Vehicle Management</h1>
       <CContainer fluid>
         <CCol>
@@ -123,9 +121,8 @@ const vehicleManagement = () => {
             <CModalBody>
               <CForm>
                 <CFormInput
-                  id="floatingInput"
                   floatingLabel="Vehicle ID"
-                  className="mb-3"
+                  name="idNum"
                   type="text"
                   placeholder="Enter ID"
                   required
@@ -135,9 +132,8 @@ const vehicleManagement = () => {
                   disabled
                 />
                 <CFormInput
-                  id="floatingInput"
                   floatingLabel="Vehicle Brand"
-                  floatingClassName="mb-3"
+                  name="brand"
                   type="text"
                   placeholder="Enter brand"
                   text="Ex. Toyota/Nissan/Mitsubishi"
@@ -147,9 +143,8 @@ const vehicleManagement = () => {
                   onChange={(e) => setNewVehicle({ ...newVehicle, brand: e.target.value })}
                 />
                 <CFormInput
-                  id="floatingInput"
                   floatingLabel="Vehicle Model"
-                  floatingClassName="mb-3"
+                  name="model"
                   type="text"
                   placeholder="Enter model"
                   required
@@ -159,9 +154,8 @@ const vehicleManagement = () => {
                   onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
                 />
                 <CFormInput
-                  id="floatingNumber"
                   floatingLabel="Vehicle Year"
-                  floatingClassName="mb-3"
+                  name="year"
                   type="number"
                   required
                   min="1900"
@@ -182,9 +176,8 @@ const vehicleManagement = () => {
                 />
 
                 <CFormInput
-                  id="floatingInput"
                   floatingLabel="Vehicle Registration Number"
-                  floatingClassName="mb-3"
+                  name="regisNumber"
                   type="text"
                   required
                   placeholder="Enter Registration Number"
@@ -194,9 +187,8 @@ const vehicleManagement = () => {
                 />
 
                 <CFormSelect
-                  id="floatingSelect"
                   floatingLabel="Vehicle Type"
-                  floatingClassName="mb-3"
+                  name="type"
                   required
                   style={{ width: '100%', marginBottom: '10px' }}
                   value={newVehicle.type}
@@ -210,9 +202,8 @@ const vehicleManagement = () => {
                 />
 
                 <CFormInput
-                  id="floatingInput"
                   floatingLabel="Vehicle Capacity"
-                  floatingClassName="mb-3"
+                  name="capacity"
                   type="number"
                   label="Vehicle Capacity"
                   min={1}
@@ -236,9 +227,16 @@ const vehicleManagement = () => {
         </CCol>
       </CContainer>
       {/* ending of the vehicle registration Modal */}
-      <CContainer>
+
+      <CContainer
+        style={{
+          height: '500px',
+          overflowX: 'hidden',
+          textAlign: 'center',
+        }}
+      >
         {/* starting of the table  */}
-        <VehicleTableUpdate vehicle={vehicle} />
+        <VehicleTableUpdate key={vehicle._id} vehicle={vehicle} />
         {vehicle.length === 0 && (
           <CCol>
             <p
