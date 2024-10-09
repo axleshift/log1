@@ -62,6 +62,7 @@ const Login = () => {
                         type="email"
                         placeholder="Email"
                         autoComplete="email"
+                        id="email"
                         onChange={(e) => setEmail(e.target.value)}
                       />
                     </CInputGroup>
@@ -73,6 +74,7 @@ const Login = () => {
                         type="password"
                         placeholder="Password"
                         autoComplete="current-password"
+                        id="password"
                         onChange={(e) => setPassword(e.target.value)}
                       />
                     </CInputGroup>

@@ -97,6 +97,7 @@ const Register = () => {
                     <CFormInput
                       placeholder="Name"
                       autoComplete="off"
+                      id="name"
                       value={data.name}
                       onChange={(e) => setData({ ...data, name: e.target.value })}
                     />
@@ -107,6 +108,7 @@ const Register = () => {
                       placeholder="Email"
                       autoComplete="off"
                       value={data.email}
+                      id="email"
                       onChange={(e) => setData({ ...data, email: e.target.value })}
                     />
                   </CInputGroup>
@@ -119,6 +121,7 @@ const Register = () => {
                       placeholder="Password"
                       autoComplete="off"
                       value={data.password}
+                      id="password"
                       onChange={(e) => setData({ ...data, password: e.target.value })}
                     />
                   </CInputGroup>
@@ -130,6 +133,7 @@ const Register = () => {
                       type="password"
                       placeholder="Repeat password"
                       autoComplete="off"
+                      id="repeatPassword"
                       value={data.repeatPassword}
                       onChange={(e) => setData({ ...data, repeatPassword: e.target.value })}
                     />
