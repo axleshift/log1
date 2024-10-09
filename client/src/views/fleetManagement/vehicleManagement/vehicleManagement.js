@@ -32,7 +32,7 @@ import { CIcon } from '@coreui/icons-react'
 import { cilPlus } from '@coreui/icons'
 import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
-import VehicleTableUpdate from '../../../components/vehicleTable/vehicleTableUpdate'
+import VehicleTableUpdate from '../../../components/vehicleTable/VehicleTableUpdate'
 import { detectOverflow } from '@popperjs/core'
 import _nav from './../../../_nav'
 
