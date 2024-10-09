@@ -22,10 +22,15 @@ const Login = () => {
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
   const navigate = useNavigate()
+  const [errorMessage, setErrorMessage] = useState(null)
 
   axios.defaults.withCredentials = true
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (!email || !password) {
+      setErrorMessage('Both fields are required.')
+      return
+    }
     axios
       .post('/api/users/login', { email, password })
       .then((res) => {
@@ -48,6 +53,7 @@ const Login = () => {
                   <CForm onSubmit={handleSubmit}>
                     <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
+                    {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
