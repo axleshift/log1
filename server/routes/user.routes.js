@@ -4,7 +4,7 @@ import varify from "../middleWare/auth.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
+router.post("/register", varify, registerUser);
 router.post("/login", loginUser);
 router.get("/dashboard", varify, getUser);
 router.get("/logout", userLogout);

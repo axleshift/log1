@@ -23,6 +23,7 @@ const Login = () => {
   const [password, setPassword] = useState()
   const navigate = useNavigate()
   const [errorMessage, setErrorMessage] = useState(null)
+  const baseUrl = import.meta.env.VITE_APP_API_URL
 
   axios.defaults.withCredentials = true
   const handleSubmit = (e) => {
@@ -32,15 +33,18 @@ const Login = () => {
       return
     }
     axios
-      .post('/api/users/login', { email, password })
+      .post(`${baseUrl}/api/users/login`, { email, password })
       .then((res) => {
         if (res.data.Login) {
+          const email = res.data.email
           navigate('/')
         } else {
           navigate('/login')
         }
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        setErrorMessage(err.response.data.message)
+      })
   }
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">

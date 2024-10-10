@@ -16,7 +16,7 @@ app.use(
         credentials: true,
     })
 );
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5057;
 app.use(express.json());
 app.use("/api/users", userRouter);
 app.use("/api/vehicle", vehicleRouter);

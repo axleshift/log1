@@ -44,7 +44,7 @@ export default defineConfig(() => {
       proxy: {
         // https://vitejs.dev/config/server-options.html
         '/api': {
-          target: 'http://localhost:5000',
+          target: 'http://localhost:5057',
         },
       },
     },

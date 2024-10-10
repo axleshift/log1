@@ -51,8 +51,8 @@ export const loginUser = async (req, res) => {
             name: user.name,
             email: user.email,
             Login: true,
-            // accessToken,
-            // refreshToken,
+            accessToken,
+            refreshToken,
         });
     } else {
         res.status(400).json({ Login: false, message: "Invalid credentials" });
