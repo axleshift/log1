@@ -1,12 +1,37 @@
 {
-  "scripts": {
-    "start": "concurrently \"cd client && npm start\" \"cd server && npm run dev\""
-  },
-  "dependencies": {
-    "express-async-handler": "^1.2.0"
-  },
-  "devDependencies": {
-    "concurrently": "^9.0.1",
-    "eslint": "^9.12.0"
-  }
+    "name": "@main/server",
+    "private": true,
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "production": "node index",
+        "dev": "nodemon index",
+        "prettier": "node_modules/prettier/bin/prettier.cjs ./ --write",
+        "lint": "prettier --write ."
+    },
+    "keywords": [],
+    "author": "The Freight Capsone Team (https://github.com/orgs/freight-capstone/people)",
+    "license": "CC-BY-NC-4.0",
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "blowfish-node": "^1.1.4",
+        "cookie-parser": "^1.0.0",
+        "cors": "^2.8.5",
+        "csrf": "^3.1.0",
+        "dotenv": "^16.4.5",
+        "express": "^4.21.0",
+        "express-validator": "^7.2.0",
+        "jsonwebtoken": "^9.0.2",
+        "mongodb": "^6.8.0",
+        "mongoose": "^8.6.3",
+        "pino": "^9.3.2",
+        "pino-http": "^10.3.0",
+        "pino-pretty": "^11.2.2"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.6",
+        "prettier": "^3.3.3"
+    },
+    "description": ""
 }
