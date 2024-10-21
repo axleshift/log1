@@ -33,10 +33,21 @@ import { cilPlus } from '@coreui/icons'
 import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
 import VehicleTableUpdate from '../../../components/vehicleTable/VehicleTableUpdate'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { detectOverflow } from '@popperjs/core'
 import _nav from './../../../_nav'
 
 const vehicleManagement = () => {
+  const navigate = useNavigate()
+  const user = useSelector((state) => state.user)
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+    }
+  }, [user, navigate])
+
   const [visible, setVisible] = useState(false)
   const [toast, setToast] = useState({
     visible: false,

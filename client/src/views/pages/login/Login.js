@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import axios from 'axios'
 import {
   CButton,
   CCard,
@@ -14,38 +15,54 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+
+const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057/api'
+
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true, // This is important for cookies
+})
 
 const Login = () => {
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
-  const [errorMessage, setErrorMessage] = useState(null)
-  const baseUrl = import.meta.env.VITE_APP_API_URL
+  const dispatch = useDispatch()
+  // const userData = useSelector((state) => state.user)
 
-  axios.defaults.withCredentials = true
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!email || !password) {
-      setErrorMessage('Both fields are required.')
-      return
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const response = await api.post('/user/login', { username, password })
+      console.log('Login successful:', response.data)
+      // Dispatch the user data to Redux store
+      dispatch({
+        type: 'set',
+        user: {
+          username: response.data.user.username,
+          role: response.data.user.role,
+        },
+      })
+
+      // Store the access token (you might want to use a more secure method in a real app)
+      localStorage.setItem('accessToken', response.data.accessToken)
+
+      navigate('/dashboard')
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message)
+      setError(error.response?.data?.message || 'An error occurred during login')
+    } finally {
+      setIsLoading(false)
     }
-    axios
-      .post(`${baseUrl}/api/users/login`, { email, password })
-      .then((res) => {
-        if (res.data.Login) {
-          const email = res.data.email
-          navigate('/')
-        } else {
-          navigate('/login')
-        }
-      })
-      .catch((err) => {
-        setErrorMessage(err.response.data.message)
-      })
   }
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -55,19 +72,21 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
+                    {error && <div className="text-danger mb-3">{error}</div>}
                     <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
-                    {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
                       <CFormInput
-                        type="email"
-                        placeholder="Email"
-                        autoComplete="email"
-                        id="email"
-                        onChange={(e) => setEmail(e.target.value)}
+                        type="text"
+                        placeholder="Username"
+                        autoComplete="off"
+                        id="Username"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                       />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
@@ -77,42 +96,28 @@ const Login = () => {
                       <CFormInput
                         type="password"
                         placeholder="Password"
-                        autoComplete="current-password"
+                        autoComplete="off"
                         id="password"
+                        required
+                        value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
-                        <CButton color="primary" className="px-4" type="submit">
-                          Login
+                        <CButton
+                          color="primary"
+                          className="px-4"
+                          type="submit"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? 'Logging in...' : 'Login'}
                         </CButton>
                       </CCol>
-                      {/* <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
-                        </CButton>
-                      </CCol> */}
                     </CRow>
                   </CForm>
                 </CCardBody>
               </CCard>
-              {/* <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
-                </CCardBody>
-              </CCard> */}
             </CCardGroup>
           </CCol>
         </CRow>

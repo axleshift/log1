@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react'
-// import useNavigate from 'react-router-dom'
-import { useSelector } from 'react-redux'
-
+import React, { useEffect } from 'react'
 // import classNames from 'classnames'
 
 // import {
@@ -52,37 +49,16 @@ import { useSelector } from 'react-redux'
 // import avatar4 from 'src/assets/images/avatars/4.jpg'
 // import avatar5 from 'src/assets/images/avatars/5.jpg'
 // import avatar6 from 'src/assets/images/avatars/6.jpg'
+import { useNavigate } from 'react-router-dom'
 
 // import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
 // import MainChart from './MainChart'
+import { useSelector } from 'react-redux'
 
 const Dashboard = () => {
-  const [message, setMessage] = useState()
   const navigate = useNavigate()
-  axios.defaults.withCredentials = true
-  useEffect(() => {
-    axios
-      .get('/api/users/dashboard')
-      .then((res) => {
-        if (res.data.valid) {
-          setMessage(res.data.message)
-        } else {
-          navigate('/login')
-        }
-      })
-      .catch((err) => console.log(err))
-  })
-  // const navigate = useNavigate()
-  // const user = useSelector((state) => state.auth)
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate('/login')
-  //   }
-  // }, [user, navigate])
+  const user = useSelector((state) => state.user)
 
   // const progressExample = [
   //   { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
@@ -207,7 +183,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <h1>my message: {message}</h1>
       <WidgetsDropdown className="mb-4" />
       {/* <CCard className="mb-4">
         <CCardBody>

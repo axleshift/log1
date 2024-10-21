@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import {
   CButton,
   CCard,
@@ -10,73 +12,76 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CFormSelect,
+  CAlert,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+
 const Register = () => {
-  // const [name, setName] = useState()
-  // const [email, setEmail] = useState()
-  // const [password, setPassword] = useState()
-  const [data, setData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    repeatPassword: '',
-  })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [repeatPassword, setRepeatPassword] = useState('')
+  const [role, setRole] = useState('user')
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const clearForm = () => {
+    setUsername('')
+    setEmail('')
+    setPassword('')
+    setRepeatPassword('')
+    setRole('user')
+  }
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setError(null)
+    setSuccess(null)
+    setIsLoading(true)
 
-    if (data.password !== data.repeatPassword) {
-      setError('Passwords do not match')
+    if (password !== repeatPassword) {
+      setError("Passwords don't match")
+      setIsLoading(false)
       return
     }
-    // Check for empty fields
-    if (!data.name || !data.email || !data.password) {
-      setError('All fields are required')
-      return
-    }
-    setLoading(true)
 
-    // axios
-    //   .post('/api/users/register', data)
-    //   .then((res) => {
-    //     if (res.data.success) {
-    //       navigate('/login')
-    //     } else {
-    //       setError(res.data.message)
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err)
-    //     setError(err.message || 'Registration failed')
-    //   })
-    //   .finally(() => {
-    //     setLoading(false)
-    //   })
-    axios
-      .post('/api/users/register', data)
-      .then((res) => {
-        console.log('Response data:', res.data)
-        if (res.status >= 200 && res.status < 300) {
-          navigate('/login')
-        } else {
-          setError(res.data.message)
-        }
+    try {
+      const response = await fetch('/api/user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+        },
+        body: JSON.stringify({ username, email, password, role }),
       })
-      .catch((err) => {
-        console.log(err)
-        setError(err.message || 'Registration failed')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Registration failed')
+      }
+
+      const data = await response.json()
+      dispatch({ type: 'REGISTER_SUCCESS', payload: data })
+      clearForm()
+      setSuccess('User registered successfully!')
+      setTimeout(() => {
+        setSuccess(null)
+      }, 3000) // Navigate after 3 seconds
+    } catch (err) {
+      setError(err.message)
+      dispatch({ type: 'REGISTER_FAILURE', payload: err.message })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleBack = () => {
+    navigate('/dashboard')
   }
 
   return (
@@ -87,19 +92,21 @@ const Register = () => {
             <CCard className="mx-4">
               <CCardBody className="p-4">
                 <CForm onSubmit={handleSubmit}>
-                  <h1>Register</h1>
-                  <p className="text-body-secondary">Create your account</p>
-                  {error && <p style={{ color: 'red' }}>{error}</p>}
+                  <h1>Register New User</h1>
+                  {error && <CAlert color="danger">{error}</CAlert>}
+                  {success && <CAlert color="success">{success}</CAlert>}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
                     <CFormInput
-                      placeholder="Name"
+                      placeholder="Username"
                       autoComplete="off"
-                      id="name"
-                      value={data.name}
-                      onChange={(e) => setData({ ...data, name: e.target.value })}
+                      id="Username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      disabled={isLoading}
                     />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
@@ -107,9 +114,12 @@ const Register = () => {
                     <CFormInput
                       placeholder="Email"
                       autoComplete="off"
-                      value={data.email}
-                      id="email"
-                      onChange={(e) => setData({ ...data, email: e.target.value })}
+                      id="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      type="email"
+                      disabled={isLoading}
                     />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
@@ -120,9 +130,11 @@ const Register = () => {
                       type="password"
                       placeholder="Password"
                       autoComplete="off"
-                      value={data.password}
-                      id="password"
-                      onChange={(e) => setData({ ...data, password: e.target.value })}
+                      id="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
                     />
                   </CInputGroup>
                   <CInputGroup className="mb-4">
@@ -133,16 +145,43 @@ const Register = () => {
                       type="password"
                       placeholder="Repeat password"
                       autoComplete="off"
-                      id="repeatPassword"
-                      value={data.repeatPassword}
-                      onChange={(e) => setData({ ...data, repeatPassword: e.target.value })}
+                      id="RepeatPassword"
+                      value={repeatPassword}
+                      onChange={(e) => setRepeatPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
                     />
                   </CInputGroup>
-                  <div className="d-grid">
-                    <CButton color="success" type="submit" disabled={loading}>
-                      {loading ? 'Creating Account...' : 'Create Account'}
-                    </CButton>
-                  </div>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>Role</CInputGroupText>
+                    <CFormSelect
+                      id="Role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      disabled={isLoading}
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                      <option value="Manager">Manager</option>
+                    </CFormSelect>
+                  </CInputGroup>
+                  <CButton color="success" type="submit" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <CSpinner size="sm" /> Loading...
+                      </>
+                    ) : (
+                      'Create'
+                    )}
+                  </CButton>
+                  <CButton
+                    color="secondary"
+                    className="ms-2"
+                    onClick={handleBack}
+                    disabled={isLoading}
+                  >
+                    Back
+                  </CButton>
                 </CForm>
               </CCardBody>
             </CCard>
