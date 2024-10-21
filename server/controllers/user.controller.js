@@ -1,55 +1,4 @@
-// import User from "../models/user.models.js";
-// import mongoose from "mongoose";
-// import bcrypt from "bcrypt";
-// import jwt from "jsonwebtoken";
-
-// export const register = async (req, res) => {
-//     try {
-//         const { username, email, password, role } = req.body;
-//         if (!username || !email || !password || !role) {
-//             return res.status(400).json({ message: "All fields are required" });
-//         }
-//         if (password.length < 6) {
-//             return res.status(400).json({ message: "Password must be at least 6 characters long" });
-//         }
-//         if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-//             return res.status(400).json({ message: "Invalid email address" });
-//         }
-//         const existingUser = await User.findOne({ email });
-//         if (existingUser) {
-//             return res.status(400).json({ message: "User already exists" });
-//         }
-//         const salt = await bcrypt.genSalt(10);
-//         const hashedPassword = await bcrypt.hash(password, salt);
-//         const user = new User({ username, email, password: hashedPassword });
-//         await user.save();
-//         res.status(201).json({ message: "User registered successfully" });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
-
-// export const login = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-//         if (!email || !password) {
-//             return res.status(400).json({ message: "All fields are required" });
-//         }
-//         const user = await User.findOne({ email });
-//         if (!user) {
-//             return res.status(400).json({ message: "User does not exist" });
-//         }
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch) {
-//             return res.status(400).json({ message: "Invalid credentials" });
-//         }
-//         res.status(200).json({ message: "Login successful", user });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
 import User from "../models/user.models.js";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -135,17 +84,45 @@ export const login = async (req, res) => {
 };
 
 // In your user controller
+// export const logout = async (req, res) => {
+//     req.session.destroy((err) => {
+//         if (err) {
+//             return res.status(500).json({ message: "Could not log out, please try again" });
+//         }
+
+//         // Clear the cookies
+//         res.clearCookie("connect.sid"); // Clear the session ID cookie
+//         // Clear any other cookies you might have set
+//         res.clearCookie("refreshToken");
+
+//         res.status(200).json({ message: "Logged out successfully" });
+//     });
+// };
+
 export const logout = async (req, res) => {
     req.session.destroy((err) => {
         if (err) {
+            console.error("Session destruction error:", err);
             return res.status(500).json({ message: "Could not log out, please try again" });
         }
 
-        // Clear the cookies
-        res.clearCookie("connect.sid"); // Clear the session ID cookie
-        // Clear any other cookies you might have set
-        res.clearCookie("refreshToken");
+        // Clear the session cookie
+        res.clearCookie("connect.sid", {
+            path: "/",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
 
+        // Clear the access token cookie if you're using one
+        res.clearCookie("accessToken", {
+            path: "/",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
+
+        console.log("Cookies cleared");
         res.status(200).json({ message: "Logged out successfully" });
     });
 };

@@ -1,38 +1,58 @@
-import React, { lazy } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 
 const ProtectedRoute = ({ element: Element, isAdmin }) => {
-  const isAuthenticated = () => {
-    const token = localStorage.getItem('accessToken')
-    if (!token) return false
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthorized, setIsAuthorized] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-    try {
-      const decodedToken = jwtDecode(token)
-      const currentTime = Date.now() / 1000
-      return decodedToken.exp > currentTime
-    } catch (error) {
-      return false
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('accessToken')
+      if (!token) {
+        setIsAuthenticated(false)
+        setIsAuthorized(false)
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const decodedToken = jwtDecode(token)
+        const currentTime = Date.now() / 1000
+        if (decodedToken.exp > currentTime) {
+          setIsAuthenticated(true)
+          setIsAuthorized(isAdmin ? decodedToken.role === 'admin' : true)
+        } else {
+          // Token has expired
+          localStorage.removeItem('accessToken')
+          setIsAuthenticated(false)
+          setIsAuthorized(false)
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error)
+        setIsAuthenticated(false)
+        setIsAuthorized(false)
+      }
+      setIsLoading(false)
     }
+
+    checkAuth()
+    // Set up an interval to periodically check authentication status
+    const intervalId = setInterval(checkAuth, 60000) // Check every minute
+
+    return () => clearInterval(intervalId)
+  }, [isAdmin])
+
+  if (isLoading) {
+    return <div>Loading...</div> // Or a loading spinner
   }
 
-  const hasAdminRole = () => {
-    const token = localStorage.getItem('accessToken')
-    if (!token) return false
-
-    try {
-      const decodedToken = jwtDecode(token)
-      return decodedToken.role === 'admin'
-    } catch (error) {
-      return false
-    }
-  }
-
-  if (!isAuthenticated()) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  if (isAdmin && !hasAdminRole()) {
+  if (isAdmin && !isAuthorized) {
     return <Navigate to="/401" replace />
   }
 

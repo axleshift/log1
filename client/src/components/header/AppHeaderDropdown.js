@@ -13,7 +13,12 @@ import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057/api'
 
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+})
 const AppHeaderDropdown = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -24,24 +29,11 @@ const AppHeaderDropdown = () => {
   }, [user])
 
   const handleLogout = async () => {
-    console.log('Logging out...')
     try {
-      // Call the logout endpoint on your server
-      await axios.post('/api/user/logout')
-
-      // Clear the Redux store
-      dispatch({ type: 'set', user: {} })
-
-      // Remove the access token from localStorage
+      await api.post('/user/logout', {}, { withCredentials: true })
+      // Clear user from Redux store
+      dispatch({ type: 'clearUser' })
       localStorage.removeItem('accessToken')
-
-      // Clear all cookies
-      document.cookie.split(';').forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, '')
-          .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
-      })
-
       // Navigate to login page
       navigate('/login')
     } catch (error) {
