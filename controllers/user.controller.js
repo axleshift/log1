@@ -1,114 +1,151 @@
+// import User from "../models/user.models.js";
+// import mongoose from "mongoose";
+// import bcrypt from "bcrypt";
+// import jwt from "jsonwebtoken";
+
+// export const register = async (req, res) => {
+//     try {
+//         const { username, email, password, role } = req.body;
+//         if (!username || !email || !password || !role) {
+//             return res.status(400).json({ message: "All fields are required" });
+//         }
+//         if (password.length < 6) {
+//             return res.status(400).json({ message: "Password must be at least 6 characters long" });
+//         }
+//         if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+//             return res.status(400).json({ message: "Invalid email address" });
+//         }
+//         const existingUser = await User.findOne({ email });
+//         if (existingUser) {
+//             return res.status(400).json({ message: "User already exists" });
+//         }
+//         const salt = await bcrypt.genSalt(10);
+//         const hashedPassword = await bcrypt.hash(password, salt);
+//         const user = new User({ username, email, password: hashedPassword });
+//         await user.save();
+//         res.status(201).json({ message: "User registered successfully" });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
+// export const login = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+//         if (!email || !password) {
+//             return res.status(400).json({ message: "All fields are required" });
+//         }
+//         const user = await User.findOne({ email });
+//         if (!user) {
+//             return res.status(400).json({ message: "User does not exist" });
+//         }
+//         const isMatch = await bcrypt.compare(password, user.password);
+//         if (!isMatch) {
+//             return res.status(400).json({ message: "Invalid credentials" });
+//         }
+//         res.status(200).json({ message: "Login successful", user });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+import User from "../models/user.models.js";
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import User from "../models/user.model.js";
 
-export const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+export const register = async (req, res) => {
+    try {
+        const { username, email, password, role } = req.body;
+        if (!username || !email || !password || !role) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
-    if (!name || !email || !password) {
-        return res.status(400).json({ success: false, message: "All fields are required" });
-    }
-
-    // check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-        return res.status(400).json({ success: false, message: "User already exists" });
-    }
-
-    // hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    // create user
-    const user = await User.create({ name, email, password: hashedPassword });
-
-    if (user) {
-        res.status(201).json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            // token: generateToken(user._id),
-        });
-    } else {
-        res.status(400).json({ success: false, message: "Invalid user data" });
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username already exists. Please choose a different username." });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters long" });
+        }
+        if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+            return res.status(400).json({ message: "Invalid email address" });
+        }
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const user = new User({ username, email, password: hashedPassword, role, isActive: true });
+        await user.save();
+        res.status(201).json({ message: "User registered successfully" });
+    } catch (error) {
+        console.error("Registration error:", error);
+        res.status(500).json({ message: "An error occurred during registration" });
     }
 };
 
-export const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-    // check if user email
-    const user = await User.findOne({ email });
-    if (user && (await bcrypt.compare(password, user.password))) {
-        const accessToken = jwt.sign({ email: email }, process.env.JWT_ACCESTOKEN, {
-            expiresIn: "15m",
-        });
-        const refreshToken = jwt.sign({ email: email }, process.env.JWT_REFRESHTOKEN, {
-            expiresIn: "30d",
-        });
-        res.cookie("accessToken", accessToken, { maxAge: 900000 });
-        res.cookie("refreshToken", refreshToken, { maxAge: 2592000000, httpOnly: true, secure: true, sameSite: "strict" });
-        res.json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            Login: true,
+const generateToken = (user) => {
+    return jwt.sign(
+        { userId: user._id, username: user.username, role: user.role },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "1d" } // Set to expire in 1 day
+    );
+};
+
+export const login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ message: "User does not exist" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        const accessToken = generateToken(user);
+
+        // Store session information
+        req.session.userId = user._id;
+        req.session.username = user.username;
+        req.session.role = user.role;
+        req.session.email = user.email;
+
+        res.status(200).json({
+            message: "Login successful",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            },
             accessToken,
-            refreshToken,
         });
-    } else {
-        res.status(400).json({ Login: false, message: "Invalid credentials" });
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "An error occurred during login" });
     }
 };
-export const getUser = async (req, res) => {
-    return res.json({ valid: true, message: "User is valid" });
+
+// In your user controller
+export const logout = async (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: "Could not log out, please try again" });
+        }
+
+        // Clear the cookies
+        res.clearCookie("connect.sid"); // Clear the session ID cookie
+        // Clear any other cookies you might have set
+        res.clearCookie("refreshToken");
+
+        res.status(200).json({ message: "Logged out successfully" });
+    });
 };
-
-export const userLogout = (req, res) => {
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
-    res.json({ valid: false, message: "Logout succesfully" });
-};
-
-// const varify = (req, res, next) => {
-//     const accessToken = req.cookies.accessToken;
-//     if (renewToken(req, res)) {
-//         next();
-//     }
-//     if (!accessToken) {
-//     } else {
-//         jwt.verify(accessToken, process.env.JWT_ACCESTOKEN, (err, decoded) => {
-//             if (err) {
-//                 return res.json({ valid: false, message: "Invalid token" });
-//             } else {
-//                 req.email = decoded.email;
-//                 next();
-//             }
-//         });
-//     }
-// };
-
-// const renewToken = (req, res) => {
-//     const refreshToken = req.cookies.refreshToken;
-//     let exist = false;
-//     if (!refreshToken) {
-//         return res.json({ valid: false, message: "No refresh token" });
-//     } else {
-//         jwt.verify(refreshToken, process.env.JWT_REFRESHTOKEN, (err, decoded) => {
-//             if (err) {
-//                 return res.json({ valid: false, message: "Invalid Refresh token" });
-//             } else {
-//                 const accessToken = jwt.sign({ email: email }, process.env.JWT_ACCESTOKEN, {
-//                     expiresIn: "1m",
-//                 });
-//                 res.cookie("accessToken", accessToken, { maxAge: 60000 });
-//                 exist = true;
-//             }
-//         });
-//     }
-//     return exist;
-// };
-// generate token
-// function generateToken(id) {
-//     return jwt.sign({ id }, process.env.JWT_SECRET, {
-//         expiresIn: "30d",
-//     });
-// }
