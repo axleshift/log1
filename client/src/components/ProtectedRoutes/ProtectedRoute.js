@@ -9,7 +9,7 @@ const ProtectedRoute = ({ element: Element, isAdmin }) => {
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('accessToken')
+      const token = sessionStorage.getItem('accessToken')
       if (!token) {
         setIsAuthenticated(false)
         setIsAuthorized(false)
@@ -25,7 +25,7 @@ const ProtectedRoute = ({ element: Element, isAdmin }) => {
           setIsAuthorized(isAdmin ? decodedToken.role === 'admin' : true)
         } else {
           // Token has expired
-          localStorage.removeItem('accessToken')
+          sessionStorage.removeItem('accessToken')
           setIsAuthenticated(false)
           setIsAuthorized(false)
         }

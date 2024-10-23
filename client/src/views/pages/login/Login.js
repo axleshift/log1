@@ -42,6 +42,8 @@ const Login = () => {
     try {
       const response = await api.post('/user/login', { username, password })
       console.log('Login successful:', response.data)
+      sessionStorage.setItem('accessToken', response.data.accessToken)
+      sessionStorage.setItem('user', JSON.stringify(response))
       // Dispatch the user data to Redux store
       dispatch({
         type: 'set',
@@ -50,9 +52,6 @@ const Login = () => {
           role: response.data.user.role,
         },
       })
-
-      // Store the access token (you might want to use a more secure method in a real app)
-      localStorage.setItem('accessToken', response.data.accessToken)
 
       navigate('/dashboard')
     } catch (error) {

@@ -22,18 +22,16 @@ const api = axios.create({
 const AppHeaderDropdown = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const user = useSelector((state) => state.user)
-
-  useEffect(() => {
-    console.log('Current user state:', user)
-  }, [user])
+  // const user = useSelector((state) => state.user)
+  const user = JSON.parse(sessionStorage.getItem('user'))
 
   const handleLogout = async () => {
     try {
       await api.post('/user/logout', {}, { withCredentials: true })
       // Clear user from Redux store
       dispatch({ type: 'clearUser' })
-      localStorage.removeItem('accessToken')
+      sessionStorage.removeItem('accessToken')
+      sessionStorage.removeItem('user')
       // Navigate to login page
       navigate('/login')
     } catch (error) {
@@ -54,9 +52,9 @@ const AppHeaderDropdown = () => {
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
         <CDropdownItem>
           <CIcon icon={cilUser} className="me-2" />
-          {user.username ? user.username : 'User'} (Role: {user.role || 'N/A'})
+          {user.data.user.username} (Role: {user.data.user.role})
         </CDropdownItem>
-        {user.role === 'admin' && (
+        {user.data.user.role === 'admin' && (
           <CDropdownItem onClick={handleRegisterClick}>
             <CIcon icon={cilUserPlus} className="me-2" />
             Register New User
