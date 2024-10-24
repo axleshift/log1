@@ -11,9 +11,9 @@ import { cilAccountLogout, cilUser, cilUserPlus } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import axios from 'axios'
-const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057/api'
+const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057'
 
 const api = axios.create({
   baseURL: API_URL,
@@ -27,7 +27,7 @@ const AppHeaderDropdown = () => {
 
   const handleLogout = async () => {
     try {
-      await api.post('/user/logout', {}, { withCredentials: true })
+      await api.post('/api/user/logout', {}, { withCredentials: true })
       // Clear user from Redux store
       dispatch({ type: 'clearUser' })
       sessionStorage.removeItem('accessToken')

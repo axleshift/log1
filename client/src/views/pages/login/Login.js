@@ -18,7 +18,7 @@ import { cilLockLocked, cilUser } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 
-const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057/api'
+const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057'
 
 const api = axios.create({
   baseURL: API_URL,
@@ -32,7 +32,6 @@ const Login = () => {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  // const userData = useSelector((state) => state.user)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -40,7 +39,7 @@ const Login = () => {
     setError('')
 
     try {
-      const response = await api.post('/user/login', { username, password })
+      const response = await api.post('/api/user/login', { username, password })
       console.log('Login successful:', response.data)
       sessionStorage.setItem('accessToken', response.data.accessToken)
       sessionStorage.setItem('user', JSON.stringify(response))

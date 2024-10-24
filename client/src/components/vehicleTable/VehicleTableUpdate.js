@@ -289,12 +289,12 @@ const VehicleTableUpdate = ({ vehicle }) => {
       {/* table start */}
       {/* Search bar */}
       <CContainer
+        className="mb-3"
         style={{
-          textAlign: 'center',
           position: 'sticky',
           top: 0,
           zIndex: 1,
-          height: '50px',
+          width: '70%',
         }}
       >
         <CInputGroup className="mb-3">
@@ -311,6 +311,7 @@ const VehicleTableUpdate = ({ vehicle }) => {
           height: '500px',
           overflowX: 'hidden',
           textAlign: 'center',
+          overflowY: 'scroll',
         }}
       >
         <CTable

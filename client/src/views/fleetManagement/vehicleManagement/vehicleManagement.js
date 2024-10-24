@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   CContainer,
-  CDropdown,
-  CDropdownMenu,
-  CDropdownItem,
   CCol,
-  CDropdownToggle,
-  CRow,
   CButton,
   CFormInput,
   CForm,
@@ -16,38 +11,17 @@ import {
   CModalFooter,
   CModal,
   CModalTitle,
-  CTab,
-  CTableRow,
-  CTableHeaderCell,
-  CTable,
-  CTableHead,
-  CTableBody,
-  CTableDataCell,
-  CButtonGroup,
-  CTableCaption,
-  CToast,
-  CToaster,
 } from '@coreui/react'
 import { CIcon } from '@coreui/icons-react'
 import { cilPlus } from '@coreui/icons'
 import { Link } from 'react-router-dom'
 import { useVehicleStore } from '../../../components/store/vehichle'
 import VehicleTableUpdate from '../../../components/vehicleTable/VehicleTableUpdate'
-import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 import { detectOverflow } from '@popperjs/core'
 import _nav from './../../../_nav'
-import Alerts from './../../notifications/alerts/Alerts'
 
 const vehicleManagement = () => {
-  const navigate = useNavigate()
-
   const [visible, setVisible] = useState(false)
-  const [toast, setToast] = useState({
-    visible: false,
-    title: '',
-    body: '',
-  })
 
   const randomId = Math.floor(Math.random() * 10000000000).toString()
   const [newVehicle, setNewVehicle] = useState({
@@ -232,13 +206,6 @@ const vehicleManagement = () => {
       </CContainer>
       {/* ending of the vehicle registration Modal */}
 
-      {/* <CContainer
-        style={{
-          height: '500px',
-          overflowX: 'hidden',
-          textAlign: 'center',
-        }}
-      > */}
       {/* starting of the table  */}
       <VehicleTableUpdate key={vehicle._id} vehicle={vehicle} />
 
@@ -251,6 +218,7 @@ const vehicleManagement = () => {
               alignItems: 'center',
             }}
           >
+            {/* if the table have 0 data show this */}
             No Vehicles found&nbsp;{' '}
             <Link color="primary" onClick={() => setVisible(true)}>
               Add Vehicle
@@ -258,7 +226,6 @@ const vehicleManagement = () => {
           </p>
         </CCol>
       )}
-      {/* </CContainer> */}
       {/* ending of the table  */}
     </div>
   )
