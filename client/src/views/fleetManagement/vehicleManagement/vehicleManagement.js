@@ -37,16 +37,10 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { detectOverflow } from '@popperjs/core'
 import _nav from './../../../_nav'
+import Alerts from './../../notifications/alerts/Alerts'
 
 const vehicleManagement = () => {
   const navigate = useNavigate()
-  const user = useSelector((state) => state.user)
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/login')
-    }
-  }, [user, navigate])
 
   const [visible, setVisible] = useState(false)
   const [toast, setToast] = useState({
@@ -74,7 +68,6 @@ const vehicleManagement = () => {
       )
     ) {
       alert('Vehicle Registration Number all ready exist')
-
       return
     }
 
@@ -239,32 +232,33 @@ const vehicleManagement = () => {
       </CContainer>
       {/* ending of the vehicle registration Modal */}
 
-      <CContainer
+      {/* <CContainer
         style={{
           height: '500px',
           overflowX: 'hidden',
           textAlign: 'center',
         }}
-      >
-        {/* starting of the table  */}
-        <VehicleTableUpdate key={vehicle._id} vehicle={vehicle} />
-        {vehicle.length === 0 && (
-          <CCol>
-            <p
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              No Vehicles found&nbsp;{' '}
-              <Link color="primary" onClick={() => setVisible(true)}>
-                Add Vehicle
-              </Link>
-            </p>
-          </CCol>
-        )}
-      </CContainer>
+      > */}
+      {/* starting of the table  */}
+      <VehicleTableUpdate key={vehicle._id} vehicle={vehicle} />
+
+      {vehicle.length === 0 && (
+        <CCol>
+          <p
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            No Vehicles found&nbsp;{' '}
+            <Link color="primary" onClick={() => setVisible(true)}>
+              Add Vehicle
+            </Link>
+          </p>
+        </CCol>
+      )}
+      {/* </CContainer> */}
       {/* ending of the table  */}
     </div>
   )

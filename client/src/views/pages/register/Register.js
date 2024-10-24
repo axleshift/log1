@@ -55,7 +55,7 @@ const Register = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+          Authorization: sessionStorage.getItem('accessToken'),
         },
         body: JSON.stringify({ username, email, password, role }),
       })
@@ -162,7 +162,7 @@ const Register = () => {
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
-                      <option value="Manager">Manager</option>
+                      <option value="manager">Manager</option>
                     </CFormSelect>
                   </CInputGroup>
                   <CButton color="success" type="submit" disabled={isLoading}>

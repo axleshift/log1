@@ -13,12 +13,16 @@ import {
   CFormInput,
   CForm,
   CFormSelect,
+  CInputGroup,
+  CInputGroupText,
 } from '@coreui/react'
 import { useVehicleStore } from '../../components/store/vehichle'
 import { useState } from 'react'
 // the whole table of vehicles with 2 buttons for update and delete
 const VehicleTableUpdate = ({ vehicle }) => {
   // geting the delete vehicle function from the store.js
+
+  const user = JSON.parse(sessionStorage.getItem('user'))
 
   const { deleteVehicle, updateVehicle } = useVehicleStore()
 
@@ -110,12 +114,32 @@ const VehicleTableUpdate = ({ vehicle }) => {
         >
           Update
         </CButton>
-        <CButton color="danger" onClick={() => handleDeleteVehicle(vehicle._id)}>
-          Delete
-        </CButton>
+        {/* if the user's role is manager, show the delete button */}
+        {user.data.user.role === 'manager' && (
+          <CButton color="danger" onClick={() => handleDeleteVehicle(vehicle._id)}>
+            Delete
+          </CButton>
+        )}
       </CButtonGroup>
     ),
   }))
+
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredItems = items.filter((items) => {
+    const searchTerms = searchQuery.toLowerCase().split(' ')
+    return searchTerms.every((term) => {
+      return (
+        items.idNum.toLowerCase().includes(term) ||
+        items.brand.toLowerCase().includes(term) ||
+        items.model.toLowerCase().includes(term) ||
+        items.year.toString().includes(term) ||
+        items.regisNumber.toLowerCase().includes(term) ||
+        items.type.toLowerCase().includes(term) ||
+        items.capacity.toString().includes(term)
+      )
+    })
+  })
 
   return (
     <CContainer>
@@ -263,20 +287,48 @@ const VehicleTableUpdate = ({ vehicle }) => {
 
       {/* this is my vehicle table */}
       {/* table start */}
-      <CTable
-        striped
-        columns={columns}
-        items={items}
-        tableHeadProps={{
-          style: {
-            textAlign: 'center',
-            position: 'sticky',
-            top: 0,
-            backgroundColor: '#fff',
-            zIndex: 1,
-          },
+      {/* Search bar */}
+      <CContainer
+        style={{
+          textAlign: 'center',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          height: '50px',
         }}
-      />
+      >
+        <CInputGroup className="mb-3">
+          <CFormInput
+            type="text"
+            placeholder="Search vehicles"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </CInputGroup>
+      </CContainer>
+      <CContainer
+        style={{
+          height: '500px',
+          overflowX: 'hidden',
+          textAlign: 'center',
+        }}
+      >
+        <CTable
+          striped
+          columns={columns}
+          items={filteredItems}
+          tableHeadProps={{
+            style: {
+              textAlign: 'center',
+              position: 'sticky',
+              top: 0,
+              backgroundColor: '#fff',
+              zIndex: 1,
+            },
+          }}
+        />
+      </CContainer>
+
       {/* table ends */}
     </CContainer>
   )
