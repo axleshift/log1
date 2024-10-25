@@ -1,6 +1,7 @@
 import User from "../models/user.models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import cookie from "cookie";
 
 export const register = async (req, res) => {
     try {
@@ -67,6 +68,15 @@ export const login = async (req, res) => {
         req.session.role = user.role;
         req.session.email = user.email;
 
+        // Set cookie with validated and sanitized fields
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        };
+        res.cookie("connect.sid", req.sessionID, cookieOptions);
+        res.cookie("accessToken", accessToken, cookieOptions);
+
         res.status(200).json({
             message: "Login successful",
             user: {
@@ -83,46 +93,30 @@ export const login = async (req, res) => {
     }
 };
 
-// In your user controller
-// export const logout = async (req, res) => {
-//     req.session.destroy((err) => {
-//         if (err) {
-//             return res.status(500).json({ message: "Could not log out, please try again" });
-//         }
-
-//         // Clear the cookies
-//         res.clearCookie("connect.sid"); // Clear the session ID cookie
-//         // Clear any other cookies you might have set
-//         res.clearCookie("refreshToken");
-
-//         res.status(200).json({ message: "Logged out successfully" });
-//     });
-// };
-
 export const logout = async (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error("Session destruction error:", err);
-            return res.status(500).json({ message: "Could not log out, please try again" });
-        }
+    try {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error("Session destruction error:", err);
+                return res.status(500).json({ message: "Could not log out, please try again" });
+            }
 
-        // Clear the session cookie
-        res.clearCookie("connect.sid", {
-            path: "/",
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            // Clear the session cookie with validated and sanitized fields
+            const cookieOptions = {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+            };
+            res.clearCookie("connect.sid", cookieOptions);
+
+            // Clear the access token cookie if you're using one
+            res.clearCookie("accessToken", cookieOptions);
+
+            console.log("Cookies cleared");
+            res.status(200).json({ message: "Logged out successfully" });
         });
-
-        // Clear the access token cookie if you're using one
-        res.clearCookie("accessToken", {
-            path: "/",
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-        });
-
-        console.log("Cookies cleared");
-        res.status(200).json({ message: "Logged out successfully" });
-    });
+    } catch (err) {
+        console.error("Error logging out:", err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 };

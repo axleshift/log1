@@ -39,7 +39,7 @@ const Login = () => {
     setError('')
 
     try {
-      const response = await api.post('/api/user/login', { username, password })
+      const response = await api.post('/api/v1/user/login', { username, password })
       console.log('Login successful:', response.data)
       sessionStorage.setItem('accessToken', response.data.accessToken)
       sessionStorage.setItem('user', JSON.stringify(response))

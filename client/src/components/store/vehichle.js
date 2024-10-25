@@ -1,5 +1,14 @@
 /* eslint-disable prettier/prettier */
+
 import { create } from 'zustand'
+// import axios from 'axios'
+
+// const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057'
+
+// const api = axios.create({
+//   baseURL: API_URL,
+//   withCredentials: true,
+// })
 
 export const useVehicleStore = create((set) => ({
   vehicle: [],
@@ -16,7 +25,7 @@ export const useVehicleStore = create((set) => ({
     )
       return { success: false, message: 'All fields are required' }
 
-    const res = await fetch('/api/vehicle', {
+    const res = await fetch('/api/v1/vehicle', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,13 +38,13 @@ export const useVehicleStore = create((set) => ({
     return { success: true, message: 'Vehicle created successfully' }
   },
   fetchVehicles: async () => {
-    const res = await fetch('/api/vehicle')
+    const res = await fetch('/api/v1/vehicle')
     const data = await res.json()
     set({ vehicle: data.data })
   },
 
   deleteVehicle: async (vid) => {
-    const res = await fetch(`/api/vehicle/${vid}`, {
+    const res = await fetch(`/api/v1/vehicle/${vid}`, {
       method: 'DELETE',
     })
     const data = await res.json()
@@ -48,7 +57,7 @@ export const useVehicleStore = create((set) => ({
   },
 
   updateVehicle: async (vid, updatedVehicle) => {
-    const res = await fetch(`/api/vehicle/${vid}`, {
+    const res = await fetch(`/api/v1/vehicle/${vid}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

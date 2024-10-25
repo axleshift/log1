@@ -27,7 +27,7 @@ const AppHeaderDropdown = () => {
 
   const handleLogout = async () => {
     try {
-      await api.post('/api/user/logout', {}, { withCredentials: true })
+      await api.post('/api/v1/user/logout', {}, { withCredentials: true })
       // Clear user from Redux store
       dispatch({ type: 'clearUser' })
       sessionStorage.removeItem('accessToken')
