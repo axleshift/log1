@@ -280,7 +280,7 @@ const DriverManagement = () => {
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell>ID</CTableHeaderCell>
-            <CTableHeaderCell>Driver's name</CTableHeaderCell>
+            <CTableHeaderCell>Driver&apos;s name</CTableHeaderCell>
             <CTableHeaderCell>Email</CTableHeaderCell>
             <CTableHeaderCell>Phone</CTableHeaderCell>
             <CTableHeaderCell>Address</CTableHeaderCell>
