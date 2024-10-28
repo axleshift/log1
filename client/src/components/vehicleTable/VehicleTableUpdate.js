@@ -18,11 +18,14 @@ import {
 } from '@coreui/react'
 import { useVehicleStore } from '../../components/store/vehichle'
 import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
 // the whole table of vehicles with 2 buttons for update and delete
 const VehicleTableUpdate = ({ vehicle }) => {
   // geting the delete vehicle function from the store.js
 
   const user = JSON.parse(sessionStorage.getItem('user'))
+  const adminRoles = ['manager', 'admin']
 
   const { deleteVehicle, updateVehicle } = useVehicleStore()
 
@@ -112,12 +115,12 @@ const VehicleTableUpdate = ({ vehicle }) => {
             setVisible(true)
           }}
         >
-          Update
+          <FontAwesomeIcon icon={faPenToSquare} />
         </CButton>
-        {/* if the user's role is manager, show the delete button */}
-        {user.data.user.role === 'manager' && (
+        {/* if the user's role is manager and admin, show the delete button */}
+        {adminRoles.includes(user.data.user.role) && (
           <CButton color="danger" onClick={() => handleDeleteVehicle(vehicle._id)}>
-            Delete
+            <FontAwesomeIcon icon={faTrash} />
           </CButton>
         )}
       </CButtonGroup>
@@ -298,6 +301,10 @@ const VehicleTableUpdate = ({ vehicle }) => {
         }}
       >
         <CInputGroup className="mb-3">
+          {/* Search icon */}
+          <CInputGroupText>
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </CInputGroupText>
           <CFormInput
             type="text"
             placeholder="Search vehicles"

@@ -9,9 +9,9 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const vehicleManagement = React.lazy(
   () => import('./views/fleetManagement/vehicleManagement/vehicleManagement'),
 )
-// const DriverManagement = React.lazy(
-//   () => import('./views/fleetManagement/driverManagement/DriverManagement'),
-// )
+const DriverManagement = React.lazy(
+  () => import('./views/fleetManagement/driverManagement/DriverManagement'),
+)
 // const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 // const Cards = React.lazy(() => import('./views/base/cards/Cards'))
 // const Carousels = React.lazy(() => import('./views/base/carousels/Carousels'))
@@ -69,11 +69,11 @@ const routes = [
     name: 'Vehicle Management',
     element: vehicleManagement,
   },
-  // {
-  //   path: '/fleetManagement/DriverManagement',
-  //   name: 'Driver Management',
-  //   element: DriverManagement,
-  // },
+  {
+    path: '/fleetManagement/DriverManagement',
+    name: 'Driver Management',
+    element: DriverManagement,
+  },
   // { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
   // { path: '/base/cards', name: 'Cards', element: Cards },
   // { path: '/base/carousels', name: 'Carousel', element: Carousels },
