@@ -34,8 +34,6 @@ app.use(
 
 //Routes
 app.use("/api/v1/", userRouter);
-// app.use("/api/vehicle", protectRoute, vehicleRouter);
-// app.use("/api/driver", protectRoute, driverRouter);
 //Start server
 const PORT = process.env.PORT || 5057;
 app.listen(PORT, () => {

@@ -36,6 +36,14 @@ export const updateDriver = async (req, res) => {
     const { id } = req.params;
     const driver = req.body;
 
+    if (!driver.idNum || !driver.driverName || !driver.email || !driver.phone || !driver.address || !driver.licenseNumber) {
+        return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+    const existingDriver = await Driver.findOne({ licenseNumber: driver.licenseNumber, _id: { $ne: id } });
+    if (existingDriver) {
+        return res.status(400).json({ success: false, message: "Driver already exists" });
+    }
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ success: false, message: "Driver not found" });
     }
