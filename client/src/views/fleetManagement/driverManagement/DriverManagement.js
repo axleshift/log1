@@ -280,7 +280,7 @@ const DriverManagement = () => {
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell>ID</CTableHeaderCell>
-            <CTableHeaderCell>Driver&apos;s name</CTableHeaderCell>
+            <CTableHeaderCell>Drivers name</CTableHeaderCell>
             <CTableHeaderCell>Email</CTableHeaderCell>
             <CTableHeaderCell>Phone</CTableHeaderCell>
             <CTableHeaderCell>Address</CTableHeaderCell>
@@ -288,15 +288,15 @@ const DriverManagement = () => {
             <CTableHeaderCell>Actions</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
-        {drivers.length === 0 ? (
-          <CTableRow>
-            <CTableDataCell colSpan="7" style={{ textAlign: 'center' }}>
-              No drivers found
-            </CTableDataCell>
-          </CTableRow>
-        ) : (
-          <CTableBody>
-            {drivers.map((driver, index) => (
+        <CTableBody>
+          {drivers.length === 0 ? (
+            <CTableRow>
+              <CTableDataCell colSpan="7" style={{ textAlign: 'center' }}>
+                No drivers found
+              </CTableDataCell>
+            </CTableRow>
+          ) : (
+            drivers.map((driver, index) => (
               <CTableRow key={index}>
                 <CTableDataCell>{driver.idNum}</CTableDataCell>
                 <CTableDataCell>{driver.driverName}</CTableDataCell>
@@ -319,9 +319,9 @@ const DriverManagement = () => {
                   )}
                 </CTableDataCell>
               </CTableRow>
-            ))}
-          </CTableBody>
-        )}
+            ))
+          )}
+        </CTableBody>
       </CTable>
       <CModal
         visible={editModalVisible}
