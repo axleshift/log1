@@ -41,9 +41,9 @@ const AppSidebar = () => {
           {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} /> */}
           <CImage
             src="/src/assets/brand/Freight.png"
+            fluid
             className="sidebar-brand-full"
-            height={40}
-            width={200}
+            height={30}
           />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
         </CSidebarBrand>
