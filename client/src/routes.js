@@ -6,11 +6,17 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 // const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
 // // Base
+// const vehicleManagement = React.lazy(
+//   () => import('./views/fleetManagement/vehicleManagement/vehicleManagement'),
+// )
 const vehicleManagement = React.lazy(
   () => import('./views/fleetManagement/vehicleManagement/vehicleManagement'),
 )
 const DriverManagement = React.lazy(
-  () => import('./views/fleetManagement/driverManagement/DriverManagement'),
+  () => import('./views/fleetManagement/driverManagement/DriversManagement'),
+)
+const MaintenanceManagement = React.lazy(
+  () => import('./views/fleetManagement/maintenanace/MaintenanceManagement'),
 )
 // const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 // const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -64,8 +70,13 @@ const routes = [
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },
   { path: '/fleetManagement', name: 'Fleet Management', element: vehicleManagement, exact: true },
+  // {
+  //   path: '/fleetManagement/vehicleManagement',
+  //   name: 'Vehicle Management',
+  //   element: vehicleManagement,
+  // },
   {
-    path: '/fleetManagement/vehicleManagement',
+    path: '/fleetManagement/VehicleManagement',
     name: 'Vehicle Management',
     element: vehicleManagement,
   },
@@ -73,6 +84,11 @@ const routes = [
     path: '/fleetManagement/DriverManagement',
     name: 'Driver Management',
     element: DriverManagement,
+  },
+  {
+    path: '/fleetManagement/MaintenanceManagement',
+    name: 'Maintenance Management',
+    element: MaintenanceManagement,
   },
   // { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
   // { path: '/base/cards', name: 'Cards', element: Cards },
