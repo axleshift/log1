@@ -1,6 +1,7 @@
 import React from 'react'
 import AddMaintenanceInspaction from './ComponentsMaintenance/AddMaintenanceInspaction'
-import TableMaintenanceInspection from './ComponentsMaintenance/tableMaintenanceInspection'
+import TableMaintenanceInspection from './ComponentsMaintenance/TableMaintenanceInspection'
+
 const MaintenanceMangement = () => {
   return (
     <>

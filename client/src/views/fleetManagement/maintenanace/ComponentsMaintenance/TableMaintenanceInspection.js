@@ -9,7 +9,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 
-const tableMaintenanceInspection = () => {
+const TableMaintenanceInspection = () => {
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
@@ -56,4 +56,4 @@ const tableMaintenanceInspection = () => {
   )
 }
 
-export default tableMaintenanceInspection
+export default TableMaintenanceInspection
