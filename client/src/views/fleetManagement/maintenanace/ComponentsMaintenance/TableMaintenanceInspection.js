@@ -39,7 +39,10 @@ const TableMaintenanceInspection = () => {
         <CAccordion>
           {data.map((item) => (
             <CAccordionItem key={item._id}>
-              <CAccordionHeader>{item.inspector}</CAccordionHeader>
+              <CAccordionHeader>
+                {item.inspector} / {item.vehicleId.regisNumber} / {item.vehicleId.model} /
+                {item.status}
+              </CAccordionHeader>
               <CAccordionBody>
                 <CHeader>{item.vehicleId.regisNumber}</CHeader>
                 <CHeader>{item.status}</CHeader>
