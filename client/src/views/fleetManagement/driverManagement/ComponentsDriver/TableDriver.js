@@ -122,7 +122,8 @@ const TableDriver = () => {
           </CCol>
         </CRow>
       )}
-      {!loading && (
+
+      {filteredDrivers.length > 0 ? (
         <CAccordion className="m-2">
           {filteredDrivers.map((driver) => (
             <CAccordionItem key={driver._id}>
@@ -167,6 +168,8 @@ const TableDriver = () => {
             </CAccordionItem>
           ))}
         </CAccordion>
+      ) : (
+        <CHeader className="justify-content-center">0 results found</CHeader>
       )}
       {error && (
         <CAlert color="danger" className="text-center justify-content-center">

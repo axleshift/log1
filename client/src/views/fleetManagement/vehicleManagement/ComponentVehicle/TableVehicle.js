@@ -118,14 +118,7 @@ const TableVehicle = () => {
           </CInputGroupText>
         </CInputGroup>
       </CContainer>
-      {loading && (
-        <CRow className=" mt-5 d-flex justify-content-center ">
-          <CCol sm="12" md="8">
-            <CSpinner color="primary" />
-          </CCol>
-        </CRow>
-      )}
-      {!loading && (
+      {filteredVehicles.length > 0 ? (
         <CAccordion className="m-2">
           {filteredVehicles.map((vehicle) => (
             <CAccordionItem key={vehicle._id}>
@@ -152,7 +145,12 @@ const TableVehicle = () => {
                 <CHeader>
                   Status: {options.find((option) => option.value === vehicle.status).label}
                 </CHeader>
-                <CHeader>Driver: {vehicle.assignedDriver || 'not yet assigned'}</CHeader>
+                <CHeader>
+                  Driver:{' '}
+                  {vehicle.assignedDriver
+                    ? `${vehicle.assignedDriver.driverName} - ${vehicle.assignedDriver.licenseNumber}`
+                    : 'Not assigned'}
+                </CHeader>
                 <CHeader>Fuel Type: {vehicle.fuelType}</CHeader>
                 <CHeader>Current Mileage: {vehicle.currentMileage}</CHeader>
 
@@ -164,7 +162,10 @@ const TableVehicle = () => {
             </CAccordionItem>
           ))}
         </CAccordion>
+      ) : (
+        <CHeader className="justify-content-center">0 results found</CHeader>
       )}
+
       {error && (
         <CAlert color="danger" className="text-center justify-content-center">
           {error}

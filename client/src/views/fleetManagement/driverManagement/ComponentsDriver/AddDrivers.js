@@ -186,7 +186,7 @@ const AddDrivers = ({ vehicles }) => {
                   value={newDriver.assignedVehicle}
                   onChange={(e) => setNewDriver({ ...newDriver, assignedVehicle: e.target.value })}
                 >
-                  <option value="">Select Vehicle</option>
+                  <option value={null}>Select Vehicle</option>
                   {vehiclesOptions.map((vehicle) => (
                     <option key={vehicle._id} value={vehicle._id}>
                       {vehicle.brand} /{vehicle.model} /{vehicle.regisNumber}

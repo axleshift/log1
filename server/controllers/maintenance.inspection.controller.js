@@ -1,27 +1,103 @@
 import Vehicle from "../models/vehicle.models.js";
 import Maintenance from "../models/maintenance.inspection.models.js";
+import Driver from "../models/driver.models.js";
 import mongoose from "mongoose";
 
+// export const createMaintenanceInspection = async (req, res) => {
+//     try {
+//         const maintenance = new Maintenance(req.body);
+//         if (!maintenance.vehicleId || !maintenance.scheduledDate || !maintenance.inspector) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "All fields are required",
+//             });
+//         }
+//         await maintenance.save();
+
+//         res.status(201).json({
+//             success: true,
+//             data: maintenance,
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message,
+//         });
+//     }
+// };
+
 export const createMaintenanceInspection = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const maintenance = new Maintenance(req.body);
+
+        // Validate required fields
         if (!maintenance.vehicleId || !maintenance.scheduledDate || !maintenance.inspector) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required",
             });
         }
-        await maintenance.save();
+
+        // Check if scheduled date is today or past
+        const now = new Date();
+        const scheduledDate = new Date(maintenance.scheduledDate);
+
+        if (scheduledDate <= now) {
+            maintenance.status = "In Progress";
+
+            // Find and update vehicle
+            const vehicle = await Vehicle.findById(maintenance.vehicleId).session(session);
+            if (!vehicle) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Vehicle not found",
+                });
+            }
+
+            // Store current driver info
+            const currentDriver = vehicle.assignedDriver;
+
+            // Update vehicle status
+            vehicle.status = "inspection";
+            vehicle.assignedDriver = null;
+            await vehicle.save({ session });
+
+            // Update driver if exists
+            if (currentDriver) {
+                // Change this line - search by ID directly
+                const driver = await Driver.findById(currentDriver).session(session);
+                if (driver) {
+                    driver.assignedVehicle = null;
+                    await driver.save({ session });
+                }
+            }
+        }
+
+        // Save the maintenance record
+        await maintenance.save({ session });
+
+        // Commit the transaction
+        await session.commitTransaction();
 
         res.status(201).json({
             success: true,
             data: maintenance,
         });
     } catch (error) {
+        // Rollback transaction on error
+        await session.abortTransaction();
+
+        console.error("Error creating maintenance inspection:", error);
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message || "Error creating maintenance inspection",
         });
+    } finally {
+        // End the session
+        session.endSession();
     }
 };
 
@@ -148,7 +224,7 @@ export const updateMaintenanceInspection = async (req, res) => {
                 return obj[key] === true;
             });
         };
-        d;
+
         const isCompleted = areAllChecked(updates.visualInspection);
         const hasCheckedItems = isAnyChecked(updates.visualInspection);
 

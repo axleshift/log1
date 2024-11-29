@@ -39,7 +39,6 @@ const AddVehicle = () => {
     fuelType: '',
     currentMileage: '',
     status: 'available',
-    assignedDriver: '',
   }
   const [newVehicle, setNewVehicle] = useState(initialState)
 
@@ -70,12 +69,6 @@ const AddVehicle = () => {
       e.stopPropagation()
     }
     setValidated(true)
-
-    const vehicleData = { ...newVehicle }
-
-    if (vehicleData.assignedDriver === '') {
-      delete vehicleData.assignedDriver
-    }
 
     try {
       const response = await api.post('/api/v1/vehicle', newVehicle)

@@ -2,7 +2,7 @@ import Vehicle from "../models/vehicle.models.js";
 import mongoose from "mongoose";
 export const getVehicles = async (req, res) => {
     try {
-        const vehicles = await Vehicle.find({});
+        const vehicles = await Vehicle.find({}).populate("assignedDriver");
         res.status(200).json({ success: true, data: vehicles });
     } catch (error) {
         console.log("Error in fetching vehicle: ", error.message);

@@ -32,7 +32,7 @@ const vehicleSchema = new mongoose.Schema(
             required: true,
         },
         assignedDriver: {
-            type: mongoose.Schema.Types.String,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Driver",
             default: null,
         },

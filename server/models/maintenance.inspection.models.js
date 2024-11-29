@@ -107,8 +107,8 @@ maintenanceInspectionSchema.pre("save", async function (next) {
                 vehicle.status = "inspection";
                 vehicle.assignedDriver = null;
                 await vehicle.save();
-
-                const driver = await Driver.findOne(vehicle.licenseNumber);
+                const driver = await Driver.findOne({ licenseNumber: vehicle.licenseNumber });
+                // const driver = await Driver.findOne(vehicle.licenseNumber);
                 if (driver) {
                     driver.assignedVehicle = null;
                     await driver.save();
@@ -143,8 +143,8 @@ maintenanceInspectionSchema.statics.updatePendingMaintenances = async function (
                 vehicle.status = "inspection";
                 vehicle.assignedDriver = null;
                 await vehicle.save();
-
-                const driver = await Driver.findOne(vehicle.licenseNumber);
+                const driver = await Driver.findOne({ licenseNumber: vehicle.licenseNumber });
+                // const driver = await Driver.findOne(vehicle.licenseNumber);
                 if (driver) {
                     driver.assignedVehicle = null;
                     await driver.save();

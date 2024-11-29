@@ -179,7 +179,7 @@ const TableMaintenanceInspection = () => {
           ))}
         </CAccordion>
       ) : (
-        <CHeader>0 results found</CHeader>
+        <CHeader className="justify-content-center">0 results found</CHeader>
       )}
 
       {error && (
