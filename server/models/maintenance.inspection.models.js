@@ -93,25 +93,21 @@ const maintenanceInspectionSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
-// Pre-save middleware
+
 maintenanceInspectionSchema.pre("save", async function (next) {
     const now = new Date();
     if (this.scheduledDate <= now && this.status === "Pending") {
         this.status = "In Progress";
 
         try {
-            // Find and update vehicle
             const vehicle = await Vehicle.findById(this.vehicleId);
             if (vehicle) {
-                // Store driver name before updating vehicle
                 const driverName = vehicle.assignedDriver;
 
-                // Update vehicle
                 vehicle.status = "inspection";
                 vehicle.assignedDriver = null;
                 await vehicle.save();
 
-                // Update driver if exists
                 const driver = await Driver.findOne(vehicle.licenseNumber);
                 if (driver) {
                     driver.assignedVehicle = null;
@@ -126,7 +122,6 @@ maintenanceInspectionSchema.pre("save", async function (next) {
     next();
 });
 
-// Static method to update status of all pending maintenances
 maintenanceInspectionSchema.statics.updatePendingMaintenances = async function () {
     const now = new Date();
     try {
@@ -145,12 +140,10 @@ maintenanceInspectionSchema.statics.updatePendingMaintenances = async function (
                 const vehicle = maintenance.vehicleId;
                 const driverName = vehicle.assignedDriver;
 
-                // Update vehicle
                 vehicle.status = "inspection";
                 vehicle.assignedDriver = null;
                 await vehicle.save();
 
-                // Update driver if exists
                 const driver = await Driver.findOne(vehicle.licenseNumber);
                 if (driver) {
                     driver.assignedVehicle = null;
@@ -172,7 +165,6 @@ maintenanceInspectionSchema.index({ scheduledDate: 1, status: 1 });
 
 const Maintenance = mongoose.model("MaintenanceInspection", maintenanceInspectionSchema);
 
-// Set up periodic check (every 5 minutes)
 setInterval(
     async () => {
         try {
