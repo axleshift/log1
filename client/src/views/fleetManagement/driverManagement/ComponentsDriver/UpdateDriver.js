@@ -15,17 +15,19 @@ import {
   CModalFooter,
   CFormSelect,
   CModalTitle,
+  CForm,
 } from '@coreui/react'
 
 const UpdateDriver = (props) => {
   const [visible, setVisible] = useState(false)
   const [vehiclesOptions, setVehiclesOptions] = useState([])
+  const [validated, setValidated] = useState(false)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
-    withCredentials: true, // This is important for cookies
+    withCredentials: true,
   })
   const [updateDriver, setUpdateDriver] = useState({
     idNum: props.driver.idNum,
@@ -40,7 +42,7 @@ const UpdateDriver = (props) => {
 
   const fetchAvailableVehicles = async () => {
     try {
-      const response = await api.get('/api/v1/vehicle/available') // Update this endpoint
+      const response = await api.get('/api/v1/vehicle/available')
       setVehiclesOptions(response.data.data)
     } catch (error) {
       console.error('Error fetching vehicles:', error)
@@ -51,17 +53,22 @@ const UpdateDriver = (props) => {
     fetchAvailableVehicles()
   }, [])
 
-  const handleUpdateDriver = async () => {
+  const handleUpdateDriver = async (e) => {
     setLoading(true)
+    const form = e.currentTarget
+    if (form.checkValidity() === false) {
+      e.stopPropagation()
+    }
+    setValidated(true)
     const driverData = { ...updateDriver }
 
-    // If assignedVehicle is empty string, remove it from the request
     if (driverData.assignedVehicle === '') {
       delete driverData.assignedVehicle
     }
     try {
       await api.put(`/api/v1/driver/${props.driver._id}`, updateDriver)
       setVisible(false)
+      setValidated(false)
       fetchAvailableVehicles()
     } catch (error) {
       console.error('Error updating driver:', error)
@@ -80,28 +87,27 @@ const UpdateDriver = (props) => {
 
   return (
     <>
-      {loading ? (
-        <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
-      ) : (
-        <>
-          <CButton
-            color="primary"
-            variant="outline"
-            onClick={() => setVisible(true)}
-            className="me-2"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </CButton>
-          <CModal visible={visible} onClose={() => setVisible(false)}>
-            <CModalHeader>
-              <CModalTitle>Update Driver</CModalTitle>
-            </CModalHeader>
-            {error && (
-              <CAlert color="danger" className="m-3">
-                {error}
-              </CAlert>
-            )}
-            <CModalBody>
+      <>
+        <CButton
+          color="primary"
+          variant="outline"
+          disabled={loading}
+          onClick={() => setVisible(true)}
+          className="me-2"
+        >
+          {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />}
+        </CButton>
+        <CModal visible={visible} onClose={() => setVisible(false)}>
+          <CModalHeader>
+            <CModalTitle>Update Driver</CModalTitle>
+          </CModalHeader>
+          {error && (
+            <CAlert color="danger" className="m-3">
+              {error}
+            </CAlert>
+          )}
+          <CModalBody>
+            <CForm noValidate validated={validated}>
               <CFormInput
                 className="mb-3"
                 floatingLabel="ID Number"
@@ -138,14 +144,13 @@ const UpdateDriver = (props) => {
                 onChange={(e) => setUpdateDriver({ ...updateDriver, email: e.target.value })}
               />
               <CFormInput
-                type="tel"
+                type="phone"
                 className="mb-3"
                 floatingLabel="phone"
                 placeholder="phone"
                 id="phone"
                 label="Phone"
                 title="Please enter a valid phone number"
-                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
                 autoComplete="off"
                 value={updateDriver.phone}
                 required
@@ -214,31 +219,34 @@ const UpdateDriver = (props) => {
                     ))}
                   </CFormSelect>
                 ))}
-            </CModalBody>
-            <CModalFooter>
-              {loading && <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />}
-              <CButton
-                color="secondary"
-                variant="outline"
-                onClick={() => {
-                  setVisible(false)
-                  setError(null) // clear error message
-                  setUpdateDriver(props.driver) // reset updateDriver to original value
-                }}
-              >
-                Close
-              </CButton>
-              {loading ? (
-                <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
-              ) : (
-                <CButton color="success" variant="outline" onClick={handleUpdateDriver}>
-                  Save changes
-                </CButton>
-              )}
-            </CModalFooter>
-          </CModal>
-        </>
-      )}
+            </CForm>
+          </CModalBody>
+          <CModalFooter>
+            <CButton
+              color="secondary"
+              variant="outline"
+              disabled={loading}
+              onClick={() => {
+                setVisible(false)
+                setError(null)
+                setUpdateDriver(props.driver)
+                setValidated(false)
+              }}
+            >
+              {loading ? <CSpinner color="secondary" size="sm" /> : 'Close'}
+            </CButton>
+
+            <CButton
+              color="success"
+              variant="outline"
+              disabled={loading}
+              onClick={handleUpdateDriver}
+            >
+              {loading ? <CSpinner color="success" size="sm" /> : 'Save Changes'}
+            </CButton>
+          </CModalFooter>
+        </CModal>
+      </>
     </>
   )
 }

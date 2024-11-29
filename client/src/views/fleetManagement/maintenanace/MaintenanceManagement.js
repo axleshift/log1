@@ -1,13 +1,21 @@
 import React from 'react'
+import { CCard, CHeader, CCardBody, CContainer } from '@coreui/react'
 import AddMaintenanceInspaction from './ComponentsMaintenance/AddMaintenanceInspaction'
 import TableMaintenanceInspection from './ComponentsMaintenance/TableMaintenanceInspection'
 
 const MaintenanceMangement = () => {
   return (
     <>
-      <h1>Maintenance Management</h1>
-      <AddMaintenanceInspaction />
-      <TableMaintenanceInspection />
+      <CHeader className="text-center">Maintenance Management</CHeader>
+      <CContainer className="m-3">
+        <AddMaintenanceInspaction />
+      </CContainer>
+      <CCard>
+        <CHeader>Schedule List</CHeader>
+        <CCardBody className="md-3">
+          <TableMaintenanceInspection />
+        </CCardBody>
+      </CCard>
     </>
   )
 }

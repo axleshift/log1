@@ -156,7 +156,11 @@ const TableDriver = () => {
                   Status: {options.find((option) => option.value === driver.status).label}
                 </CHeader>
                 <CContainer className="d-flex justify-content-end mt-3">
-                  <UpdateDriver driver={driver} />
+                  {loading ? (
+                    <CSpinner color="primary" size="sm" />
+                  ) : (
+                    <UpdateDriver driver={driver} />
+                  )}
                   {adminRoles.includes(user.data.user.role) && <DeleteDriver driver={driver} />}
                 </CContainer>
               </CAccordionBody>

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from 'react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
@@ -13,6 +12,7 @@ import {
   CAlert,
   CFormInput,
   CFormSelect,
+  CForm,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -26,6 +26,7 @@ const AddDrivers = ({ vehicles }) => {
   const [error, setError] = useState(null)
   const [visible, setVisible] = useState(false)
   const [vehiclesOptions, setVehiclesOptions] = useState([])
+  const [validated, setValidated] = useState(false)
   const randomId = Math.floor(Math.random() * 1000000).toString()
   const initialState = {
     idNum: randomId,
@@ -40,7 +41,7 @@ const AddDrivers = ({ vehicles }) => {
   const [newDriver, setNewDriver] = useState(initialState)
   const fetchAvailableVehicles = async () => {
     try {
-      const response = await api.get('/api/v1/vehicle/available') // Update this endpoint
+      const response = await api.get('/api/v1/vehicle/available')
       setVehiclesOptions(response.data.data)
     } catch (error) {
       console.error('Error fetching vehicles:', error)
@@ -52,13 +53,17 @@ const AddDrivers = ({ vehicles }) => {
   }, [])
 
   const handleAddDriver = async (e) => {
-    e.preventDefault()
     setLoading(true)
     setError(null)
-    // Create a copy of the driver data
+    const form = e.currentTarget
+    if (form.checkValidity() === false) {
+      e.preDefault()
+      e.stopPropagation()
+    }
+    setValidated(true)
+
     const driverData = { ...newDriver }
 
-    // If assignedVehicle is empty string, remove it from the request
     if (driverData.assignedVehicle === '') {
       delete driverData.assignedVehicle
     }
@@ -68,6 +73,7 @@ const AddDrivers = ({ vehicles }) => {
       if (response.data.success) {
         alert('Driver added successfully')
         setNewDriver(initialState)
+        setValidated(false)
       } else {
         setError(response.data.message)
       }
@@ -81,7 +87,7 @@ const AddDrivers = ({ vehicles }) => {
   return (
     <>
       {loading ? (
-        <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
+        <CSpinner color="primary" size="sm" />
       ) : (
         <>
           <CButton color="primary" variant="outline" onClick={() => setVisible(true)}>
@@ -97,108 +103,121 @@ const AddDrivers = ({ vehicles }) => {
               </CAlert>
             )}
             <CModalBody>
-              <CFormInput
-                className="mb-3"
-                floatingLabel="ID Number"
-                placeholder="ID Number"
-                type="text"
-                id="idNum"
-                label="ID Number"
-                value={newDriver.idNum}
-                disabled
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="Name"
-                placeholder="Name"
-                type="text"
-                id="Name"
-                label="Name"
-                autoComplete="off"
-                required
-                value={newDriver.driverName}
-                onChange={(e) => setNewDriver({ ...newDriver, driverName: e.target.value })}
-              />
+              <CForm noValidate validated={validated}>
+                <CFormInput
+                  className="mb-3"
+                  floatingLabel="ID Number"
+                  placeholder="ID Number"
+                  type="text"
+                  id="idNum"
+                  label="ID Number"
+                  value={newDriver.idNum}
+                  disabled
+                />
+                <CFormInput
+                  className="mb-3"
+                  floatingLabel="Name"
+                  placeholder="Name"
+                  type="text"
+                  id="Name"
+                  label="Name"
+                  autoComplete="off"
+                  required
+                  value={newDriver.driverName}
+                  onChange={(e) => setNewDriver({ ...newDriver, driverName: e.target.value })}
+                />
 
-              <CFormInput
-                className="mb-3"
-                floatingLabel="email"
-                placeholder="Model"
-                type="email"
-                id="email"
-                label="Email"
-                autoComplete="off"
-                required
-                value={newDriver.email}
-                onChange={(e) => setNewDriver({ ...newDriver, email: e.target.value })}
-              />
-              <CFormInput
-                type="tel"
-                className="mb-3"
-                floatingLabel="phone"
-                placeholder="phone"
-                id="phone"
-                label="Phone"
-                title="Please enter a valid phone number"
-                pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                autoComplete="off"
-                value={newDriver.phone}
-                required
-                onChange={(e) => setNewDriver({ ...newDriver, phone: e.target.value })}
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="Address"
-                placeholder="Address"
-                type="text"
-                id="address"
-                label="Address"
-                autoComplete="off"
-                required
-                value={newDriver.address}
-                onChange={(e) => setNewDriver({ ...newDriver, address: e.target.value })}
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="License Number"
-                placeholder="License Number"
-                type="text"
-                id="licenseNumber"
-                label="License Number"
-                autoComplete="off"
-                required
-                value={newDriver.licenseNumber}
-                onChange={(e) => setNewDriver({ ...newDriver, licenseNumber: e.target.value })}
-              />
+                <CFormInput
+                  className="mb-3"
+                  floatingLabel="email"
+                  placeholder="Model"
+                  type="email"
+                  id="email"
+                  label="Email"
+                  autoComplete="off"
+                  required
+                  value={newDriver.email}
+                  onChange={(e) => setNewDriver({ ...newDriver, email: e.target.value })}
+                />
+                <CFormInput
+                  type="phone"
+                  className="mb-3"
+                  floatingLabel="phone"
+                  placeholder="phone"
+                  id="phone"
+                  label="Phone"
+                  title="Please enter a valid phone number"
+                  autoComplete="off"
+                  value={newDriver.phone}
+                  required
+                  onChange={(e) => setNewDriver({ ...newDriver, phone: e.target.value })}
+                />
+                <CFormInput
+                  className="mb-3"
+                  floatingLabel="Address"
+                  placeholder="Address"
+                  type="text"
+                  id="address"
+                  label="Address"
+                  autoComplete="off"
+                  required
+                  value={newDriver.address}
+                  onChange={(e) => setNewDriver({ ...newDriver, address: e.target.value })}
+                />
+                <CFormInput
+                  className="mb-3"
+                  floatingLabel="License Number"
+                  placeholder="License Number"
+                  type="text"
+                  id="licenseNumber"
+                  label="License Number"
+                  autoComplete="off"
+                  required
+                  value={newDriver.licenseNumber}
+                  onChange={(e) => setNewDriver({ ...newDriver, licenseNumber: e.target.value })}
+                />
 
-              <CFormSelect
-                className="mb-3"
-                floatingLabel="Vehicle"
-                label="Vehicle"
-                id="vehicle"
-                value={newDriver.assignedVehicle}
-                onChange={(e) => setNewDriver({ ...newDriver, assignedVehicle: e.target.value })}
-              >
-                <option value="">Select Vehicle</option>
-                {vehiclesOptions.map((vehicle) => (
-                  <option key={vehicle._id} value={vehicle._id}>
-                    {vehicle.brand} /{vehicle.model} /{vehicle.regisNumber}
-                  </option>
-                ))}
-              </CFormSelect>
+                <CFormSelect
+                  className="mb-3"
+                  floatingLabel="Vehicle"
+                  label="Vehicle"
+                  id="vehicle"
+                  required
+                  value={newDriver.assignedVehicle}
+                  onChange={(e) => setNewDriver({ ...newDriver, assignedVehicle: e.target.value })}
+                >
+                  <option value="">Select Vehicle</option>
+                  {vehiclesOptions.map((vehicle) => (
+                    <option key={vehicle._id} value={vehicle._id}>
+                      {vehicle.brand} /{vehicle.model} /{vehicle.regisNumber}
+                    </option>
+                  ))}
+                </CFormSelect>
+              </CForm>
             </CModalBody>
             <CModalFooter>
-              {loading && <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />}
-              <CButton color="secondary" variant="outline" onClick={() => setVisible(false)}>
-                Close
+              <CButton
+                color="secondary"
+                variant="outline"
+                onClick={() => {
+                  setVisible(false)
+                  setNewDriver(initialState)
+                  setError(null)
+                  setValidated(false)
+                }}
+                disabled={loading}
+              >
+                {loading ? <CSpinner color="primary" size="sm" /> : 'Cancel'}
               </CButton>
-              {loading ? (
-                <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
-              ) : (
-                <CButton color="primary" variant="outline" onClick={handleAddDriver}>
-                  Add Driver
-                </CButton>
-              )}
+
+              <CButton
+                color="primary"
+                variant="outline"
+                onClick={handleAddDriver}
+                disabled={loading}
+              >
+                {loading ? <CSpinner color="primary" size="sm" /> : 'Add Driver'}
+              </CButton>
             </CModalFooter>
           </CModal>
         </>

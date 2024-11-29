@@ -22,7 +22,6 @@ export const createVehicle = async (req, res) => {
     }
 
     const newVehicle = new Vehicle(vehicle);
-    // console.log(newVehicle);
 
     try {
         await newVehicle.save();
@@ -40,14 +39,14 @@ export const updateVehicle = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ success: false, message: "Vehicle not found" });
     }
-    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity || !vehicle.lastMaintenance || !vehicle.nextMaintenance) {
+    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity || !vehicle.fuelType || !vehicle.currentMileage) {
         return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
     try {
         const existingVehicle = await Vehicle.findOne({
             regisNumber: vehicle.regisNumber,
-            _id: { $ne: id }, // Exclude the current vehicle
+            _id: { $ne: id },
         });
 
         if (existingVehicle) {
@@ -56,16 +55,6 @@ export const updateVehicle = async (req, res) => {
                 message: "Registration number already exists for another vehicle",
             });
         }
-        //   const currentDriver = vehicle.assignedDriver;
-        //   if (currentDriver) {
-        //     const existingDriver = await Vehicle.findOne({ assignedDriver: currentDriver });
-        //     if (existingDriver) {
-        //       return res.status(400).json({
-        //         success: false,
-        //         message: "Driver is already assigned to another vehicle",
-        //       });
-        //     }
-        //   }
         const updatedVehicle = await Vehicle.findByIdAndUpdate(id, vehicle, { new: true });
         res.status(200).json({ success: true, data: updatedVehicle });
     } catch (error) {
@@ -91,14 +80,6 @@ export const deleteVehicle = async (req, res) => {
 };
 
 export const getAvailableVehicles = async (req, res) => {
-    // try {
-    //     const { load } = req.query;
-    //     const vehicles = await Vehicle.find({ capacity: { status: "available", capacity: { $gte: load || 0 } } });
-    //     res.status(200).json(vehicles);
-    // } catch (error) {
-    //     console.log({ "Error in fetching available vehicles: ": error.message });
-    //     res.status(500).json({ message: error.message });
-    // }
     try {
         const vehicles = await Vehicle.find({ status: "available" });
 

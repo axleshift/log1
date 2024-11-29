@@ -15,6 +15,7 @@ import {
   CModalFooter,
   CFormSelect,
   CModalTitle,
+  CForm,
 } from '@coreui/react'
 
 const UpdateVehicle = (props) => {
@@ -26,7 +27,7 @@ const UpdateVehicle = (props) => {
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const randomId = Math.floor(Math.random() * 1000000).toString()
+  const [validated, setValidated] = useState(false)
   const [editVehicle, setNewEditVehicle] = useState({
     idNum: props.vehicle.idNum,
     brand: props.vehicle.brand,
@@ -55,11 +56,17 @@ const UpdateVehicle = (props) => {
     { label: 'Gasoline', value: 'gasoline' },
   ]
 
-  const handleEditVehicle = async () => {
+  const handleEditVehicle = async (e) => {
     setLoading(true)
+    const form = e.currentTarget
+    if (form.checkValidity() === false) {
+      e.stopPropagation()
+    }
+    setValidated(true)
     try {
       const response = await api.put(`/api/v1/vehicle/${props.vehicle._id}`, editVehicle)
       setVisible(false)
+      setValidated(false)
     } catch (error) {
       console.error('Error updating driver:', error)
       setError(error.response.data.message)
@@ -70,182 +77,163 @@ const UpdateVehicle = (props) => {
 
   return (
     <>
-      {loading ? (
-        <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
-      ) : (
-        <>
-          <CButton
-            color="primary"
-            variant="outline"
-            onClick={() => setVisible(true)}
-            className="me-2"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </CButton>
-          <CModal visible={visible} onClose={() => setVisible(false)}>
-            <CModalHeader>
-              <CModalTitle>Add Vehicle</CModalTitle>
-            </CModalHeader>
-            {error && (
-              <CAlert color="danger" className="m-3">
-                {error}
-              </CAlert>
-            )}
-            <CModalBody>
-              <CFormInput
-                className="mb-3"
-                floatingLabel="ID Number"
-                placeholder="ID Number"
-                type="text"
-                id="idNum"
-                label="ID Number"
-                value={editVehicle.idNum}
-                disabled
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="Brand"
-                placeholder="Brand"
-                type="text"
-                id="brand"
-                label="Brand"
-                value={editVehicle.brand}
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, brand: e.target.value })}
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="Model"
-                placeholder="Model"
-                type="text"
-                id="model"
-                label="Model"
-                value={editVehicle.model}
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, model: e.target.value })}
-              />
-              <CFormInput
-                type="number"
-                className="mb-3"
-                floatingLabel="Year"
-                placeholder="Year"
-                id="year"
-                value={editVehicle.year}
-                required
-                min="1990"
-                max={new Date().getFullYear()}
-                onChange={(e) => {
-                  const inputYear = e.target.value
-                  setNewEditVehicle({ ...editVehicle, year: inputYear })
-                }}
-                onBlur={(e) => {
-                  const inputYear = parseInt(e.target.value)
-                  if (
-                    inputYear < 1990 ||
-                    inputYear > new Date().getFullYear() ||
-                    isNaN(inputYear)
-                  ) {
-                    alert('Please enter a year between 1990 and ' + new Date().getFullYear())
-                    setNewEditVehicle({ ...editVehicle, year: 1990 })
-                  }
-                }}
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="Registration Number"
-                placeholder="Registration Number"
-                type="text"
-                id="regisNumber"
-                label="Registration Number"
-                value={editVehicle.regisNumber}
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, regisNumber: e.target.value })}
-              />
-              <CFormSelect
-                className="mb-3"
-                floatingLabel="Vehicle Type"
-                placeholder="Vehicle Type"
-                id="type"
-                value={editVehicle.type}
-                required
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, type: e.target.value })}
-                options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
-              />
+      <CButton
+        color="primary"
+        variant="outline"
+        disabled={loading}
+        onClick={() => setVisible(true)}
+        className="me-2"
+      >
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />}
+      </CButton>
 
-              <CFormInput
-                className="mb-2"
-                type="number"
-                floatingLabel="Capacity"
-                placeholder="Capacity"
-                id="capacity"
-                label="Capacity"
-                min="0"
-                value={editVehicle.capacity}
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, capacity: e.target.value })}
-              />
-
-              {/* <CFormSelect
-                className="mb-3"
-                floatingLabel="Status"
-                placeholder="Status"
-                id="status"
-                label="Status"
-                value={editVehicle.status}
-                required
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, status: e.target.value })}
-              >
-                {options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </CFormSelect> */}
-
-              <CFormSelect
-                className="mb-3"
-                floatingLabel="Fuel Type"
-                placeholder="Fuel Type"
-                id="fuelType"
-                label="Fuel Type"
-                value={editVehicle.fuelType}
-                required
-                onChange={(e) => setNewEditVehicle({ ...editVehicle, fuelType: e.target.value })}
-                options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
-              />
-              <CFormInput
-                className="mb-3"
-                floatingLabel="Current Mileage"
-                placeholder="Current Mileage"
-                type="number"
-                id="mileage"
-                label="Current Mileage"
-                min="0"
-                value={editVehicle.currentMileage}
-                onChange={(e) =>
-                  setNewEditVehicle({ ...editVehicle, currentMileage: e.target.value })
+      <CModal visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>Add Vehicle</CModalTitle>
+        </CModalHeader>
+        {error && (
+          <CAlert color="danger" className="m-3">
+            {error}
+          </CAlert>
+        )}
+        <CModalBody>
+          <CForm noValidate validated={validated}>
+            <CFormInput
+              className="mb-3"
+              floatingLabel="ID Number"
+              placeholder="ID Number"
+              type="text"
+              id="idNum"
+              label="ID Number"
+              value={editVehicle.idNum}
+              disabled
+            />
+            <CFormInput
+              className="mb-3"
+              floatingLabel="Brand"
+              placeholder="Brand"
+              type="text"
+              id="brand"
+              label="Brand"
+              required
+              value={editVehicle.brand}
+              onChange={(e) => setNewEditVehicle({ ...editVehicle, brand: e.target.value })}
+            />
+            <CFormInput
+              className="mb-3"
+              floatingLabel="Model"
+              placeholder="Model"
+              type="text"
+              id="model"
+              label="Model"
+              required
+              value={editVehicle.model}
+              onChange={(e) => setNewEditVehicle({ ...editVehicle, model: e.target.value })}
+            />
+            <CFormInput
+              type="number"
+              className="mb-3"
+              floatingLabel="Year"
+              placeholder="Year"
+              id="year"
+              value={editVehicle.year}
+              required
+              min="1990"
+              max={new Date().getFullYear()}
+              onChange={(e) => {
+                const inputYear = e.target.value
+                setNewEditVehicle({ ...editVehicle, year: inputYear })
+              }}
+              onBlur={(e) => {
+                const inputYear = parseInt(e.target.value)
+                if (inputYear < 1990 || inputYear > new Date().getFullYear() || isNaN(inputYear)) {
+                  alert('Please enter a year between 1990 and ' + new Date().getFullYear())
+                  setNewEditVehicle({ ...editVehicle, year: 1990 })
                 }
-              />
-            </CModalBody>
-            <CModalFooter>
-              <CButton
-                color="secondary"
-                variant="outline"
-                onClick={() => {
-                  setVisible(false)
-                  setError(null)
-                  setNewEditVehicle(props.vehicle)
-                }}
-              >
-                Close
-              </CButton>
-              {loading ? (
-                <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
-              ) : (
-                <CButton color="success" variant="outline" onClick={handleEditVehicle}>
-                  Save changes
-                </CButton>
-              )}
-            </CModalFooter>
-          </CModal>
-        </>
-      )}
+              }}
+            />
+            <CFormInput
+              className="mb-3"
+              floatingLabel="Registration Number"
+              placeholder="Registration Number"
+              type="text"
+              id="regisNumber"
+              label="Registration Number"
+              required
+              value={editVehicle.regisNumber}
+              onChange={(e) => setNewEditVehicle({ ...editVehicle, regisNumber: e.target.value })}
+            />
+            <CFormSelect
+              className="mb-3"
+              floatingLabel="Vehicle Type"
+              placeholder="Vehicle Type"
+              id="type"
+              value={editVehicle.type}
+              required
+              onChange={(e) => setNewEditVehicle({ ...editVehicle, type: e.target.value })}
+              options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
+            />
+
+            <CFormInput
+              className="mb-2"
+              type="number"
+              floatingLabel="Capacity"
+              placeholder="Capacity"
+              id="capacity"
+              label="Capacity"
+              required
+              min="0"
+              value={editVehicle.capacity}
+              onChange={(e) => setNewEditVehicle({ ...editVehicle, capacity: e.target.value })}
+            />
+
+            <CFormSelect
+              className="mb-3"
+              floatingLabel="Fuel Type"
+              placeholder="Fuel Type"
+              id="fuelType"
+              label="Fuel Type"
+              value={editVehicle.fuelType}
+              required
+              onChange={(e) => setNewEditVehicle({ ...editVehicle, fuelType: e.target.value })}
+              options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
+            />
+            <CFormInput
+              className="mb-3"
+              floatingLabel="Current Mileage"
+              placeholder="Current Mileage"
+              type="number"
+              id="mileage"
+              label="Current Mileage"
+              required
+              min="0"
+              value={editVehicle.currentMileage}
+              onChange={(e) =>
+                setNewEditVehicle({ ...editVehicle, currentMileage: e.target.value })
+              }
+            />
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton
+            color="secondary"
+            variant="outline"
+            disabled={loading}
+            onClick={() => {
+              setVisible(false)
+              setError(null)
+              setNewEditVehicle(props.vehicle)
+              setValidated(false)
+            }}
+          >
+            {loading ? <CSpinner size="sm" color="secondary" /> : 'Cancel'}
+          </CButton>
+
+          <CButton color="success" variant="outline" disabled={loading} onClick={handleEditVehicle}>
+            {loading ? <CSpinner size="sm" color="success" /> : 'Save Changes'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   )
 }

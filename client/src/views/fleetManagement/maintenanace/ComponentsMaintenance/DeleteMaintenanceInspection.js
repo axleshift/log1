@@ -1,25 +1,26 @@
-/* eslint-disable prettier/prettier */
-import React from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
-import { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CButton, CSpinner } from '@coreui/react'
 
-const DeleteDriver = (props) => {
+const DeleteMaintenanceInspection = (props) => {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
-    withCredentials: true, // This is important for cookies
   })
-  const [loading, setLoading] = useState(false)
-
   const handleDelete = async () => {
     setLoading(true)
-    const response = await api.delete(`/api/v1/driver/${props.driver._id}`)
+    const response = await api.delete(`/api/v1/maintenance/inspection/${props.item._id}`)
     if (response.status === 200) {
-      alert('Driver deleted successfully')
+      alert('Maintenance Inspection deleted successfully')
       setLoading(false)
+      setError(null)
+    } else {
+      setLoading(false)
+      setError(response.data.message)
     }
   }
 
@@ -28,9 +29,9 @@ const DeleteDriver = (props) => {
       <CButton
         color="danger"
         variant="outline"
+        disabled={loading}
         onClick={handleDelete}
         className="me-2"
-        disabled={loading}
       >
         {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />}
       </CButton>
@@ -38,4 +39,4 @@ const DeleteDriver = (props) => {
   )
 }
 
-export default DeleteDriver
+export default DeleteMaintenanceInspection

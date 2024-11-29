@@ -33,7 +33,7 @@ const TableVehicle = () => {
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
-    withCredentials: true, // This is important for cookies
+    withCredentials: true,
   })
 
   const fetchVehicle = async () => {
@@ -60,7 +60,6 @@ const TableVehicle = () => {
             vehicle.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
             vehicle.regisNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
             vehicle.capacity.toString().includes(searchQuery) ||
-            // vehicle.status.toLowerCase().includes(searchQuery.toLowerCase())
             options
               .find((option) => option.value === vehicle.status)
               .label.toLowerCase()
@@ -87,6 +86,8 @@ const TableVehicle = () => {
         return 'red'
       case 'maintenance':
         return 'orange'
+      case 'inspection':
+        return 'yellow'
       default:
         return 'black'
     }
@@ -97,6 +98,7 @@ const TableVehicle = () => {
     { value: 'in_use', label: 'In Use' },
     { value: 'maintenance', label: 'Maintenance' },
     { value: 'inactive', label: 'Inactive' },
+    { value: 'inspection', label: 'Inspection' },
   ]
 
   return (

@@ -37,10 +37,6 @@ const driverSchema = new mongoose.Schema(
             ref: "Vehicle",
             default: null,
         },
-        // currentTrip: {
-        //     type: mongoose.Schema.Types.ObjectId,
-        //     ref: "Trip",
-        // },
         documents: [
             {
                 type: { type: String },

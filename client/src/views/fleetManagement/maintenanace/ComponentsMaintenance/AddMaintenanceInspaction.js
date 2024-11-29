@@ -27,7 +27,6 @@ const AddMaintenanceInspaction = () => {
     inspector: '',
     vehicleId: '',
     status: 'Pending',
-    description: '',
     scheduledDate: '',
   }
   const [loading, setLoading] = useState(false)
@@ -35,6 +34,7 @@ const AddMaintenanceInspaction = () => {
   const [error, setError] = useState(null)
   const [vehicle, setVehicle] = useState([])
   const [newMaintenance, setNewMaintenance] = useState(initialState)
+  const [validated, setValidated] = useState(false)
 
   const fetchVehicleInspection = async () => {
     try {
@@ -54,12 +54,16 @@ const AddMaintenanceInspaction = () => {
     fetchVehicleInspection()
   }, [])
   const handleSubmit = async (e) => {
-    e.preventDefault()
     setLoading(true)
-    // Add your logic to submit the form data here
+    const form = e.currentTarget
+    if (form.checkValidity() === false) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    setValidated(true)
     try {
       const response = await api.post('/api/v1/maintenance/inspection', newMaintenance)
-      console.log(response) // Add this line
+      console.log(response)
       if (response.data.success) {
         setNewMaintenance(initialState)
         setVisible(false)
@@ -72,16 +76,21 @@ const AddMaintenanceInspaction = () => {
       setLoading(false)
     }
   }
+
   return (
     <>
-      <CButton
-        color="primary"
-        className="mb-3"
-        variant="outline"
-        onClick={() => setVisible(!visible)}
-      >
-        <FontAwesomeIcon icon={faPlus} /> Add Inspection
-      </CButton>
+      {loading ? (
+        <CSpinner color="primary" size="sm" />
+      ) : (
+        <CButton
+          color="primary"
+          className="mb-3"
+          variant="outline"
+          onClick={() => setVisible(!visible)}
+        >
+          <FontAwesomeIcon icon={faPlus} /> Add Inspection
+        </CButton>
+      )}
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>Add Inspection</CModalTitle>
@@ -92,13 +101,14 @@ const AddMaintenanceInspaction = () => {
           </CAlert>
         )}
         <CModalBody>
-          <CForm>
+          <CForm noValidate validated={validated}>
             <CFormInput
               className="mb-3"
               type="text"
               floatingLabel="Inspector"
               name="inspector"
               placeholder="Inspector"
+              required
               value={newMaintenance.inspector}
               onChange={(e) => setNewMaintenance({ ...newMaintenance, inspector: e.target.value })}
             />
@@ -106,6 +116,7 @@ const AddMaintenanceInspaction = () => {
               className="mb-3"
               aria-label="Select Vehicle"
               name="vehicleId"
+              required
               value={newMaintenance.vehicleId}
               onChange={(e) => setNewMaintenance({ ...newMaintenance, vehicleId: e.target.value })}
             >
@@ -116,23 +127,13 @@ const AddMaintenanceInspaction = () => {
                 </option>
               ))}
             </CFormSelect>
-            <CFormTextarea
-              className="mb-3"
-              floatingLabel="Description"
-              placeholder="Description"
-              style={{ height: '100px' }}
-              name="description"
-              value={newMaintenance.description}
-              onChange={(e) =>
-                setNewMaintenance({ ...newMaintenance, description: e.target.value })
-              }
-            />
 
             <CFormInput
               className="mb-3"
               type="date"
               name="scheduledDate"
               placeholder="Scheduled Date"
+              required
               value={newMaintenance.scheduledDate}
               onChange={(e) =>
                 setNewMaintenance({ ...newMaintenance, scheduledDate: e.target.value })
@@ -140,12 +141,30 @@ const AddMaintenanceInspaction = () => {
             />
 
             <CModalFooter>
-              <CButton color="secondary" variant="outline" onClick={() => setVisible(false)}>
-                Cancel
-              </CButton>
-              <CButton color="primary" variant="outline" onClick={handleSubmit}>
-                {loading ? <CSpinner component="span" size="sm" aria-hidden="true" /> : 'Submit'}
-              </CButton>
+              {loading ? (
+                <CSpinner color="secondary" size="sm" />
+              ) : (
+                <CButton
+                  color="secondary"
+                  variant="outline"
+                  onClick={() => {
+                    setVisible(false)
+                    setNewMaintenance(initialState)
+                    setError(null)
+                    setValidated(false)
+                  }}
+                >
+                  Cancel
+                </CButton>
+              )}
+
+              {loading ? (
+                <CSpinner color="primary" size="sm" />
+              ) : (
+                <CButton color="primary" variant="outline" onClick={handleSubmit}>
+                  Add Inspection
+                </CButton>
+              )}
             </CModalFooter>
           </CForm>
         </CModalBody>
