@@ -42,6 +42,7 @@ const Login = () => {
       const response = await api.post('/api/v1/user/login', { username, password })
       console.log('Login successful:', response.data)
       sessionStorage.setItem('accessToken', response.data.accessToken)
+      sessionStorage.setItem('email', response.data.user.email) // Store user email in sessionStorage
       sessionStorage.setItem('user', JSON.stringify(response))
       // Dispatch the user data to Redux store
       dispatch({

@@ -59,9 +59,12 @@ const TableMaintenanceInspection = () => {
           return (
             item.vehicleId.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.vehicleId.regisNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.scheduledDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.inspector.toLowerCase().includes(searchQuery.toLowerCase())
+            item.inspector.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            options
+              .find((option) => option.value === item.status)
+              .label.toLowerCase()
+              .includes(searchQuery.toLowerCase())
           )
         })
         setFilteredData(filtered)
@@ -170,6 +173,7 @@ const TableMaintenanceInspection = () => {
                       </CButton>
                     </span>
                   </CPopover>
+
                   {adminRoles.includes(user.data.user.role) && (
                     <DeleteMaintenanceInspection item={item} />
                   )}

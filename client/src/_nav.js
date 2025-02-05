@@ -15,7 +15,8 @@ import {
   cilStar,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTruck, faWarehouse, faCalendarDays } from '@fortawesome/free-solid-svg-icons'
 const _nav = [
   {
     component: CNavItem,
@@ -51,7 +52,7 @@ const _nav = [
     component: CNavGroup,
     name: 'Fleet Management',
     to: '/fleetManagement',
-    icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faTruck} className="m-2" />,
     items: [
       {
         component: CNavItem,
@@ -139,6 +140,43 @@ const _nav = [
       //   name: 'Tooltips',
       //   to: '/base/tooltips',
       // },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'Schedules',
+    to: '/schedule',
+    icon: <FontAwesomeIcon icon={faCalendarDays} className="m-2 " />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Receive Items',
+        to: '/schedule/ReceivingItems',
+      },
+      {
+        component: CNavItem,
+        name: 'Dispatch Items',
+        to: '/schedule/DispatchingItems',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Warehouse',
+    to: '/warehouse',
+    icon: <FontAwesomeIcon icon={faWarehouse} className="m-2" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Warehouse Location',
+        to: '/wareHouseLoc/WarehouseLoc',
+      },
+      {
+        component: CNavItem,
+        name: 'Warehouse Item List',
+        to: '/warehouse/Warehousing',
+      },
     ],
   },
   // {

@@ -18,7 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const AddDrivers = ({ vehicles }) => {
-  const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057'
+  const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
   })

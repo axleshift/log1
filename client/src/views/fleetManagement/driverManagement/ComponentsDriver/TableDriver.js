@@ -17,10 +17,6 @@ import {
   CAccordionBody,
   CHeader,
   CAlert,
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCardTitle,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faCircle } from '@fortawesome/free-solid-svg-icons'

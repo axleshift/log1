@@ -18,6 +18,12 @@ const DriverManagement = React.lazy(
 const MaintenanceManagement = React.lazy(
   () => import('./views/fleetManagement/maintenanace/MaintenanceManagement'),
 )
+const ReceivingItems = React.lazy(() => import('./views/schedule/receivingItems/ReceivingItems'))
+const DispatchingItems = React.lazy(
+  () => import('./views/schedule/dispatchingItems/DispatchingItems'),
+)
+const Warehousing = React.lazy(() => import('./views/warehouse/WareHousing'))
+const WareHouseLoc = React.lazy(() => import('./views/wareHouseLoc/WareHouseLoc'))
 // const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 // const Cards = React.lazy(() => import('./views/base/cards/Cards'))
 // const Carousels = React.lazy(() => import('./views/base/carousels/Carousels'))
@@ -90,6 +96,27 @@ const routes = [
     name: 'Maintenance Management',
     element: MaintenanceManagement,
   },
+  {
+    path: '/schedule/ReceivingItems',
+    name: 'Receiving Items',
+    element: ReceivingItems,
+  },
+  {
+    path: '/schedule/DispatchingItems',
+    name: 'Dispatching Items',
+    element: DispatchingItems,
+  },
+  {
+    path: '/warehouse/Warehousing',
+    name: 'Warehousing',
+    element: Warehousing,
+  },
+  {
+    path: '/wareHouseLoc/WareHouseLoc',
+    name: 'WareHouseLoc',
+    element: WareHouseLoc,
+  },
+
   // { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
   // { path: '/base/cards', name: 'Cards', element: Cards },
   // { path: '/base/carousels', name: 'Carousel', element: Carousels },

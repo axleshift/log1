@@ -76,7 +76,7 @@ const AddVehicle = () => {
         alert('Vehicle added successfully')
         setNewVehicle(initialState)
         setLoading(false)
-        setVisible(false)
+        setValidated(false)
       } else {
         setError(response.data.message)
         setLoading(false)

@@ -36,6 +36,10 @@ const vehicleSchema = new mongoose.Schema(
             ref: "Driver",
             default: null,
         },
+        currentLoad: {
+            type: Number,
+            default: 0,
+        },
         status: {
             type: String,
             enum: ["available", "in_use", "maintenance", "inactive", "inspection"],

@@ -23,11 +23,12 @@ const AddMaintenanceInspaction = () => {
     baseURL: API_URL,
     withCredentials: true, // This is important for cookies
   })
+  const today = new Date().toISOString().split('T')[0]
   const initialState = {
     inspector: '',
     vehicleId: '',
     status: 'Pending',
-    scheduledDate: '',
+    scheduledDate: today,
   }
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -134,6 +135,7 @@ const AddMaintenanceInspaction = () => {
               name="scheduledDate"
               placeholder="Scheduled Date"
               required
+              min={today}
               value={newMaintenance.scheduledDate}
               onChange={(e) =>
                 setNewMaintenance({ ...newMaintenance, scheduledDate: e.target.value })

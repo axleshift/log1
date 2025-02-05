@@ -71,6 +71,7 @@ export const createMaintenanceInspection = async (req, res) => {
                 const driver = await Driver.findById(currentDriver).session(session);
                 if (driver) {
                     driver.assignedVehicle = null;
+                    driver.status = "available";
                     await driver.save({ session });
                 }
             }

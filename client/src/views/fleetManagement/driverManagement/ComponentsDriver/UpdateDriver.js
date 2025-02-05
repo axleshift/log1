@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from 'react'
 import axios from 'axios'
 import { useState, useEffect } from 'react'
@@ -62,14 +61,13 @@ const UpdateDriver = (props) => {
     setValidated(true)
     const driverData = { ...updateDriver }
 
-    if (driverData.assignedVehicle === '') {
+    if (driverData.assignedVehicle === null) {
       delete driverData.assignedVehicle
     }
     try {
       await api.put(`/api/v1/driver/${props.driver._id}`, updateDriver)
       setVisible(false)
       setValidated(false)
-      fetchAvailableVehicles()
     } catch (error) {
       console.error('Error updating driver:', error)
       setError(error.response.data.message)
@@ -107,7 +105,7 @@ const UpdateDriver = (props) => {
             </CAlert>
           )}
           <CModalBody>
-            <CForm noValidate validated={validated}>
+            <CForm validated={validated}>
               <CFormInput
                 className="mb-3"
                 floatingLabel="ID Number"
@@ -199,8 +197,8 @@ const UpdateDriver = (props) => {
                   </option>
                 ))}
               </CFormSelect>
-              {updateDriver.status === 'on_duty' ||
-                (updateDriver.status === 'available' && (
+              {updateDriver.status === 'available' ||
+                (updateDriver.status === 'on_duty' && (
                   <CFormSelect
                     className="mb-3"
                     floatingLabel="Vehicle"

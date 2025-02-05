@@ -81,7 +81,7 @@ export const deleteVehicle = async (req, res) => {
 
 export const getAvailableVehicles = async (req, res) => {
     try {
-        const vehicles = await Vehicle.find({ status: "available" });
+        const vehicles = await Vehicle.find({ assignedDriver: null, status: "available" });
 
         res.status(200).json({
             success: true,
@@ -127,5 +127,20 @@ export const getCurrentDriver = async (req, res) => {
     } catch (error) {
         console.log({ "Error in getting current driver: ": error.message });
         res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+export const getAvailableVehicles2 = async (req, res) => {
+    try {
+        const vehicles = await Vehicle.find({ status: "in_use" });
+
+        res.status(200).json({
+            success: true,
+            data: vehicles,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
