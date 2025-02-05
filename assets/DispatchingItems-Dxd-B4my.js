@@ -1,0 +1,1 @@
+import{j as t}from"./index-B_xgiZND.js";const s=()=>t.jsx(t.Fragment,{children:t.jsx("p",{children:"Add button DispatchingItems"})}),e=()=>t.jsxs(t.Fragment,{children:[t.jsx("h1",{children:"Dispatching Items"}),t.jsx(s,{})]});export{e as default};
