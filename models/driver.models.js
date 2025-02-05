@@ -26,6 +26,24 @@ const driverSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        status: {
+            type: String,
+            enum: ["available", "on_duty", "off_duty"],
+            default: "available",
+        },
+
+        assignedVehicle: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Vehicle",
+            default: null,
+        },
+        documents: [
+            {
+                type: { type: String },
+                number: String,
+                expiryDate: Date,
+            },
+        ],
     },
     {
         timestamps: true,

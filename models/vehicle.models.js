@@ -5,6 +5,7 @@ const vehicleSchema = new mongoose.Schema(
         idNum: {
             type: String,
             required: true,
+            unique: true,
         },
         brand: {
             type: String,
@@ -30,11 +31,35 @@ const vehicleSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        assignedDriver: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Driver",
+            default: null,
+        },
+        currentLoad: {
+            type: Number,
+            default: 0,
+        },
+        status: {
+            type: String,
+            enum: ["available", "in_use", "maintenance", "inactive", "inspection"],
+            default: "available",
+        },
+        sceduledMaintenance: {
+            type: mongoose.Schema.Types.Date,
+            ref: "Maintenance",
+        },
+
+        fuelType: { type: String, required: true },
+        currentMileage: { type: Number, required: true },
     },
     {
         timestamps: true,
     }
 );
-
+vehicleSchema.pre("remove", async function (next) {
+    await Maintenance.deleteMany({ vehicleId: this._id });
+    next();
+});
 const Vehicle = mongoose.model("Vehicle", vehicleSchema);
 export default Vehicle;
