@@ -9,8 +9,9 @@ import {
   CFormInput,
   CFormSelect,
   CAlert,
-  CRow,
-  CCol,
+  CHeader,
+  CFormText,
+  CFormTextarea,
 } from '@coreui/react'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -22,49 +23,50 @@ const api = axios.create({
   baseURL: API_URL,
 })
 
-const AddItem = ({ onAddItem }) => {
+const AddItem = ({ onAddItem, mockDataReiceving, item = {} }) => {
+  const [buttonText, setButtonText] = useState('Add Item')
   const [success, setSuccess] = useState(false)
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState('')
-  const categories = [
-    { label: 'General Merchandise', value: 'generalMerchandise' },
-    { label: 'Perishables', value: 'perishables' },
-    { label: 'Hazardous Materials', value: 'hazardousMaterials' },
-    { label: 'High-Value Goods', value: 'highValueGoods' },
-    { label: 'Oversized/Heavy Goods', value: 'oversizedHeavy' },
-  ]
-
   const [warehouses, setWarehouses] = useState([])
   const today = new Date().toISOString().split('T')[0]
   const [formData, setFormData] = useState({
-    name: '',
-    from: '',
-    itemName: '',
-    quantity: '',
-    weight: '',
-    length: '',
-    width: '',
-    height: '',
+    from: item.from,
+    items: item.items,
+    PoNumber: item.PoNumber,
     dateArrival: today,
     category: '',
+    warehouse: '',
+    byReceived: '',
   })
 
   const handleChange = (e) => {
     const { id, value } = e.target
-    setFormData((prevData) => {
-      if (['length', 'width', 'height'].includes(id)) {
-        const numericValue = value === '' ? '' : Math.max(1, Number(value)) // Ensure the value is at least 1
-        return {
-          ...prevData,
-          [id]: numericValue,
-        }
-      }
-      return {
-        ...prevData,
-        [id]: value,
-      }
-    })
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
   }
+
+  const checkIfPoNumberExists = async (poNumber) => {
+    try {
+      const response = await api.get(`/api/v1/warehouse/checkPoNumber/${poNumber}`)
+      return response.data.exists
+    } catch (error) {
+      console.error(error)
+      return false
+    }
+  }
+
+  useEffect(() => {
+    const checkPoNumber = async () => {
+      const exists = await checkIfPoNumberExists(item.PoNumber)
+      if (exists) {
+        setButtonText('Already Added')
+      }
+    }
+    checkPoNumber()
+  }, [item.PoNumber])
 
   useEffect(() => {
     // Fetch warehouses
@@ -78,7 +80,14 @@ const AddItem = ({ onAddItem }) => {
     }
     fetchWarehouses()
   }, [])
-
+  const itemsString =
+    item.items &&
+    item.items
+      .map(
+        (item, index) =>
+          `${index + 1}. Item Name: (${item.itemName})    Quantity: (${item.quantity})`,
+      )
+      .join('\n')
   const handleSubmit = async (e) => {
     e.preventDefault()
     const email = sessionStorage.getItem('email')
@@ -97,20 +106,14 @@ const AddItem = ({ onAddItem }) => {
         const warehouse = warehouses.find((w) => w._id === newItem.warehouse)
         newItem.warehouse = warehouse // Add warehouse details to the new item
         setSuccess(response.data.message)
-        onAddItem(response.data.data)
-        setFormData({
-          name: '',
-          from: '',
-          itemName: '',
-          quantity: '',
-          weight: '',
-          length: '',
-          width: '',
-          height: '',
-          dateArrival: today,
-          category: '',
-          warehouse: '',
-        })
+        onAddItem(newItem)
+        setButtonText('Already Added')
+
+        // Close the modal after a short delay
+        setTimeout(() => {
+          setVisible(false)
+          setSuccess('')
+        }, 1500)
       } else {
         setError(response.data.message || 'An unexpected error occurred')
       }
@@ -121,167 +124,73 @@ const AddItem = ({ onAddItem }) => {
 
   return (
     <>
-      <CButton color="primary" variant="outline" onClick={() => setVisible(true)}>
-        <FontAwesomeIcon icon={faPlus} /> Recieved Items
+      <CButton
+        color="primary"
+        variant="outline"
+        onClick={() => setVisible(true)}
+        disabled={buttonText === 'Already Added'}
+      >
+        {buttonText === 'Already Added' ? (
+          <span className="me-1">Already Added</span>
+        ) : (
+          <FontAwesomeIcon icon={faPlus} />
+        )}
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
-          <CModalTitle>Recieved Items</CModalTitle>
+          <CModalTitle>Add Item</CModalTitle>
         </CModalHeader>
         {error && <CAlert color="danger">{error}</CAlert>}
         {success && <CAlert color="success">{success}</CAlert>}
         <CModalBody>
           <CForm>
-            <CCol className="mb-3">
-              <CFormInput
-                type="text"
-                placeholder="Name / Company Name"
-                className="mb-3"
-                floatingLabel="Name / Company Name"
-                id="name"
-                onChange={handleChange}
-                value={formData.name}
-                required
-                autoComplete="off"
-              />
-              <CFormInput
-                type="text"
-                placeholder="From"
-                className="mb-3"
-                floatingLabel="From"
-                id="from"
-                onChange={handleChange}
-                value={formData.from}
-                required
-              />
-              <CFormInput
-                type="text"
-                placeholder="Item Name"
-                className="mb-3"
-                floatingLabel="Item Name"
-                id="itemName"
-                onChange={handleChange}
-                value={formData.itemName}
-                required
-              />
-              <CFormInput
-                type="number"
-                placeholder="Quantity"
-                className="mb-3"
-                floatingLabel="Quantity"
-                id="quantity"
-                onChange={handleChange}
-                value={formData.quantity}
-                required
-              />
-              <CFormInput
-                type="number"
-                placeholder="Weight"
-                className="mb-3"
-                floatingLabel="Weight"
-                id="weight"
-                onChange={handleChange}
-                value={formData.weight}
-                required
-              />
-              <CRow className="justify-content-center">
-                <CCol xs="auto">
-                  <CFormInput
-                    type="number"
-                    placeholder="Length"
-                    className="mb-3"
-                    floatingLabel="Length"
-                    id="length"
-                    min={1}
-                    onChange={handleChange}
-                    value={formData.length}
-                    required
-                  />
-                </CCol>
-                <CCol xs="auto">
-                  <CFormInput
-                    type="number"
-                    placeholder="Width"
-                    className="mb-3"
-                    floatingLabel="Width"
-                    id="width"
-                    min={1}
-                    onChange={handleChange}
-                    value={formData.width}
-                    required
-                  />
-                </CCol>
-                <CCol xs="auto">
-                  <CFormInput
-                    type="number"
-                    placeholder="Height"
-                    className="mb-3 w-5"
-                    floatingLabel="Height"
-                    id="height"
-                    min={1}
-                    onChange={handleChange}
-                    value={formData.height}
-                    required
-                  />
-                </CCol>
-                <CCol xs="auto">
-                  <CFormInput
-                    type="text"
-                    placeholder="Dimension"
-                    className="mb-3"
-                    floatingLabel="Dimension"
-                    id="dimension"
-                    value={`${formData.length}x${formData.width}x${formData.height} cm`}
-                    disabled
-                    required
-                  />
-                </CCol>
-              </CRow>
-              <CFormInput
-                type="date"
-                placeholder="Date of Arrival"
-                className="mb-3"
-                floatingLabel="Date of Arrival"
-                id="dateArrival"
-                onChange={handleChange}
-                value={formData.dateArrival}
-                min={today}
-                required
-                disabled
-              />
-              <CFormSelect
-                placeholder="Category"
-                className="mb-3"
-                floatingLabel="Category"
-                id="category"
-                onChange={handleChange}
-                value={formData.category}
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </CFormSelect>
-              <CFormSelect
-                placeholder="Warehouse"
-                className="mb-3"
-                floatingLabel="Warehouse"
-                id="warehouse"
-                onChange={handleChange}
-                value={formData.warehouse}
-                required
-              >
-                <option value="">Select Warehouse</option>
-                {warehouses.map((warehouse) => (
-                  <option key={warehouse._id} value={warehouse._id}>
-                    {warehouse.warehouseName}
-                  </option>
-                ))}
-              </CFormSelect>
-            </CCol>
+            <CFormInput
+              type="text"
+              placeholder="From"
+              className="mb-3"
+              floatingLabel="From"
+              id="from"
+              onChange={handleChange}
+              value={formData.from}
+              required
+              readOnly
+            />
+
+            <CFormTextarea
+              placeholder="Items List"
+              className="mb-3 justify-content-center h-50"
+              floatingLabel="Items List"
+              id="items"
+              rows={5}
+              value={
+                Array.isArray(formData.items)
+                  ? formData.items
+                      .map(
+                        (item, index) =>
+                          `${index + 1}. ${item.itemName} (Quantity: ${item.quantity})`,
+                      )
+                      .join('\n')
+                  : formData.items
+              }
+              readOnly
+            />
+
+            <CFormSelect
+              placeholder="Warehouse"
+              className="mb-3"
+              floatingLabel="Warehouse"
+              id="warehouse"
+              onChange={handleChange}
+              value={formData.warehouse}
+              required
+            >
+              <option value="">Select Warehouse</option>
+              {warehouses.map((warehouse) => (
+                <option key={warehouse._id} value={warehouse._id}>
+                  {warehouse.warehouseName}
+                </option>
+              ))}
+            </CFormSelect>
           </CForm>
         </CModalBody>
         <CModalFooter>

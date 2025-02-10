@@ -32,67 +32,53 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
   const adminRoles = ['manager', 'admin']
 
   useEffect(() => {
-    const handleSearch = () => {
-      if (searchQuery === '') {
-        setFilteredWarehousing(warehousing)
-      } else {
-        const filteredWarehousing = warehousing.filter((item) => {
-          const categoryLabel =
-            categories.find((category) => category.value === item.category)?.label.toLowerCase() ||
-            ''
-          return (
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.from.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.quantity.toString().includes(searchQuery) ||
-            item.weight.toString().includes(searchQuery) ||
-            formatDate(item.dateArrival).includes(searchQuery) ||
-            categoryLabel.includes(searchQuery.toLowerCase())
-          )
-        })
-        setFilteredWarehousing(filteredWarehousing)
-        if (filteredWarehousing.length === 0) {
-          setLocalError('No Item found')
-        } else {
+    // Debounce the search to avoid too frequent updates
+    const timeoutId = setTimeout(() => {
+      try {
+        if (!searchQuery.trim()) {
+          setFilteredWarehousing(warehousing)
           setLocalError(null)
+          return
         }
+
+        const query = searchQuery.toLowerCase().trim()
+        const filtered = warehousing.filter((item) => {
+          // Early return if any of the main fields match
+          if (
+            (item.PoNumber && item.PoNumber.toLowerCase().includes(query)) ||
+            (item.from && item.from.toLowerCase().includes(query)) ||
+            (item.dateArrival && formatDate(item.dateArrival).includes(query))
+          ) {
+            return true
+          }
+
+          // Check items array if it exists
+          if (Array.isArray(item.items)) {
+            return item.items.some(
+              (subItem) =>
+                (subItem.itemName && subItem.itemName.toLowerCase().includes(query)) ||
+                (subItem.quantity && subItem.quantity.toString().includes(query)),
+            )
+          }
+
+          return false
+        })
+
+        setFilteredWarehousing(filtered)
+        setLocalError(filtered.length === 0 ? 'No items found' : null)
+      } catch (error) {
+        console.error('Search error:', error)
+        setLocalError('An error occurred while searching')
       }
-    }
-    handleSearch()
+    }, 300) // 300ms delay
+
+    // Cleanup function to clear timeout
+    return () => clearTimeout(timeoutId)
   }, [searchQuery, warehousing])
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString()
   }
-
-  const categories = [
-    { label: 'General Merchandise', value: 'generalMerchandise' },
-    { label: 'Perishables', value: 'perishables' },
-    { label: 'Hazardous Materials', value: 'hazardousMaterials' },
-    { label: 'High-Value Goods', value: 'highValueGoods' },
-    { label: 'Oversized/Heavy Goods', value: 'oversizedHeavy' },
-  ]
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Queued':
-        return 'orange'
-      case 'dispatched':
-        return 'green'
-      case 'on_process':
-        return 'orange'
-      case 'Cancelled':
-        return 'red'
-      default:
-        return 'black'
-    }
-  }
-  // const options = [
-  //   { value: 'pending', label: 'Queued' },
-  //   { value: 'dispatched', label: 'Dispatched' },
-  //   { value: 'on_process', label: 'On process' },
-  //   { value: 'Cancelled', label: 'Cancelled' },
-  // ]
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value)
@@ -116,7 +102,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
             type="text"
             placeholder="Search Items..."
             value={searchQuery}
-            id="searchInput"
+            id="searchItem"
             onChange={handleSearchChange}
           />
           <CInputGroupText>
@@ -141,40 +127,26 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
             <CAccordionHeader>
               <ul className="list-unstyled p-0 m-0 w-100">
                 <li>
-                  Name / Company: <strong>{warehousing.name}</strong>
-                </li>
-                <li>
                   From: <strong>{warehousing.from}</strong>
                 </li>
+                <li>
+                  Purcahse Order: <strong>{warehousing.PoNumber}</strong>
+                </li>
               </ul>
-              <FontAwesomeIcon
-                icon={faCircle}
-                color={getStatusColor(warehousing.status)}
-                className="float-end"
-              />
-              <small className=" m-2 float-end">
-                {/* {options.find((option) => option.value === warehousing.status)?.label ||
-                  warehousing.status} */}
-                {warehousing.status}
-              </small>
             </CAccordionHeader>
             <CAccordionBody>
-              <CHeader>Item Name: {warehousing.itemName}</CHeader>
-              <CHeader>Quantity: {warehousing.quantity}</CHeader>
-              <CHeader>Weight: {warehousing.weight}</CHeader>
+              {warehousing.items.map((item, index) => (
+                <div key={index}>
+                  <CHeader>{`Item name: ${item.itemName} Quantity: (${item.quantity})`}</CHeader>
+                </div>
+              ))}
+
               <CHeader>
-                Dimension:{' '}
-                {`${warehousing.length} x ${warehousing.width} x ${warehousing.height} cm`}
+                Date receive: {new Date(warehousing.dateArrival).toLocaleDateString()}
               </CHeader>
-              <CHeader>Date Arrival: {formatDate(warehousing.dateArrival)}</CHeader>
               <CHeader>Received By: {warehousing.byReceived}</CHeader>
               <CHeader>
                 Warehouse: {warehousing.warehouse ? warehousing.warehouse.warehouseName : 'Unknown'}
-              </CHeader>
-              <CHeader>
-                Category:{' '}
-                {categories.find((category) => category.value === warehousing.category)?.label ||
-                  'Unknown'}
               </CHeader>
               <CContainer className="d-flex justify-content-end mt-3">
                 <UpdateItem warehousing={warehousing} onUpdateItem={onUpdateItem} />

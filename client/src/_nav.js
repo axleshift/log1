@@ -174,7 +174,7 @@ const _nav = [
       },
       {
         component: CNavItem,
-        name: 'Warehouse Item List',
+        name: 'Warehouse',
         to: '/warehouse/Warehousing',
       },
     ],

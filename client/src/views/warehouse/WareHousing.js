@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import AddItem from './ComponentsWarehousing/AddItem'
 import TableWareHousing from './ComponentsWarehousing/TableWareHousing'
-import { CCard, CContainer, CHeader, CCardBody } from '@coreui/react'
+import ForReicevingItems from './ComponentsWarehousing/ForReicevingItems'
+import ItemsTableWarehouse from './ComponentsWarehousing/ItemsTableWarehouse'
+import {
+  CCard,
+  CContainer,
+  CHeader,
+  CCardBody,
+  CTab,
+  CTabList,
+  CTabs,
+  CTabContent,
+  CTabPanel,
+  CSpinner,
+  CAlert,
+} from '@coreui/react'
 import axios from 'axios'
 
 const API = import.meta.env.VITE_APP_API_URL
@@ -13,7 +26,6 @@ const WareHousing = () => {
   const [warehousing, setWarehousing] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const fetchWarehousing = async () => {
     setLoading(true)
     try {
@@ -48,22 +60,33 @@ const WareHousing = () => {
 
   return (
     <>
-      <CHeader className="text-center">WareHousing</CHeader>
-      <CContainer className="m-3">
-        <AddItem onAddItem={handleAddItem} />
-      </CContainer>
-      <CCard>
-        <CHeader>Item List</CHeader>
-        <CCardBody className="md-3">
-          <TableWareHousing
-            warehousing={warehousing}
-            loading={loading}
-            error={error}
-            onDeleteItem={handleDeleteItem}
-            onUpdateItem={handleUpdateItem}
-          />
-        </CCardBody>
-      </CCard>
+      <CTabs activeItemKey="Warehouse Items Details">
+        <CTabList variant="tabs">
+          <CTab itemKey="Warehouse Items Details">Warehouse Items Details</CTab>
+          <CTab itemKey="For Reiceve">For Reiceve</CTab>
+          <CTab itemKey="Items">Items</CTab>
+        </CTabList>
+        <CTabContent>
+          <CTabPanel className="p-3" itemKey="Warehouse Items Details">
+            <TableWareHousing
+              warehousing={warehousing}
+              loading={loading}
+              error={error}
+              onDeleteItem={handleDeleteItem}
+              onUpdateItem={handleUpdateItem}
+            />
+          </CTabPanel>
+          <CTabPanel className="p-3" itemKey="For Reiceve">
+            <CCard>
+              <CHeader>Item Reicevig</CHeader>
+              <ForReicevingItems onAddItem={handleAddItem} />
+            </CCard>
+          </CTabPanel>
+          <CTabPanel className="p-3" itemKey="Items">
+            <ItemsTableWarehouse />
+          </CTabPanel>
+        </CTabContent>
+      </CTabs>
     </>
   )
 }
