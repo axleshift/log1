@@ -18,7 +18,7 @@ import { CModalTitle } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
-const AddVehicle = () => {
+const AddVehicle = ({ onAddVehicle }) => {
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
@@ -27,6 +27,7 @@ const AddVehicle = () => {
   const [validated, setValidated] = useState(false)
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
   const [loading, setLoading] = useState(false)
   const initialState = {
     idNum: Math.floor(Math.random() * 1000000).toString(),
@@ -69,22 +70,26 @@ const AddVehicle = () => {
       e.stopPropagation()
     }
     setValidated(true)
-
+    setLoading(true)
     try {
       const response = await api.post('/api/v1/vehicle', newVehicle)
       if (response.data.success) {
-        alert('Vehicle added successfully')
-        setNewVehicle(initialState)
-        setLoading(false)
-        setValidated(false)
-      } else {
-        setError(response.data.message)
-        setLoading(false)
+        setSuccess('Vehicle added successfully')
+        onAddVehicle(response.data.data)
+        setTimeout(() => {
+          setSuccess(null)
+          setNewVehicle(initialState)
+          setLoading(false)
+          setValidated(false)
+        }, 2000)
       }
     } catch (error) {
       setError(error.response.data.message)
-      setLoading(false)
+      setTimeout(() => {
+        setError(null)
+      }, 2000)
     }
+    setLoading(false)
   }
 
   return (
@@ -97,12 +102,17 @@ const AddVehicle = () => {
             <FontAwesomeIcon icon={faPlus} /> Add Vehicle
           </CButton>
           <CModal visible={visible} onClose={() => setVisible(false)}>
-            <CModalHeader>
+            <CModalHeader closeButton>
               <CModalTitle>Add Vehicle</CModalTitle>
             </CModalHeader>
             {error && (
               <CAlert color="danger" className="m-3">
                 {error}
+              </CAlert>
+            )}
+            {success && (
+              <CAlert color="success" className="m-3">
+                {success}
               </CAlert>
             )}
             <CModalBody>

@@ -1,11 +1,6 @@
-/* eslint-disable prettier/prettier */
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useState, useEffect } from 'react'
 import {
-  CButton,
-  CRow,
-  CCol,
   CSpinner,
   CInputGroup,
   CFormInput,
@@ -23,7 +18,7 @@ import { faMagnifyingGlass, faCircle } from '@fortawesome/free-solid-svg-icons'
 import UpdateDriver from './UpdateDriver'
 import DeleteDriver from './DeleteDriver'
 
-const TableDriver = () => {
+const TableDriver = ({ driver, loading, onDeleteDriver, onUpdateDriver }) => {
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
@@ -31,19 +26,9 @@ const TableDriver = () => {
   })
   const user = JSON.parse(sessionStorage.getItem('user'))
   const adminRoles = ['manager', 'admin']
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [driver, setDriver] = useState([])
+  const [localError, setLocalError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredDrivers, setFilteredDrivers] = useState([])
-
-  const getDrivers = async () => {
-    const response = await api.get('/api/v1/driver')
-    if (response.status === 200) {
-      setDriver(response.data.data)
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     const handleSearch = async () => {
@@ -66,14 +51,13 @@ const TableDriver = () => {
         })
         setFilteredDrivers(filteredDrivers)
         if (filteredDrivers.length === 0) {
-          setError('No results found')
+          setLocalError('No results found')
         } else {
-          setError(null)
+          setLocalError(null)
         }
       }
     }
     handleSearch()
-    getDrivers()
   }, [searchQuery, driver])
 
   const getStatusColor = (status) => {
@@ -94,6 +78,13 @@ const TableDriver = () => {
     { label: 'On Duty', value: 'on_duty' },
     { label: 'Off Duty', value: 'off_duty' },
   ]
+  if (driver.length === 0) {
+    return (
+      <CAlert color="danger" className="justfy-content-center">
+        No drivers found
+      </CAlert>
+    )
+  }
   return (
     <>
       <CContainer className="mt-3">
@@ -111,65 +102,57 @@ const TableDriver = () => {
           </CInputGroupText>
         </CInputGroup>
       </CContainer>
-      {loading && (
-        <CRow className=" mt-5 d-flex justify-content-center ">
-          <CCol sm="12" md="8">
-            <CSpinner color="primary" />
-          </CCol>
-        </CRow>
-      )}
 
-      {filteredDrivers.length > 0 ? (
-        <CAccordion className="m-2">
-          {filteredDrivers.map((driver) => (
-            <CAccordionItem key={driver._id}>
-              <CAccordionHeader>
-                <p className="w-100 m-1">
-                  Driver Name: <strong> {driver.driverName} </strong>
-                  <FontAwesomeIcon
-                    icon={faCircle}
-                    color={getStatusColor(driver.status)}
-                    className="m-2 float-end"
-                  />
-                  <small className="m-2 float-end">
-                    {' '}
-                    {options.find((option) => option.value === driver.status).label}
-                  </small>
-                </p>
-              </CAccordionHeader>
-              <CAccordionBody>
-                <CHeader>ID: {driver.idNum}</CHeader>
-                <CHeader>Email: {driver.email}</CHeader>
-                <CHeader>Phone: {driver.phone}</CHeader>
-                <CHeader>Address: {driver.address}</CHeader>
-                <CHeader>License Number: {driver.licenseNumber}</CHeader>
-                <CHeader>
-                  Vehicle:{' '}
-                  {driver.assignedVehicle
-                    ? `${driver.assignedVehicle.regisNumber} - ${driver.assignedVehicle.brand} ${driver.assignedVehicle.model}`
-                    : 'No vehicle assigned'}
-                </CHeader>
-                <CHeader>
-                  Status: {options.find((option) => option.value === driver.status).label}
-                </CHeader>
-                <CContainer className="d-flex justify-content-end mt-3">
-                  {loading ? (
-                    <CSpinner color="primary" size="sm" />
-                  ) : (
-                    <UpdateDriver driver={driver} />
-                  )}
-                  {adminRoles.includes(user.data.user.role) && <DeleteDriver driver={driver} />}
-                </CContainer>
-              </CAccordionBody>
-            </CAccordionItem>
-          ))}
-        </CAccordion>
-      ) : (
-        <CHeader className="justify-content-center">0 results found</CHeader>
-      )}
-      {error && (
+      <CAccordion className="m-2">
+        {filteredDrivers.map((driver) => (
+          <CAccordionItem key={driver._id}>
+            <CAccordionHeader>
+              <p className="w-100 m-1">
+                Driver Name: <strong> {driver.driverName} </strong>
+                <FontAwesomeIcon
+                  icon={faCircle}
+                  color={getStatusColor(driver.status)}
+                  className="m-2 float-end"
+                />
+                <small className="m-2 float-end">
+                  {' '}
+                  {options.find((option) => option.value === driver.status).label}
+                </small>
+              </p>
+            </CAccordionHeader>
+            <CAccordionBody>
+              <CHeader>ID: {driver.idNum}</CHeader>
+              <CHeader>Email: {driver.email}</CHeader>
+              <CHeader>Phone: {driver.phone}</CHeader>
+              <CHeader>Address: {driver.address}</CHeader>
+              <CHeader>License Number: {driver.licenseNumber}</CHeader>
+              <CHeader>
+                Vehicle:{' '}
+                {driver.assignedVehicle
+                  ? `${driver.assignedVehicle.regisNumber} - ${driver.assignedVehicle.brand} ${driver.assignedVehicle.model}`
+                  : 'No vehicle assigned'}
+              </CHeader>
+              <CHeader>
+                Status: {options.find((option) => option.value === driver.status).label}
+              </CHeader>
+              <CContainer className="d-flex justify-content-end mt-3">
+                {loading ? (
+                  <CSpinner color="primary" size="sm" />
+                ) : (
+                  <UpdateDriver driver={driver} onUpdateDriver={onUpdateDriver} />
+                )}
+                {adminRoles.includes(user.data.user.role) && (
+                  <DeleteDriver driver={driver} onDeleteDriver={onDeleteDriver} />
+                )}
+              </CContainer>
+            </CAccordionBody>
+          </CAccordionItem>
+        ))}
+      </CAccordion>
+
+      {localError && (
         <CAlert color="danger" className="text-center justify-content-center">
-          {error}
+          {localError}
         </CAlert>
       )}
     </>

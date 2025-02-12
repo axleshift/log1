@@ -21,30 +21,21 @@ import UpdateVehicle from './UpdateVehicle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 
-const TableVehicle = () => {
-  const [vehicle, setVehicle] = useState([])
-  const [drivers, setDrivers] = useState({})
-  const [loading, setLoading] = useState(true)
+const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicle }) => {
   const [filteredVehicles, setFilteredVehicles] = useState([])
   const user = JSON.parse(sessionStorage.getItem('user'))
   const adminRoles = ['manager', 'admin']
+  const [locaLError, setLocaLError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [error, setError] = useState(null)
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
     withCredentials: true,
   })
 
-  const fetchVehicle = async () => {
-    const response = await api.get('/api/v1/vehicle')
-    if (response.status === 200) {
-      setVehicle(response.data.data)
-      setLoading(false)
-    }
-  }
-  const [driversLoading, setDriversLoading] = useState(true)
-  const [driversError, setDriversError] = useState(null)
+  useEffect(() => {
+    setFilteredVehicles(vehicle)
+  }, [vehicle])
 
   useEffect(() => {
     const handleSearch = () => {
@@ -68,14 +59,13 @@ const TableVehicle = () => {
         })
         setFilteredVehicles(filteredVehicles)
         if (filteredVehicles.length === 0) {
-          setError('No vehicles found')
+          setLocaLError('No vehicles found')
         } else {
-          setError()
+          setLocaLError(null)
         }
       }
     }
     handleSearch()
-    fetchVehicle()
   }, [searchQuery, vehicle])
 
   const getStatusColor = (status) => {
@@ -100,6 +90,13 @@ const TableVehicle = () => {
     { value: 'inactive', label: 'Inactive' },
     { value: 'inspection', label: 'Inspection' },
   ]
+  if (vehicle.length === 0) {
+    return (
+      <CAlert color="danger" className="text-center justify-content-center">
+        No vehicles found
+      </CAlert>
+    )
+  }
 
   return (
     <>
@@ -118,57 +115,55 @@ const TableVehicle = () => {
           </CInputGroupText>
         </CInputGroup>
       </CContainer>
-      {filteredVehicles.length > 0 ? (
-        <CAccordion className="m-2">
-          {filteredVehicles.map((vehicle) => (
-            <CAccordionItem key={vehicle._id}>
-              <CAccordionHeader>
-                <p className="w-100 m-1 ">
-                  Registration Number:<strong className="ms-2">{vehicle.regisNumber}</strong>
-                  <FontAwesomeIcon
-                    icon={faCircle}
-                    color={getStatusColor(vehicle.status)}
-                    className="m-2 float-end"
-                  />
-                  <small className="m-2 float-end">
-                    {options.find((option) => option.value === vehicle.status).label}
-                  </small>
-                </p>
-              </CAccordionHeader>
-              <CAccordionBody>
-                <CHeader>ID: {vehicle.idNum}</CHeader>
-                <CHeader>Brand: {vehicle.brand}</CHeader>
-                <CHeader>Model: {vehicle.model}</CHeader>
-                <CHeader>Year: {vehicle.year}</CHeader>
-                <CHeader>Type: {vehicle.type}</CHeader>
-                <CHeader>Capacity: {vehicle.capacity}</CHeader>
-                <CHeader>
-                  Status: {options.find((option) => option.value === vehicle.status).label}
-                </CHeader>
-                <CHeader>
-                  Driver:{' '}
-                  {vehicle.assignedDriver
-                    ? `${vehicle.assignedDriver.driverName} - ${vehicle.assignedDriver.licenseNumber}`
-                    : 'Not assigned'}
-                </CHeader>
-                <CHeader>Fuel Type: {vehicle.fuelType}</CHeader>
-                <CHeader>Current Mileage: {vehicle.currentMileage}</CHeader>
+      <CAccordion className="m-2">
+        {filteredVehicles.map((vehicle) => (
+          <CAccordionItem key={vehicle._id}>
+            <CAccordionHeader>
+              <p className="w-100 m-1 ">
+                Registration Number:<strong className="ms-2">{vehicle.regisNumber}</strong>
+                <FontAwesomeIcon
+                  icon={faCircle}
+                  color={getStatusColor(vehicle.status)}
+                  className="m-2 float-end"
+                />
+                <small className="m-2 float-end">
+                  {options.find((option) => option.value === vehicle.status).label}
+                </small>
+              </p>
+            </CAccordionHeader>
+            <CAccordionBody>
+              <CHeader>ID: {vehicle.idNum}</CHeader>
+              <CHeader>Brand: {vehicle.brand}</CHeader>
+              <CHeader>Model: {vehicle.model}</CHeader>
+              <CHeader>Year: {vehicle.year}</CHeader>
+              <CHeader>Type: {vehicle.type}</CHeader>
+              <CHeader>Capacity: {vehicle.capacity}</CHeader>
+              <CHeader>
+                Status: {options.find((option) => option.value === vehicle.status).label}
+              </CHeader>
+              <CHeader>
+                Driver:{' '}
+                {vehicle.assignedDriver
+                  ? `${vehicle.assignedDriver.driverName} - ${vehicle.assignedDriver.licenseNumber}`
+                  : 'Not assigned'}
+              </CHeader>
+              <CHeader>Fuel Type: {vehicle.fuelType}</CHeader>
+              <CHeader>Current Mileage: {vehicle.currentMileage}</CHeader>
 
-                <CContainer className="d-flex justify-content-end mt-3">
-                  <UpdateVehicle vehicle={vehicle} />
-                  {adminRoles.includes(user.data.user.role) && <DeleteVehicle vehicle={vehicle} />}
-                </CContainer>
-              </CAccordionBody>
-            </CAccordionItem>
-          ))}
-        </CAccordion>
-      ) : (
-        <CHeader className="justify-content-center">0 results found</CHeader>
-      )}
+              <CContainer className="d-flex justify-content-end mt-3">
+                <UpdateVehicle vehicle={vehicle} onUpdateVehicle={onUpdateVehicle} />
+                {adminRoles.includes(user.data.user.role) && (
+                  <DeleteVehicle vehicle={vehicle} onDeleteVehicle={onDeleteVehicle} />
+                )}
+              </CContainer>
+            </CAccordionBody>
+          </CAccordionItem>
+        ))}
+      </CAccordion>
 
-      {error && (
+      {locaLError && (
         <CAlert color="danger" className="text-center justify-content-center">
-          {error}
+          {locaLError}
         </CAlert>
       )}
     </>

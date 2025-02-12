@@ -23,7 +23,7 @@ const api = axios.create({
   baseURL: API_URL,
 })
 
-const AddItem = ({ onAddItem, mockDataReiceving, item = {} }) => {
+const AddItem = ({ onAddItem, item = {} }) => {
   const [buttonText, setButtonText] = useState('Add Item')
   const [success, setSuccess] = useState(false)
   const [visible, setVisible] = useState(false)

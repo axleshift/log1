@@ -17,12 +17,13 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
-const AddDrivers = ({ vehicles }) => {
+const AddDrivers = ({ onAddDriver }) => {
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
   })
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
   const [visible, setVisible] = useState(false)
   const [vehiclesOptions, setVehiclesOptions] = useState([])
@@ -53,8 +54,6 @@ const AddDrivers = ({ vehicles }) => {
   }, [])
 
   const handleAddDriver = async (e) => {
-    setLoading(true)
-    setError(null)
     const form = e.currentTarget
     if (form.checkValidity() === false) {
       e.preDefault()
@@ -68,18 +67,22 @@ const AddDrivers = ({ vehicles }) => {
       delete driverData.assignedVehicle
     }
 
+    setLoading(true)
     try {
       const response = await api.post('/api/v1/driver', newDriver)
-      if (response.data.success) {
-        alert('Driver added successfully')
-        setNewDriver(initialState)
-        setValidated(false)
-      } else {
-        setError(response.data.message)
+      if (response.status === 201) {
+        setSuccess('Driver added successfully')
+        onAddDriver(response.data.data)
+        setTimeout(() => {
+          setNewDriver(initialState)
+          setValidated(false)
+          setVisible(false)
+          setLoading(false)
+          setError
+        }, 2000)
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || 'An error occurred'
-      setError(errorMessage)
+      setError(error.response.data.message)
     } finally {
       setLoading(false)
     }
@@ -90,8 +93,14 @@ const AddDrivers = ({ vehicles }) => {
         <CSpinner color="primary" size="sm" />
       ) : (
         <>
-          <CButton color="primary" variant="outline" onClick={() => setVisible(true)}>
-            <FontAwesomeIcon icon={faPlus} /> Add Driver
+          <CButton
+            color="primary"
+            disabled={loading}
+            variant="outline"
+            onClick={() => setVisible(true)}
+          >
+            {loading ? <CSpinner color="primary" size="sm" /> : <FontAwesomeIcon icon={faPlus} />}{' '}
+            Add Driver
           </CButton>
           <CModal visible={visible} onClose={() => setVisible(false)}>
             <CModalHeader>
@@ -100,6 +109,11 @@ const AddDrivers = ({ vehicles }) => {
             {error && (
               <CAlert color="danger" className="m-3">
                 {error}
+              </CAlert>
+            )}
+            {success && (
+              <CAlert color="success" className="m-3">
+                {success}
               </CAlert>
             )}
             <CModalBody>
@@ -199,15 +213,15 @@ const AddDrivers = ({ vehicles }) => {
               <CButton
                 color="secondary"
                 variant="outline"
+                disabled={loading}
                 onClick={() => {
                   setVisible(false)
                   setNewDriver(initialState)
                   setError(null)
                   setValidated(false)
                 }}
-                disabled={loading}
               >
-                {loading ? <CSpinner color="primary" size="sm" /> : 'Cancel'}
+                {loading ? <CSpinner color="secondary" size="sm" /> : 'Cancel'}
               </CButton>
 
               <CButton

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
@@ -18,27 +17,30 @@ import {
   CForm,
 } from '@coreui/react'
 
-const UpdateVehicle = (props) => {
+const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
   const API_URL = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
     baseURL: API_URL,
     withCredentials: true, // This is important for cookies
   })
+
   const [visible, setVisible] = useState(false)
+  const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [validated, setValidated] = useState(false)
-  const [editVehicle, setNewEditVehicle] = useState({
-    idNum: props.vehicle.idNum,
-    brand: props.vehicle.brand,
-    model: props.vehicle.model,
-    year: props.vehicle.year,
-    regisNumber: props.vehicle.regisNumber,
-    type: props.vehicle.type,
-    capacity: props.vehicle.capacity,
-    fuelType: props.vehicle.fuelType,
-    currentMileage: props.vehicle.currentMileage,
-  })
+  const initialState = {
+    idNum: vehicle.idNum,
+    brand: vehicle.brand,
+    model: vehicle.model,
+    year: vehicle.year,
+    regisNumber: vehicle.regisNumber,
+    type: vehicle.type,
+    capacity: vehicle.capacity,
+    fuelType: vehicle.fuelType,
+    currentMileage: vehicle.currentMileage,
+  }
+  const [editVehicle, setNewEditVehicle] = useState(initialState)
 
   const vehicleTypes = [
     { label: 'Van', value: 'van' },
@@ -64,12 +66,23 @@ const UpdateVehicle = (props) => {
     }
     setValidated(true)
     try {
-      const response = await api.put(`/api/v1/vehicle/${props.vehicle._id}`, editVehicle)
-      setVisible(false)
-      setValidated(false)
+      const response = await api.put(`/api/v1/vehicle/${vehicle._id}`, editVehicle)
+      if (response.data.success) {
+        setSuccess('Vehicle updated successfully')
+        onUpdateVehicle(response.data.data)
+        setTimeout(() => {
+          setNewEditVehicle(initialState)
+          setSuccess(null)
+          setLoading(false)
+          setValidated(false)
+          setVisible(false)
+        }, 2000)
+      }
     } catch (error) {
-      console.error('Error updating driver:', error)
       setError(error.response.data.message)
+      setTimeout(() => {
+        setError(null)
+      }, 2000)
     } finally {
       setLoading(false)
     }
@@ -88,12 +101,17 @@ const UpdateVehicle = (props) => {
       </CButton>
 
       <CModal visible={visible} onClose={() => setVisible(false)}>
-        <CModalHeader>
-          <CModalTitle>Add Vehicle</CModalTitle>
+        <CModalHeader closeButton>
+          <CModalTitle>Update Vehicle</CModalTitle>
         </CModalHeader>
         {error && (
           <CAlert color="danger" className="m-3">
             {error}
+          </CAlert>
+        )}
+        {success && (
+          <CAlert color="success" className="m-3">
+            {success}
           </CAlert>
         )}
         <CModalBody>
@@ -222,7 +240,7 @@ const UpdateVehicle = (props) => {
             onClick={() => {
               setVisible(false)
               setError(null)
-              setNewEditVehicle(props.vehicle)
+              setNewEditVehicle(vehicle)
               setValidated(false)
             }}
           >

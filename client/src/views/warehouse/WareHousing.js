@@ -2,19 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TableWareHousing from './ComponentsWarehousing/TableWareHousing'
 import ForReicevingItems from './ComponentsWarehousing/ForReicevingItems'
 import ItemsTableWarehouse from './ComponentsWarehousing/ItemsTableWarehouse'
-import {
-  CCard,
-  CContainer,
-  CHeader,
-  CCardBody,
-  CTab,
-  CTabList,
-  CTabs,
-  CTabContent,
-  CTabPanel,
-  CSpinner,
-  CAlert,
-} from '@coreui/react'
+import { CCard, CHeader, CTab, CTabList, CTabs, CTabContent, CTabPanel } from '@coreui/react'
 import axios from 'axios'
 
 const API = import.meta.env.VITE_APP_API_URL
@@ -24,6 +12,7 @@ const api = axios.create({
 
 const WareHousing = () => {
   const [warehousing, setWarehousing] = useState([])
+  const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const fetchWarehousing = async () => {
@@ -40,22 +29,45 @@ const WareHousing = () => {
     }
   }
 
+  const fetchItems = async () => {
+    try {
+      setLoading(true)
+      const response = await api.get('/api/v1/warehouse/items/all')
+      if (response.data.success) {
+        setItems(response.data.data)
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to fetch items')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
+    fetchItems()
     fetchWarehousing()
   }, [])
 
   const handleAddItem = (newItem) => {
     setWarehousing((prevItems) => [...prevItems, newItem])
+    setItems((prevItems) => [...prevItems, newItem])
+    fetchItems()
   }
 
   const handleDeleteItem = (deletedItemId) => {
     setWarehousing((prevItems) => prevItems.filter((item) => item._id !== deletedItemId))
+    setItems((prevItems) => prevItems.filter((item) => item._id !== deletedItemId))
+    fetchItems()
   }
 
   const handleUpdateItem = (updatedItem) => {
     setWarehousing((prevItems) =>
       prevItems.map((item) => (item._id === updatedItem._id ? updatedItem : item)),
     )
+    setItems((prevItems) =>
+      prevItems.map((item) => (item._id === updatedItem._id ? updatedItem : item)),
+    )
+    fetchItems()
   }
 
   return (
@@ -83,7 +95,10 @@ const WareHousing = () => {
             </CCard>
           </CTabPanel>
           <CTabPanel className="p-3" itemKey="Items">
-            <ItemsTableWarehouse />
+            <CCard>
+              <CHeader>Items</CHeader>
+              <ItemsTableWarehouse items={items} loading={loading} error={error} />
+            </CCard>
           </CTabPanel>
         </CTabContent>
       </CTabs>

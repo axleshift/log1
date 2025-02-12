@@ -17,8 +17,9 @@ import {
   CForm,
 } from '@coreui/react'
 
-const UpdateDriver = (props) => {
+const UpdateDriver = ({ driver, onUpdateDriver }) => {
   const [visible, setVisible] = useState(false)
+  const [success, setSuccess] = useState(null)
   const [vehiclesOptions, setVehiclesOptions] = useState([])
   const [validated, setValidated] = useState(false)
   const [error, setError] = useState(null)
@@ -28,16 +29,17 @@ const UpdateDriver = (props) => {
     baseURL: API_URL,
     withCredentials: true,
   })
-  const [updateDriver, setUpdateDriver] = useState({
-    idNum: props.driver.idNum,
-    driverName: props.driver.driverName,
-    email: props.driver.email,
-    phone: props.driver.phone,
-    address: props.driver.address,
-    licenseNumber: props.driver.licenseNumber,
-    status: props.driver.status,
-    assignedVehicle: props.driver.assignedVehicle,
-  })
+  const initialState = {
+    idNum: driver.idNum,
+    driverName: driver.driverName,
+    email: driver.email,
+    phone: driver.phone,
+    address: driver.address,
+    licenseNumber: driver.licenseNumber,
+    status: driver.status,
+    assignedVehicle: driver.assignedVehicle,
+  }
+  const [updateDriver, setUpdateDriver] = useState(initialState)
 
   const fetchAvailableVehicles = async () => {
     try {
@@ -53,7 +55,8 @@ const UpdateDriver = (props) => {
   }, [])
 
   const handleUpdateDriver = async (e) => {
-    setLoading(true)
+    e.preventDefault() // Add this to prevent form submission
+
     const form = e.currentTarget
     if (form.checkValidity() === false) {
       e.stopPropagation()
@@ -65,15 +68,23 @@ const UpdateDriver = (props) => {
       delete driverData.assignedVehicle
     }
     try {
-      await api.put(`/api/v1/driver/${props.driver._id}`, updateDriver)
-      setVisible(false)
-      setValidated(false)
+      const resposne = await api.put(`/api/v1/driver/${driver._id}`, updateDriver)
+      if (resposne.status === 200) {
+        setSuccess('Driver updated successfully')
+        onUpdateDriver(resposne.data.data)
+        setTimeout(() => {
+          setSuccess(null)
+          setVisible(false)
+          setUpdateDriver(initialState)
+        }, 2000)
+      }
     } catch (error) {
-      console.error('Error updating driver:', error)
       setError(error.response.data.message)
+      setTimeout(() => {
+        setError(null)
+      }, 2000)
     } finally {
       setLoading(false)
-      fetchAvailableVehicles()
     }
   }
 
@@ -102,6 +113,11 @@ const UpdateDriver = (props) => {
           {error && (
             <CAlert color="danger" className="m-3">
               {error}
+            </CAlert>
+          )}
+          {success && (
+            <CAlert color="success" className="m-3">
+              {success}
             </CAlert>
           )}
           <CModalBody>
@@ -204,12 +220,11 @@ const UpdateDriver = (props) => {
                     floatingLabel="Vehicle"
                     label="Vehicle"
                     id="vehicle"
-                    value={updateDriver.assignedVehicle || ''}
+                    value={updateDriver.assignedVehicle}
                     onChange={(e) =>
                       setUpdateDriver({ ...updateDriver, assignedVehicle: e.target.value })
                     }
                   >
-                    <option value={null}>Select Vehicle</option>
                     {vehiclesOptions.map((vehicle) => (
                       <option key={vehicle._id} value={vehicle._id}>
                         {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}
@@ -227,7 +242,6 @@ const UpdateDriver = (props) => {
               onClick={() => {
                 setVisible(false)
                 setError(null)
-                setUpdateDriver(props.driver)
                 setValidated(false)
               }}
             >

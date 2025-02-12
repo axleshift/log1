@@ -73,6 +73,18 @@ const ForReicevingItems = ({ onAddItem }) => {
         { itemName: 'Item 11', quantity: 8 },
       ],
     },
+
+    {
+      id: 5,
+      PoNumber: '563433334',
+      from: 'Supplier E',
+      items: [
+        { itemName: 'Item 12', quantity: 8 },
+        { itemName: 'Item 13', quantity: 8 },
+        { itemName: 'Item 14', quantity: 8 },
+        { itemName: 'Item 15', quantity: 8 },
+      ],
+    },
   ])
 
   useEffect(() => {

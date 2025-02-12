@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import AddWarehouseLoc from './ComponentsWarehouseLoc/AddWarehouseLoc'
 import TablesWarehouseLoc from './ComponentsWarehouseLoc/TablesWarehouseLoc'
 import axios from 'axios'
+import { CHeader } from '@coreui/react'
 
 const API = import.meta.env.VITE_APP_API_URL
 const api = axios.create({
@@ -51,7 +52,7 @@ const WareHouseLoc = () => {
   }
   return (
     <>
-      <h1>Warehouse location</h1>
+      <CHeader>Warehouse location</CHeader>
       <AddWarehouseLoc onAddWarehouseLoc={handleAddWarehouseLoc} />
       <TablesWarehouseLoc
         warehouseLoc={warehouseLoc}

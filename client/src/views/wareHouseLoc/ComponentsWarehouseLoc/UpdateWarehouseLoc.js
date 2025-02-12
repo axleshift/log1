@@ -22,6 +22,7 @@ const api = axios.create({
 
 const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
   const [visible, setVisible] = useState(false)
+  const [validated, setValidated] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
@@ -39,7 +40,13 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    const form = e.currentTarget
+    const isValid = form.checkValidity()
+    if (!isValid) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    setValidated(isValid)
     const email = sessionStorage.getItem('email')
     if (!email) {
       setError('User email not found. Please log in again.')
@@ -57,6 +64,8 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
         setTimeout(() => {
           setSuccess(null)
           setVisible(false)
+          setError(null)
+          setValidated(false)
         }, 2000)
       }
     } catch (error) {
@@ -70,17 +79,31 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
 
   return (
     <>
-      <CButton color="primary" variant="outline" onClick={() => setVisible(true)} className="me-2">
+      <CButton
+        color="primary"
+        variant="outline"
+        disabled={loading}
+        onClick={() => setVisible(true)}
+        className="me-2"
+      >
         {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faEdit} />}
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader closeButton>
           <CModalTitle>Update Warehouse Location</CModalTitle>
         </CModalHeader>
-        {error && <CAlert color="danger">{error}</CAlert>}
-        {success && <CAlert color="success">{success}</CAlert>}
+        {error && (
+          <CAlert color="danger" className="m-3">
+            {error}
+          </CAlert>
+        )}
+        {success && (
+          <CAlert color="success" className="m-3">
+            {success}
+          </CAlert>
+        )}
         <CModalBody>
-          <CForm>
+          <CForm noValidate validated={validated}>
             <CFormInput
               type="text"
               id="warehouseName"
@@ -89,6 +112,10 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
               floatingLabel="Warehouse Name"
               onChange={handleChange}
               value={formData.warehouseName}
+              autoComplete="off"
+              required
+              feedbackInvalid="Please enter a warehouse name."
+              feedbackValid="Looks good!"
             />
             <CFormInput
               type="text"
@@ -98,15 +125,28 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
               floatingLabel="Address"
               onChange={handleChange}
               value={formData.address}
+              autoComplete="off"
+              required
+              feedbackInvalid="Please enter an address."
+              feedbackValid="Looks good!"
             />
           </CForm>
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" variant="outline" onClick={() => setVisible(false)}>
-            Cancel
+          <CButton
+            color="secondary"
+            variant="outline"
+            disabled={loading}
+            onClick={() => {
+              setVisible(false)
+              setError(null)
+              setValidated(false)
+            }}
+          >
+            {loading ? <CSpinner size="sm" color="secondary" /> : 'Cancel'}
           </CButton>
-          <CButton color="primary" variant="outline" onClick={handleSubmit}>
-            Save
+          <CButton color="primary" variant="outline" disabled={loading} onClick={handleSubmit}>
+            {loading ? <CSpinner size="sm" color="success" /> : 'Update'}
           </CButton>
         </CModalFooter>
       </CModal>
