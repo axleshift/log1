@@ -199,7 +199,10 @@ export const updateDriver = async (req, res) => {
             });
         }
 
-        const updatedDriver = await Driver.findByIdAndUpdate(id, driver, { new: true, runValidators: true });
+        const updatedDriver = await Driver.findByIdAndUpdate(id, driver, { new: true, runValidators: true }).populate({
+            path: "assignedVehicle",
+            select: "regisNumber brand model", // specify the fields you need
+        });
 
         return res.status(200).json({ success: true, data: updatedDriver });
     } catch (error) {
