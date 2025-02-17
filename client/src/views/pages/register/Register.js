@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
 import {
   CButton,
   CCard,
@@ -18,63 +16,110 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const token = sessionStorage.getItem('accessToken')
+  const user = JSON.parse(sessionStorage.getItem('user'))
+  const API_URL = import.meta.env.VITE_APP_API_URL
+  const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true, // Important for handling cookies
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  })
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    repeatPassword: '',
+    role: '',
+    photo: null,
+  })
 
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [repeatPassword, setRepeatPassword] = useState('')
-  const [role, setRole] = useState('user')
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  const clearForm = () => {
-    setUsername('')
-    setEmail('')
-    setPassword('')
-    setRepeatPassword('')
-    setRole('user')
+  const [preview, setPreview] = useState(null)
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setForm((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
   }
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setForm((prev) => ({
+        ...prev,
+        photo: file,
+      }))
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError(null)
-    setSuccess(null)
     setIsLoading(true)
-
-    if (password !== repeatPassword) {
-      setError("Passwords don't match")
-      setIsLoading(false)
-      return
+    setError(null)
+    const submitData = new FormData()
+    submitData.append('username', form.username)
+    submitData.append('email', form.email)
+    submitData.append('password', form.password)
+    submitData.append('role', form.role)
+    if (form.photo) {
+      submitData.append('photo', form.photo)
     }
-
+    for (let pair of submitData.entries()) {
+      console.log(pair[0] + ': ' + pair[1])
+    }
     try {
-      const response = await fetch('/api/v1/user/register', {
-        method: 'POST',
+      // Password match validation
+      if (form.password !== form.repeatPassword) {
+        setError('Passwords do not match')
+        setIsLoading(false)
+        return
+      }
+      const response = await api.post('/api/v1/user/register', form, {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: sessionStorage.getItem('accessToken'),
+          'Content-Type': 'multipart/form-data',
         },
-        body: JSON.stringify({ username, email, password, role }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Registration failed')
+      if (response.data && response.data.success) {
+        setSuccess('Registration successful')
+        // Store any returned token if applicable
+        if (response.data.token) {
+          sessionStorage.setItem('accessToken', response.data.token)
+        }
+        setTimeout(() => {
+          setSuccess(null)
+          navigate('/dashboard')
+        }, 2000)
+      } else {
+        setError(response.data?.message || 'Registration failed')
       }
-
-      const data = await response.json()
-      dispatch({ type: 'REGISTER_SUCCESS', payload: data })
-      clearForm()
-      setSuccess('User registered successfully!')
-      setTimeout(() => {
-        setSuccess(null)
-      }, 3000) // Navigate after 3 seconds
     } catch (err) {
-      setError(err.message)
-      dispatch({ type: 'REGISTER_FAILURE', payload: err.message })
+      console.error('Full error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      })
+
+      const errorMessage =
+        err.response?.data?.message || err.message || 'An error occurred during registration'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -93,8 +138,16 @@ const Register = () => {
               <CCardBody className="p-4">
                 <CForm onSubmit={handleSubmit}>
                   <h1>Register New User</h1>
-                  {error && <CAlert color="danger">{error}</CAlert>}
-                  {success && <CAlert color="success">{success}</CAlert>}
+                  {error && (
+                    <CAlert color="danger" className="text-center w-75 mx-auto">
+                      {error}
+                    </CAlert>
+                  )}
+                  {success && (
+                    <CAlert color="success" className="text-center w-75 mx-auto">
+                      {success}
+                    </CAlert>
+                  )}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
@@ -102,9 +155,9 @@ const Register = () => {
                     <CFormInput
                       placeholder="Username"
                       autoComplete="off"
-                      id="Username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      id="username"
+                      value={form.username}
+                      onChange={handleChange}
                       required
                       disabled={isLoading}
                     />
@@ -114,9 +167,9 @@ const Register = () => {
                     <CFormInput
                       placeholder="Email"
                       autoComplete="off"
-                      id="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="email"
+                      value={form.email}
+                      onChange={handleChange}
                       required
                       type="email"
                       disabled={isLoading}
@@ -130,9 +183,9 @@ const Register = () => {
                       type="password"
                       placeholder="Password"
                       autoComplete="off"
-                      id="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      id="password"
+                      value={form.password}
+                      onChange={handleChange}
                       required
                       disabled={isLoading}
                     />
@@ -145,9 +198,9 @@ const Register = () => {
                       type="password"
                       placeholder="Repeat password"
                       autoComplete="off"
-                      id="RepeatPassword"
-                      value={repeatPassword}
-                      onChange={(e) => setRepeatPassword(e.target.value)}
+                      id="repeatPassword"
+                      value={form.repeatPassword}
+                      onChange={handleChange}
                       required
                       disabled={isLoading}
                     />
@@ -155,16 +208,35 @@ const Register = () => {
                   <CInputGroup className="mb-3">
                     <CInputGroupText>Role</CInputGroupText>
                     <CFormSelect
-                      id="Role"
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
+                      id="role"
+                      value={form.role}
+                      onChange={handleChange}
                       disabled={isLoading}
                     >
+                      <option value="">Select Role</option>
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
                       <option value="manager">Manager</option>
+                      <option value="inspector">Inspector</option>
                     </CFormSelect>
                   </CInputGroup>
+                  <CInputGroup className="mb-3">
+                    <CFormInput type="file" accept="image/*" onChange={handlePhotoChange} />
+                  </CInputGroup>
+
+                  {preview && (
+                    <div className="mb-3">
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '200px',
+                          maxHeight: '200px',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </div>
+                  )}
                   <CButton color="success" type="submit" disabled={isLoading}>
                     {isLoading ? (
                       <>

@@ -11,52 +11,71 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
+  CAlert,
   CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
 
-const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057'
+const API_URL = import.meta.env.VITE_APP_API_URL
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // This is important for cookies
 })
 
 const Login = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const initialState = {
+    username: '',
+    password: '',
+  }
+  const [data, setData] = useState(initialState)
+
+  const [success, setSuccess] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
-
     try {
-      const response = await api.post('/api/v1/user/login', { username, password })
-      console.log('Login successful:', response.data)
-      sessionStorage.setItem('accessToken', response.data.accessToken)
-      sessionStorage.setItem('email', response.data.user.email) // Store user email in sessionStorage
-      sessionStorage.setItem('user', JSON.stringify(response))
-      // Dispatch the user data to Redux store
-      dispatch({
-        type: 'set',
-        user: {
-          username: response.data.user.username,
-          role: response.data.user.role,
-        },
-      })
+      const response = await api.post('/api/v1/user/login', data)
+      if (response.data.success) {
+        const { accessToken, refreshToken, user } = response.data
+        console.log('Login Response:', {
+          accessToken: !!accessToken,
+          refreshToken: !!refreshToken,
+          user,
+        })
 
-      navigate('/dashboard')
+        // Check if refreshToken exists before storing
+        if (!refreshToken) {
+          throw new Error('Refresh token not received from server')
+        }
+        sessionStorage.setItem('accessToken', accessToken)
+        sessionStorage.setItem('refreshToken', refreshToken) // Store refresh token
+        sessionStorage.setItem('user', JSON.stringify(user))
+        setSuccess(response.data.message)
+        setTimeout(() => {
+          navigate('/dashboard')
+        }, 2000)
+      }
     } catch (error) {
-      console.error('Login error:', error.response?.data || error.message)
-      setError(error.response?.data?.message || 'An error occurred during login')
+      // setError(error.response.data.message)
+      setError(error.response?.data?.message || error.message)
+      setTimeout(() => {
+        setError(null)
+      }, 2000)
     } finally {
       setIsLoading(false)
     }
@@ -71,7 +90,16 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
-                    {error && <div className="text-danger mb-3">{error}</div>}
+                    {success && (
+                      <CAlert color="success" className="text-success mb-3">
+                        {success}
+                      </CAlert>
+                    )}
+                    {error && (
+                      <CAlert color="danger" className="text-danger mb-3">
+                        {error}
+                      </CAlert>
+                    )}
                     <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
                     <CInputGroup className="mb-3">
@@ -82,10 +110,10 @@ const Login = () => {
                         type="text"
                         placeholder="Username"
                         autoComplete="off"
-                        id="Username"
+                        id="username"
                         required
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={data.username}
+                        onChange={handleChange}
                       />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
@@ -98,8 +126,8 @@ const Login = () => {
                         autoComplete="off"
                         id="password"
                         required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={data.password}
+                        onChange={handleChange}
                       />
                     </CInputGroup>
                     <CRow>

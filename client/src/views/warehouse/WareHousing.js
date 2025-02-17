@@ -5,9 +5,15 @@ import ItemsTableWarehouse from './ComponentsWarehousing/ItemsTableWarehouse'
 import { CCard, CHeader, CTab, CTabList, CTabs, CTabContent, CTabPanel } from '@coreui/react'
 import axios from 'axios'
 
+const token = sessionStorage.getItem('accessToken')
 const API = import.meta.env.VITE_APP_API_URL
 const api = axios.create({
   baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
 })
 
 const WareHousing = () => {

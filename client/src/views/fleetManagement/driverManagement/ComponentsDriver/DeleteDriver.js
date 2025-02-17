@@ -7,10 +7,15 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { CButton, CSpinner } from '@coreui/react'
 
 const DeleteDriver = ({ driver, onDeleteDriver }) => {
-  const API_URL = import.meta.env.VITE_APP_API_URL
+  const token = sessionStorage.getItem('accessToken')
+  const API = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true, // This is important for cookies
+    baseURL: API,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
   })
 
   const [loading, setLoading] = useState(false)

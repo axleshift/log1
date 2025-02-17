@@ -16,6 +16,16 @@ import {
   CModalTitle,
   CForm,
 } from '@coreui/react'
+const token = sessionStorage.getItem('accessToken')
+const API = import.meta.env.VITE_APP_API_URL
+const api = axios.create({
+  baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
+})
 
 const UpdateDriver = ({ driver, onUpdateDriver }) => {
   const [visible, setVisible] = useState(false)
@@ -24,11 +34,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
   const [validated, setValidated] = useState(false)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true,
-  })
+
   const initialState = {
     idNum: driver.idNum,
     driverName: driver.driverName,
@@ -62,6 +68,8 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
       e.stopPropagation()
     }
     setValidated(true)
+    setLoading(true)
+
     const driverData = { ...updateDriver }
 
     if (driverData.assignedVehicle === null) {
@@ -96,32 +104,32 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
 
   return (
     <>
-      <>
-        <CButton
-          color="primary"
-          variant="outline"
-          disabled={loading}
-          onClick={() => setVisible(true)}
-          className="me-2"
-        >
-          {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />}
-        </CButton>
-        <CModal visible={visible} onClose={() => setVisible(false)}>
-          <CModalHeader>
-            <CModalTitle>Update Driver</CModalTitle>
-          </CModalHeader>
-          {error && (
-            <CAlert color="danger" className="m-3">
-              {error}
-            </CAlert>
-          )}
-          {success && (
-            <CAlert color="success" className="m-3">
-              {success}
-            </CAlert>
-          )}
-          <CModalBody>
-            <CForm validated={validated}>
+      <CButton
+        color="primary"
+        variant="outline"
+        disabled={loading}
+        onClick={() => setVisible(true)}
+        className="me-2"
+      >
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />}
+      </CButton>
+      <CModal visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>Update Driver</CModalTitle>
+        </CModalHeader>
+        {error && (
+          <CAlert color="danger" className="m-3">
+            {error}
+          </CAlert>
+        )}
+        {success && (
+          <CAlert color="success" className="m-3">
+            {success}
+          </CAlert>
+        )}
+        <CModalBody>
+          <CForm noValidate validated={validated}>
+            <>
               <CFormInput
                 className="mb-3"
                 floatingLabel="ID Number"
@@ -232,33 +240,33 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                     ))}
                   </CFormSelect>
                 ))}
-            </CForm>
-          </CModalBody>
-          <CModalFooter>
-            <CButton
-              color="secondary"
-              variant="outline"
-              disabled={loading}
-              onClick={() => {
-                setVisible(false)
-                setError(null)
-                setValidated(false)
-              }}
-            >
-              {loading ? <CSpinner color="secondary" size="sm" /> : 'Close'}
-            </CButton>
+            </>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton
+            color="secondary"
+            variant="outline"
+            disabled={loading}
+            onClick={() => {
+              setVisible(false)
+              setError(null)
+              setValidated(false)
+            }}
+          >
+            {loading ? <CSpinner color="secondary" size="sm" /> : 'Close'}
+          </CButton>
 
-            <CButton
-              color="success"
-              variant="outline"
-              disabled={loading}
-              onClick={handleUpdateDriver}
-            >
-              {loading ? <CSpinner color="success" size="sm" /> : 'Save Changes'}
-            </CButton>
-          </CModalFooter>
-        </CModal>
-      </>
+          <CButton
+            color="success"
+            variant="outline"
+            disabled={loading}
+            onClick={handleUpdateDriver}
+          >
+            {loading ? <CSpinner color="success" size="sm" /> : 'Save Changes'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   )
 }

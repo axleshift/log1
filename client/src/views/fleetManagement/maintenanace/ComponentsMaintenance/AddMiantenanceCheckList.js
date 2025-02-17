@@ -14,17 +14,23 @@ import {
 } from '@coreui/react'
 import PropTypes from 'prop-types'
 import axios from 'axios'
+const token = sessionStorage.getItem('accessToken')
+const API = import.meta.env.VITE_APP_API_URL
+const api = axios.create({
+  baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
+})
 
 const AddMaintenanceCheckList = ({ item, visible, onClose, onUpdate }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [isScheduledDateMet, setIsScheduledDateMet] = useState(false)
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true,
-  })
+
   const [checkList, setCheckList] = useState({
     visualInspection: {
       physical: {

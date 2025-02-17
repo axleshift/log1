@@ -4,9 +4,15 @@ import TablesWarehouseLoc from './ComponentsWarehouseLoc/TablesWarehouseLoc'
 import axios from 'axios'
 import { CHeader } from '@coreui/react'
 
+const token = sessionStorage.getItem('accessToken')
 const API = import.meta.env.VITE_APP_API_URL
 const api = axios.create({
   baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
 })
 const WareHouseLoc = () => {
   const [warehouseLoc, setWarehouseLoc] = useState([])

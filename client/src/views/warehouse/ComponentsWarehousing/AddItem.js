@@ -9,8 +9,6 @@ import {
   CFormInput,
   CFormSelect,
   CAlert,
-  CHeader,
-  CFormText,
   CFormTextarea,
 } from '@coreui/react'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -18,9 +16,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_APP_API_URL
+const token = sessionStorage.getItem('accessToken')
+const API = import.meta.env.VITE_APP_API_URL
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
 })
 
 const AddItem = ({ onAddItem, item = {} }) => {
@@ -90,7 +94,8 @@ const AddItem = ({ onAddItem, item = {} }) => {
       .join('\n')
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const email = sessionStorage.getItem('email')
+    const user = JSON.parse(sessionStorage.getItem('user'))
+    const email = user.email
     if (!email) {
       setError('User email not found. Please log in again.')
       return

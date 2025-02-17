@@ -4,9 +4,15 @@ import { CButton, CSpinner, CAlert } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
+const token = sessionStorage.getItem('accessToken')
 const API = import.meta.env.VITE_APP_API_URL
 const api = axios.create({
   baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
 })
 
 const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {

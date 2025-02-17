@@ -5,7 +5,6 @@ import {
   CAccordionHeader,
   CAccordionItem,
   CHeader,
-  CButton,
   CContainer,
   CSpinner,
   CAlert,
@@ -17,12 +16,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faCircle } from '@fortawesome/free-solid-svg-icons'
 import DeleteItem from './DeleteItem'
 import UpdateItem from './UpdateItem'
-import axios from 'axios'
-
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-})
 
 const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateItem }) => {
   const [filteredWarehousing, setFilteredWarehousing] = useState([])
@@ -150,7 +143,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
               </CHeader>
               <CContainer className="d-flex justify-content-end mt-3">
                 <UpdateItem warehousing={warehousing} onUpdateItem={onUpdateItem} />
-                {adminRoles.includes(user.data.user.role) && (
+                {adminRoles.includes(user.role) && (
                   <DeleteItem warehousing={warehousing} onDeleteItem={onDeleteItem} />
                 )}
               </CContainer>

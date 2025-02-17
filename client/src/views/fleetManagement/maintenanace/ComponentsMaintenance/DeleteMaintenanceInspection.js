@@ -3,14 +3,20 @@ import axios from 'axios'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CButton, CSpinner } from '@coreui/react'
-
+const token = sessionStorage.getItem('accessToken')
+const API = import.meta.env.VITE_APP_API_URL
+const api = axios.create({
+  baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
+})
 const DeleteMaintenanceInspection = (props) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-  })
+
   const handleDelete = async () => {
     setLoading(true)
     const response = await api.delete(`/api/v1/maintenance/inspection/${props.item._id}`)

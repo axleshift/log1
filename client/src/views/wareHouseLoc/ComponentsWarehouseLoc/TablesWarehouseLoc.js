@@ -55,7 +55,7 @@ const TablesWarehouseLoc = ({
           .includes(searchQuery.toLowerCase())
         const matchesAddress = item.address.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesCreatedBy =
-          adminRoles.includes(user.data.user.role) &&
+          adminRoles.includes(user.role) &&
           item.createdBy.toLowerCase().includes(searchQuery.toLowerCase())
 
         return matchesWarehouseName || matchesAddress || matchesCreatedBy
@@ -113,7 +113,7 @@ const TablesWarehouseLoc = ({
                   Warehouse Name
                 </CTableHeaderCell>
                 <CTableHeaderCell className="fixed-width bg-secondary">Address</CTableHeaderCell>
-                {adminOnly.includes(user.data.user.role) && (
+                {adminOnly.includes(user.role) && (
                   <CTableHeaderCell className="fixed-width bg-secondary">
                     Created By
                   </CTableHeaderCell>
@@ -135,7 +135,7 @@ const TablesWarehouseLoc = ({
                       <span>{warehouseLoc.address}</span>
                     </CTooltip>
                   </CTableDataCell>
-                  {adminOnly.includes(user.data.user.role) && (
+                  {adminOnly.includes(user.role) && (
                     <CTableDataCell className="fixed-width" color="danger">
                       <CTooltip content={warehouseLoc.createdBy}>
                         <span>{warehouseLoc.createdBy}</span>
@@ -147,7 +147,7 @@ const TablesWarehouseLoc = ({
                       warehouseLoc={warehouseLoc}
                       onUpdateWarehouseLoc={onUpdateWarehouseLoc}
                     />
-                    {adminRoles.includes(user.data.user.role) && (
+                    {adminRoles.includes(user.role) && (
                       <DeleteWarehouseLoc
                         warehouseLoc={warehouseLoc}
                         onDeleteWarehouseLoc={onDeleteWarehouseLoc}

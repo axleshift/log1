@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import {
@@ -11,10 +10,7 @@ import {
   CAccordionItem,
   CAccordionHeader,
   CAccordionBody,
-  CRow,
-  CCol,
   CHeader,
-  CSpinner,
 } from '@coreui/react'
 import DeleteVehicle from './DeleteVehicle'
 import UpdateVehicle from './UpdateVehicle'
@@ -27,11 +23,6 @@ const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicl
   const adminRoles = ['manager', 'admin']
   const [locaLError, setLocaLError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true,
-  })
 
   useEffect(() => {
     setFilteredVehicles(vehicle)
@@ -42,17 +33,17 @@ const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicl
       if (searchQuery === '') {
         setFilteredVehicles(vehicle)
       } else {
-        const filteredVehicles = vehicle.filter((vehicle) => {
+        const filteredVehicles = vehicle.filter((vehicles) => {
           return (
-            vehicle.idNum.toString().includes(searchQuery) ||
-            vehicle.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicle.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicle.year.toString().includes(searchQuery) ||
-            vehicle.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicle.regisNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicle.capacity.toString().includes(searchQuery) ||
+            vehicles.idNum.toString().includes(searchQuery) ||
+            vehicles.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.year.toString().includes(searchQuery) ||
+            vehicles.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.regisNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.capacity.toString().includes(searchQuery) ||
             options
-              .find((option) => option.value === vehicle.status)
+              .find((option) => option.value === vehicles.status)
               .label.toLowerCase()
               .includes(searchQuery.toLowerCase())
           )
@@ -116,8 +107,8 @@ const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicl
         </CInputGroup>
       </CContainer>
       <CAccordion className="m-2">
-        {filteredVehicles.map((vehicle) => (
-          <CAccordionItem key={vehicle._id}>
+        {filteredVehicles.map((vehicle, index) => (
+          <CAccordionItem key={vehicle._id || index}>
             <CAccordionHeader>
               <p className="w-100 m-1 ">
                 Registration Number:<strong className="ms-2">{vehicle.regisNumber}</strong>
@@ -152,7 +143,7 @@ const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicl
 
               <CContainer className="d-flex justify-content-end mt-3">
                 <UpdateVehicle vehicle={vehicle} onUpdateVehicle={onUpdateVehicle} />
-                {adminRoles.includes(user.data.user.role) && (
+                {adminRoles.includes(user.role) && (
                   <DeleteVehicle vehicle={vehicle} onDeleteVehicle={onDeleteVehicle} />
                 )}
               </CContainer>

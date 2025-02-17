@@ -5,9 +5,15 @@ import AddVehicle from './ComponentVehicle/AddVehicle'
 import TableVehicle from './ComponentVehicle/TableVehicle'
 import axios from 'axios'
 
+const token = sessionStorage.getItem('accessToken')
 const API = import.meta.env.VITE_APP_API_URL
 const api = axios.create({
   baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
 })
 
 const VehicleManagement = () => {
@@ -31,9 +37,10 @@ const VehicleManagement = () => {
       setLoading(false)
     }
   }
+
   useEffect(() => {
     fetchVehicle()
-  })
+  }, [])
   const handleAddVehicle = (newVehicle) => {
     setVehicles((preVehicles) => [...preVehicles, newVehicle])
   }
@@ -44,7 +51,7 @@ const VehicleManagement = () => {
 
   const handleUpdateVehicle = (updatedVehicle) => {
     setVehicles((preVehicles) =>
-      preVehicles.map((vehicle) => (vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle)),
+      preVehicles.map((vehicle) => (vehicle._id === updatedVehicle._id ? updatedVehicle : vehicle)),
     )
   }
   return (

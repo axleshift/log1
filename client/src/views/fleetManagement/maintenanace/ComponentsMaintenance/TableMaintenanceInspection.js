@@ -19,14 +19,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faCircle, faListCheck } from '@fortawesome/free-solid-svg-icons'
 import DeleteMaintenanceInspection from './DeleteMaintenanceInspection'
 import AddMaintenanceCheckList from './AddMiantenanceCheckList'
-
+const token = sessionStorage.getItem('accessToken')
+const API = import.meta.env.VITE_APP_API_URL
+const api = axios.create({
+  baseURL: API,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+  },
+})
 const TableMaintenanceInspection = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-  })
   const [data, setData] = useState([])
   const [Loading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -174,9 +179,7 @@ const TableMaintenanceInspection = () => {
                     </span>
                   </CPopover>
 
-                  {adminRoles.includes(user.data.user.role) && (
-                    <DeleteMaintenanceInspection item={item} />
-                  )}
+                  {adminRoles.includes(user.role) && <DeleteMaintenanceInspection item={item} />}
                 </CContainer>
               </CAccordionBody>
             </CAccordionItem>

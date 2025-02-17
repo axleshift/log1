@@ -141,7 +141,7 @@ const TableDriver = ({ driver, loading, onDeleteDriver, onUpdateDriver }) => {
                 ) : (
                   <UpdateDriver driver={driver} onUpdateDriver={onUpdateDriver} />
                 )}
-                {adminRoles.includes(user.data.user.role) && (
+                {adminRoles.includes(user.role) && (
                   <DeleteDriver driver={driver} onDeleteDriver={onDeleteDriver} />
                 )}
               </CContainer>
