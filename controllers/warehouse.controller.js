@@ -78,25 +78,6 @@ export const updateWarehouseItem = async (req, res) => {
     }
 };
 
-// export const getAllItems = async (req, res) => {
-//     try {
-//         const items = await Warehouse.find();
-//         const groupedItems = items.reduce((acc, item) => {
-//             const existingItem = acc.find((i) => i.itemName === item.itemName);
-//             if (existingItem) {
-//                 existingItem.quantity += item.quantity;
-//             } else {
-//                 acc.push(item);
-//             }
-//             return acc;
-//         }, []);
-
-//         return res.status(200).json({ success: true, data: groupedItems });
-//     } catch (err) {
-//         res.status(500).json({ success: false, message: "Error fetching items" });
-//     }
-// };
-
 export const checkIfPoNumberExists = async (req, res) => {
     const poNumber = req.params.poNumber;
     const exists = await Warehouse.exists({ PoNumber: poNumber });
