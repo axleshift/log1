@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import {
   CSpinner,
   CInputGroup,
@@ -17,14 +16,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faCircle } from '@fortawesome/free-solid-svg-icons'
 import UpdateDriver from './UpdateDriver'
 import DeleteDriver from './DeleteDriver'
+import { getRole } from './../../../../utils/auth'
 
 const TableDriver = ({ driver, loading, onDeleteDriver, onUpdateDriver }) => {
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true, // This is important for cookies
-  })
-  const user = JSON.parse(sessionStorage.getItem('user'))
+  const role = getRole()
   const adminRoles = ['manager', 'admin']
   const [localError, setLocalError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -141,7 +136,7 @@ const TableDriver = ({ driver, loading, onDeleteDriver, onUpdateDriver }) => {
                 ) : (
                   <UpdateDriver driver={driver} onUpdateDriver={onUpdateDriver} />
                 )}
-                {adminRoles.includes(user.role) && (
+                {adminRoles.includes(role) && (
                   <DeleteDriver driver={driver} onDeleteDriver={onDeleteDriver} />
                 )}
               </CContainer>

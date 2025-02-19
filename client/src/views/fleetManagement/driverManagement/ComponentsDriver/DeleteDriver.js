@@ -1,23 +1,10 @@
-/* eslint-disable prettier/prettier */
 import React from 'react'
-import axios from 'axios'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { CButton, CSpinner } from '@coreui/react'
-
+import api from '../../../../utils/api'
 const DeleteDriver = ({ driver, onDeleteDriver }) => {
-  const token = sessionStorage.getItem('accessToken')
-  const API = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API,
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
-
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 

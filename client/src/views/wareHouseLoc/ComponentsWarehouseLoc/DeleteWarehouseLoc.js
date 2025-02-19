@@ -23,7 +23,6 @@ const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
     setLoading(true)
     try {
       const response = await api.delete(`/api/v1/warehouseLoc/delete/${warehouseLoc._id}`)
-      console.log(response.data)
       if (response.status === 200) {
         alert('Warehouse Location deleted successfully')
         onDeleteWarehouseLoc(warehouseLoc._id)

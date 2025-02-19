@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
@@ -16,17 +15,7 @@ import {
   CModalTitle,
   CForm,
 } from '@coreui/react'
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
-
+import api from '../../../../utils/api'
 const UpdateDriver = ({ driver, onUpdateDriver }) => {
   const [visible, setVisible] = useState(false)
   const [success, setSuccess] = useState(null)
@@ -46,7 +35,13 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
     assignedVehicle: driver.assignedVehicle,
   }
   const [updateDriver, setUpdateDriver] = useState(initialState)
-
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setUpdateDriver((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
+  }
   const fetchAvailableVehicles = async () => {
     try {
       const response = await api.get('/api/v1/vehicle/available')
@@ -145,12 +140,12 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 floatingLabel="Name"
                 placeholder="Name"
                 type="text"
-                id="Name"
+                id="driverName"
                 label="Name"
                 autoComplete="off"
                 required
                 value={updateDriver.driverName}
-                onChange={(e) => setUpdateDriver({ ...updateDriver, driverName: e.target.value })}
+                onChange={handleChange}
               />
 
               <CFormInput
@@ -163,7 +158,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 autoComplete="off"
                 required
                 value={updateDriver.email}
-                onChange={(e) => setUpdateDriver({ ...updateDriver, email: e.target.value })}
+                onChange={handleChange}
               />
               <CFormInput
                 type="phone"
@@ -176,7 +171,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 autoComplete="off"
                 value={updateDriver.phone}
                 required
-                onChange={(e) => setUpdateDriver({ ...updateDriver, phone: e.target.value })}
+                onChange={handleChange}
               />
               <CFormInput
                 className="mb-3"
@@ -188,7 +183,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 autoComplete="off"
                 required
                 value={updateDriver.address}
-                onChange={(e) => setUpdateDriver({ ...updateDriver, address: e.target.value })}
+                onChange={handleChange}
               />
               <CFormInput
                 className="mb-3"
@@ -200,9 +195,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 autoComplete="off"
                 required
                 value={updateDriver.licenseNumber}
-                onChange={(e) =>
-                  setUpdateDriver({ ...updateDriver, licenseNumber: e.target.value })
-                }
+                onChange={handleChange}
               />
               <CFormSelect
                 className="mb-3"
@@ -213,7 +206,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 autoComplete="off"
                 required
                 value={updateDriver.status}
-                onChange={(e) => setUpdateDriver({ ...updateDriver, status: e.target.value })}
+                onChange={handleChange}
               >
                 {options.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -229,9 +222,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                     label="Vehicle"
                     id="vehicle"
                     value={updateDriver.assignedVehicle}
-                    onChange={(e) =>
-                      setUpdateDriver({ ...updateDriver, assignedVehicle: e.target.value })
-                    }
+                    onChange={handleChange}
                   >
                     {vehiclesOptions.map((vehicle) => (
                       <option key={vehicle._id} value={vehicle._id}>

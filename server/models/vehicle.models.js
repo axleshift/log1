@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const userSchema = new mongoose.Schema({
+    user: {
+        type: String,
+    },
+    date: {
+        type: Date,
+    },
+});
 const vehicleSchema = new mongoose.Schema(
     {
         idNum: {
@@ -52,6 +60,7 @@ const vehicleSchema = new mongoose.Schema(
 
         fuelType: { type: String, required: true },
         currentMileage: { type: Number, required: true },
+        createdBy: [userSchema],
     },
     {
         timestamps: true,

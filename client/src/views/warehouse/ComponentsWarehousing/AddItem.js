@@ -15,19 +15,24 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import api from '../../../utils/api'
 
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
+// const token = sessionStorage.getItem('accessToken')
+// const API = import.meta.env.VITE_APP_API_URL
+// const api = axios.create({
+//   baseURL: API,
+//   withCredentials: true,
+//   headers: {
+//     'Content-Type': 'application/json',
+//     ...(token && { Authorization: `Bearer ${token}` }),
+//   },
+// })
 
 const AddItem = ({ onAddItem, item = {} }) => {
+  useEffect(() => {
+    const token = sessionStorage.getItem('accessToken')
+    console.log('Current token:', token)
+  }, [])
   const [buttonText, setButtonText] = useState('Add Item')
   const [success, setSuccess] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -39,7 +44,6 @@ const AddItem = ({ onAddItem, item = {} }) => {
     items: item.items,
     PoNumber: item.PoNumber,
     dateArrival: today,
-    category: '',
     warehouse: '',
     byReceived: '',
   })
@@ -94,6 +98,8 @@ const AddItem = ({ onAddItem, item = {} }) => {
       .join('\n')
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log('Request headers:', api.defaults.headers)
+    console.log('Form data:', formData)
     const user = JSON.parse(sessionStorage.getItem('user'))
     const email = user.email
     if (!email) {
@@ -106,6 +112,7 @@ const AddItem = ({ onAddItem, item = {} }) => {
         ...formData,
         byReceived: email,
       })
+
       if (response.status === 201) {
         const newItem = response.data.data
         const warehouse = warehouses.find((w) => w._id === newItem.warehouse)

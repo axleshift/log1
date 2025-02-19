@@ -1,6 +1,5 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import {
   CButton,
   CModal,
@@ -16,18 +15,9 @@ import {
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import api from '../../../../utils/api'
 
 const AddDrivers = ({ onAddDriver }) => {
-  const token = sessionStorage.getItem('accessToken')
-  const API = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API,
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
@@ -46,6 +36,14 @@ const AddDrivers = ({ onAddDriver }) => {
     assignedVehicle: '',
   }
   const [newDriver, setNewDriver] = useState(initialState)
+
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setNewDriver((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
+  }
   const fetchAvailableVehicles = async () => {
     try {
       const response = await api.get('/api/v1/vehicle/available')
@@ -139,12 +137,12 @@ const AddDrivers = ({ onAddDriver }) => {
                   floatingLabel="Name"
                   placeholder="Name"
                   type="text"
-                  id="Name"
+                  id="driverName"
                   label="Name"
                   autoComplete="off"
                   required
                   value={newDriver.driverName}
-                  onChange={(e) => setNewDriver({ ...newDriver, driverName: e.target.value })}
+                  onChange={handleChange}
                 />
 
                 <CFormInput
@@ -157,7 +155,7 @@ const AddDrivers = ({ onAddDriver }) => {
                   autoComplete="off"
                   required
                   value={newDriver.email}
-                  onChange={(e) => setNewDriver({ ...newDriver, email: e.target.value })}
+                  onChange={handleChange}
                 />
                 <CFormInput
                   type="phone"
@@ -170,7 +168,7 @@ const AddDrivers = ({ onAddDriver }) => {
                   autoComplete="off"
                   value={newDriver.phone}
                   required
-                  onChange={(e) => setNewDriver({ ...newDriver, phone: e.target.value })}
+                  onChange={handleChange}
                 />
                 <CFormInput
                   className="mb-3"
@@ -182,7 +180,7 @@ const AddDrivers = ({ onAddDriver }) => {
                   autoComplete="off"
                   required
                   value={newDriver.address}
-                  onChange={(e) => setNewDriver({ ...newDriver, address: e.target.value })}
+                  onChange={handleChange}
                 />
                 <CFormInput
                   className="mb-3"
@@ -194,7 +192,7 @@ const AddDrivers = ({ onAddDriver }) => {
                   autoComplete="off"
                   required
                   value={newDriver.licenseNumber}
-                  onChange={(e) => setNewDriver({ ...newDriver, licenseNumber: e.target.value })}
+                  onChange={handleChange}
                 />
 
                 <CFormSelect
@@ -204,7 +202,7 @@ const AddDrivers = ({ onAddDriver }) => {
                   id="vehicle"
                   required
                   value={newDriver.assignedVehicle}
-                  onChange={(e) => setNewDriver({ ...newDriver, assignedVehicle: e.target.value })}
+                  onChange={handleChange}
                 >
                   <option value={null}>Select Vehicle</option>
                   {vehiclesOptions.map((vehicle) => (

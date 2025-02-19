@@ -1,6 +1,5 @@
 import React from 'react'
 import { useState } from 'react'
-import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import {
@@ -16,18 +15,9 @@ import {
   CModalTitle,
   CForm,
 } from '@coreui/react'
+import api from '../../../../utils/api'
 
 const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
-  const token = sessionStorage.getItem('accessToken')
-  const API = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API,
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
   const [visible, setVisible] = useState(false)
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
@@ -45,7 +35,13 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
     currentMileage: vehicle.currentMileage,
   }
   const [editVehicle, setNewEditVehicle] = useState(initialState)
-
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setNewEditVehicle((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
+  }
   const vehicleTypes = [
     { label: 'Van', value: 'van' },
     { label: 'Pickup Truck', value: 'pickup' },
@@ -75,7 +71,6 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
         setSuccess('Vehicle updated successfully')
         onUpdateVehicle(response.data.data)
         setTimeout(() => {
-          setNewEditVehicle(initialState)
           setSuccess(null)
           setLoading(false)
           setValidated(false)
@@ -91,6 +86,9 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
       setLoading(false)
     }
   }
+
+  const currentYear = new Date().getFullYear()
+  const MIN_YEAR = 1990
 
   return (
     <>
@@ -139,7 +137,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               label="Brand"
               required
               value={editVehicle.brand}
-              onChange={(e) => setNewEditVehicle({ ...editVehicle, brand: e.target.value })}
+              onChange={handleChange}
             />
             <CFormInput
               className="mb-3"
@@ -150,9 +148,9 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               label="Model"
               required
               value={editVehicle.model}
-              onChange={(e) => setNewEditVehicle({ ...editVehicle, model: e.target.value })}
+              onChange={handleChange}
             />
-            <CFormInput
+            {/* <CFormInput
               type="number"
               className="mb-3"
               floatingLabel="Year"
@@ -173,7 +171,31 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
                   setNewEditVehicle({ ...editVehicle, year: 1990 })
                 }
               }}
+            /> */}
+
+            <CFormInput
+              type="number"
+              className="mb-3"
+              floatingLabel="Year"
+              placeholder="Year"
+              id="year"
+              value={editVehicle.year}
+              required
+              min={MIN_YEAR}
+              max={currentYear}
+              onChange={handleChange}
+              onBlur={(e) => {
+                const inputYear = parseInt(e.target.value)
+                const isValidYear =
+                  inputYear >= MIN_YEAR && inputYear <= currentYear && !isNaN(inputYear)
+
+                if (!isValidYear) {
+                  alert(`Please enter a year between ${MIN_YEAR} and ${currentYear}`)
+                  setNewEditVehicle({ ...editVehicle, year: MIN_YEAR })
+                }
+              }}
             />
+
             <CFormInput
               className="mb-3"
               floatingLabel="Registration Number"
@@ -183,7 +205,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               label="Registration Number"
               required
               value={editVehicle.regisNumber}
-              onChange={(e) => setNewEditVehicle({ ...editVehicle, regisNumber: e.target.value })}
+              onChange={handleChange}
             />
             <CFormSelect
               className="mb-3"
@@ -192,7 +214,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               id="type"
               value={editVehicle.type}
               required
-              onChange={(e) => setNewEditVehicle({ ...editVehicle, type: e.target.value })}
+              onChange={handleChange}
               options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
             />
 
@@ -206,7 +228,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               required
               min="0"
               value={editVehicle.capacity}
-              onChange={(e) => setNewEditVehicle({ ...editVehicle, capacity: e.target.value })}
+              onChange={handleChange}
             />
 
             <CFormSelect
@@ -217,7 +239,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               label="Fuel Type"
               value={editVehicle.fuelType}
               required
-              onChange={(e) => setNewEditVehicle({ ...editVehicle, fuelType: e.target.value })}
+              onChange={handleChange}
               options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
             />
             <CFormInput
@@ -225,14 +247,13 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
               floatingLabel="Current Mileage"
               placeholder="Current Mileage"
               type="number"
-              id="mileage"
+              id="currentMileage"
               label="Current Mileage"
               required
               min="0"
+              max="100000000000"
               value={editVehicle.currentMileage}
-              onChange={(e) =>
-                setNewEditVehicle({ ...editVehicle, currentMileage: e.target.value })
-              }
+              onChange={handleChange}
             />
           </CForm>
         </CModalBody>

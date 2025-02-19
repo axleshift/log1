@@ -1,20 +1,8 @@
-/* eslint-disable prettier/prettier */
 import { CCard, CCardBody, CContainer, CHeader } from '@coreui/react'
 import React, { useState, useEffect } from 'react'
 import AddVehicle from './ComponentVehicle/AddVehicle'
 import TableVehicle from './ComponentVehicle/TableVehicle'
-import axios from 'axios'
-
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
+import api from '../../../utils/api'
 
 const VehicleManagement = () => {
   const [vehicle, setVehicles] = useState([])
@@ -46,7 +34,7 @@ const VehicleManagement = () => {
   }
 
   const handleDeleteVehicle = (vehicleId) => {
-    setVehicles((preVehicles) => preVehicles.filter((vehicle) => vehicle.id !== vehicleId))
+    setVehicles((preVehicles) => preVehicles.filter((vehicle) => vehicle._id !== vehicleId))
   }
 
   const handleUpdateVehicle = (updatedVehicle) => {

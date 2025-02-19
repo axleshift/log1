@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { CButton, CSpinner } from '@coreui/react'
+import { CButton, CSpinner, CAlert } from '@coreui/react'
 
 const DeleteVehicle = ({ vehicle, onDeleteVehicle }) => {
   const token = sessionStorage.getItem('accessToken')
@@ -35,9 +35,24 @@ const DeleteVehicle = ({ vehicle, onDeleteVehicle }) => {
       setLoading(false)
     }
   }
+
+  if (error) {
+    return (
+      <CAlert color="danger" className="text-center mt-5 w-75 mx-auto">
+        Error: {error.message}
+      </CAlert>
+    )
+  }
+
   return (
     <>
-      <CButton color="danger" variant="outline" disabled={loading} onClick={handleDelete}>
+      <CButton
+        color="danger"
+        variant="outline"
+        disabled={loading}
+        onClick={handleDelete}
+        className="me-2"
+      >
         {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />}
       </CButton>
     </>

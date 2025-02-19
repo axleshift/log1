@@ -15,11 +15,12 @@ import {
 import DeleteVehicle from './DeleteVehicle'
 import UpdateVehicle from './UpdateVehicle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlass, faCircle } from '@fortawesome/free-solid-svg-icons'
+import { getRole } from '../../../../utils/auth'
 
-const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicle }) => {
+const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicle }) => {
   const [filteredVehicles, setFilteredVehicles] = useState([])
-  const user = JSON.parse(sessionStorage.getItem('user'))
+  const userRole = getRole()
   const adminRoles = ['manager', 'admin']
   const [locaLError, setLocaLError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -143,7 +144,7 @@ const TableVehicle = ({ vehicle, loading, error, onDeleteVehicle, onUpdateVehicl
 
               <CContainer className="d-flex justify-content-end mt-3">
                 <UpdateVehicle vehicle={vehicle} onUpdateVehicle={onUpdateVehicle} />
-                {adminRoles.includes(user.role) && (
+                {adminRoles.includes(userRole) && (
                   <DeleteVehicle vehicle={vehicle} onDeleteVehicle={onDeleteVehicle} />
                 )}
               </CContainer>

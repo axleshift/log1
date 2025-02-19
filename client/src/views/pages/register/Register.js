@@ -16,22 +16,11 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import api from '../../../utils/api'
 
 const Register = () => {
   const navigate = useNavigate()
-  const token = sessionStorage.getItem('accessToken')
-  const user = JSON.parse(sessionStorage.getItem('user'))
-  const API_URL = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true, // Important for handling cookies
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -214,10 +203,10 @@ const Register = () => {
                       disabled={isLoading}
                     >
                       <option value="">Select Role</option>
-                      <option value="user">User</option>
                       <option value="admin">Admin</option>
                       <option value="manager">Manager</option>
                       <option value="inspector">Inspector</option>
+                      <option value="driver">Driver</option>
                     </CFormSelect>
                   </CInputGroup>
                   <CInputGroup className="mb-3">

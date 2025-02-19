@@ -13,6 +13,7 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 const Getallusers = React.lazy(() => import('./views/pages/allUsers/UserList'))
+const MyAccount = React.lazy(() => import('./views/pages/allUsers/My Accout/MyAccount'))
 const Page401 = React.lazy(() => import('./views/pages/page401/Page401'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
@@ -46,6 +47,16 @@ const App = () => {
       >
         <Routes>
           <Route exact path="/login" name="Login Page" element={<Login />} />
+          <Route
+            exact
+            path="/profile"
+            name="profile"
+            element={
+              <ProtectedRoute>
+                <MyAccount />
+              </ProtectedRoute>
+            }
+          />
           {/* <Route exact path="/register" name="Register Page" element={<Register />} /> */}
           <Route
             exact

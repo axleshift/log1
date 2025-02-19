@@ -13,34 +13,64 @@ import CIcon from '@coreui/icons-react'
 import avatar8 from './../../assets/images/avatars/8.jpg'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../utils/auth'
-const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:5057'
-const AppHeaderDropdown = () => {
-  const users = JSON.parse(sessionStorage.getItem('user'))
-  const [user, setUser] = useState(null)
-  const [photoUrl, setPhotoUrl] = useState(null)
-  const navigate = useNavigate()
+import axios from 'axios'
 
-  const getUserFromSession = () => {
+const AppHeaderDropdown = () => {
+  const API_URL = import.meta.env.VITE_APP_API_URL || 'XXXXXXXXXXXXXXXXXXXXX'
+  const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true,
+    headers: {
+      Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
+    },
+  })
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(false) // Add loading state
+  const [error, setError] = useState(null) // Add error state
+  const navigate = useNavigate()
+  const [preview, setPreview] = useState(null)
+  const fetchUserData = async () => {
     try {
-      const userStr = sessionStorage.getItem('user')
-      if (!userStr) return null
-      return JSON.parse(userStr)
-    } catch (error) {
-      console.error('Error parsing user from session:', error)
-      return null
+      setLoading(true)
+      setError(null)
+
+      // Get the token from sessionStorage
+      const token = sessionStorage.getItem('accessToken')
+
+      const response = await api.get('/api/v1/user/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.data.success) {
+        setUser(response.data.data)
+      }
+    } catch (err) {
+      console.error('Profile fetch error:', err)
+      if (err.response?.status === 401) {
+        sessionStorage.removeItem('accessToken')
+        navigate('/login')
+        return
+      }
+      setError(err.response?.data?.message || 'Error fetching user data')
+    } finally {
+      setLoading(false)
     }
   }
+  useEffect(() => {
+    fetchUserData() // Call fetchUserData when component mounts
+  }, []) // Remove user from dependencies to avoid infinite loop
 
   useEffect(() => {
-    const userData = getUserFromSession()
-    if (userData) {
-      setUser(userData)
-      // Set photo URL if user has a photo
-      if (userData.photo) {
-        setPhotoUrl(`${API_URL}/uploads/${userData.photo}`)
-      }
+    if (user?.photo) {
+      const photoUrl = user.photo.startsWith('http')
+        ? user.photo
+        : `${API_URL}/uploads/${user.photo}`
+      setPreview(photoUrl)
     }
-  }, [])
+  }, [user, API_URL])
+
   const handleLogout = async () => {
     await logout()
     navigate('/login')
@@ -52,11 +82,15 @@ const AppHeaderDropdown = () => {
   const handleAccountClick = () => {
     navigate('/all-users')
   }
+  const handleProfileClick = () => {
+    navigate('/profile')
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
         <CAvatar
-          src={photoUrl || avatar8} // Provide a default avatar
+          src={preview || avatar8}
           size="md"
           style={{
             width: '40px',
@@ -69,21 +103,27 @@ const AppHeaderDropdown = () => {
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>
-        <CDropdownItem>
-          <CIcon icon={cilUser} className="me-2" />
-          {`Hi, ${users.username}. Your role is ${users.role}`}
-        </CDropdownItem>
-        {user?.role === 'admin' && (
-          <CDropdownItem onClick={handleRegisterClick}>
-            <CIcon icon={cilUserPlus} className="me-2" />
-            Register
-          </CDropdownItem>
-        )}
-        {user?.role === 'admin' && (
-          <CDropdownItem onClick={handleAccountClick}>
-            <CIcon icon={cilUser} className="me-2" />
-            Accounts
-          </CDropdownItem>
+        {/* Add conditional rendering here */}
+        {user && <CDropdownItem>{`Hi, ${user.username}. Your role is ${user.role}`}</CDropdownItem>}
+        {/* Rest of your dropdown items with conditional rendering */}
+        {user && (
+          <>
+            <CDropdownItem onClick={handleProfileClick}>
+              <CIcon icon={cilUser} className="me-2" /> Profile
+            </CDropdownItem>
+            {user.role === 'admin' && (
+              <>
+                <CDropdownItem onClick={handleRegisterClick}>
+                  <CIcon icon={cilUserPlus} className="me-2" />
+                  Register
+                </CDropdownItem>
+                <CDropdownItem onClick={handleAccountClick}>
+                  <CIcon icon={cilUser} className="me-2" />
+                  Accounts
+                </CDropdownItem>
+              </>
+            )}
+          </>
         )}
         <CDropdownItem className="d-flex justify-content-center">
           <CButton variant="ghost" color="light" onClick={handleLogout}>
@@ -95,5 +135,4 @@ const AppHeaderDropdown = () => {
     </CDropdown>
   )
 }
-
 export default AppHeaderDropdown

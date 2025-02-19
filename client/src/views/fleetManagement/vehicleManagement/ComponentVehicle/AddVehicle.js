@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier */
 import React from 'react'
-import axios from 'axios'
 import { useState } from 'react'
 import {
   CFormInput,
@@ -17,18 +15,9 @@ import {
 import { CModalTitle } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import api from '../../../../utils/api'
 
 const AddVehicle = ({ onAddVehicle }) => {
-  const token = sessionStorage.getItem('accessToken')
-  const API = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API,
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
   const [validated, setValidated] = useState(false)
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState(null)
@@ -47,7 +36,13 @@ const AddVehicle = ({ onAddVehicle }) => {
     status: 'available',
   }
   const [newVehicle, setNewVehicle] = useState(initialState)
-
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setNewVehicle((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }))
+  }
   const vehicleTypes = [
     { label: 'Van', value: 'van' },
     { label: 'Pickup Truck', value: 'pickup' },
@@ -96,7 +91,8 @@ const AddVehicle = ({ onAddVehicle }) => {
     }
     setLoading(false)
   }
-
+  const currentYear = new Date().getFullYear()
+  const MIN_YEAR = 1990
   return (
     <>
       {loading ? (
@@ -142,7 +138,7 @@ const AddVehicle = ({ onAddVehicle }) => {
                   autoComplete="off"
                   required
                   value={newVehicle.brand}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, brand: e.target.value })}
+                  onChange={handleChange}
                 />
                 <CFormInput
                   className="mb-3"
@@ -154,7 +150,7 @@ const AddVehicle = ({ onAddVehicle }) => {
                   autoComplete="off"
                   required
                   value={newVehicle.model}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
+                  onChange={handleChange}
                 />
                 <CFormInput
                   type="number"
@@ -162,24 +158,19 @@ const AddVehicle = ({ onAddVehicle }) => {
                   floatingLabel="Year"
                   placeholder="Year"
                   id="year"
-                  autoComplete="off"
                   value={newVehicle.year}
                   required
-                  min="1990"
-                  max={new Date().getFullYear()}
-                  onChange={(e) => {
-                    const inputYear = e.target.value
-                    setNewVehicle({ ...newVehicle, year: inputYear })
-                  }}
+                  min={MIN_YEAR}
+                  max={currentYear}
+                  onChange={handleChange}
                   onBlur={(e) => {
                     const inputYear = parseInt(e.target.value)
-                    if (
-                      inputYear < 1990 ||
-                      inputYear > new Date().getFullYear() ||
-                      isNaN(inputYear)
-                    ) {
-                      alert('Please enter a year between 1990 and ' + new Date().getFullYear())
-                      setNewVehicle({ ...newVehicle, year: 1990 })
+                    const isValidYear =
+                      inputYear >= MIN_YEAR && inputYear <= currentYear && !isNaN(inputYear)
+
+                    if (!isValidYear) {
+                      alert(`Please enter a year between ${MIN_YEAR} and ${currentYear}`)
+                      setNewVehicle({ ...newVehicle, year: MIN_YEAR })
                     }
                   }}
                 />
@@ -193,7 +184,7 @@ const AddVehicle = ({ onAddVehicle }) => {
                   autoComplete="off"
                   required
                   value={newVehicle.regisNumber}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, regisNumber: e.target.value })}
+                  onChange={handleChange}
                 />
                 <CFormSelect
                   className="mb-3"
@@ -202,7 +193,7 @@ const AddVehicle = ({ onAddVehicle }) => {
                   id="type"
                   value={newVehicle.type}
                   required
-                  onChange={(e) => setNewVehicle({ ...newVehicle, type: e.target.value })}
+                  onChange={handleChange}
                   options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
                 />
 
@@ -217,7 +208,7 @@ const AddVehicle = ({ onAddVehicle }) => {
                   required
                   min="0"
                   value={newVehicle.capacity}
-                  onChange={(e) => setNewVehicle({ ...newVehicle, capacity: e.target.value })}
+                  onChange={handleChange}
                 />
 
                 <CFormSelect
@@ -227,7 +218,7 @@ const AddVehicle = ({ onAddVehicle }) => {
                   id="fuelType"
                   value={newVehicle.fuelType}
                   required
-                  onChange={(e) => setNewVehicle({ ...newVehicle, fuelType: e.target.value })}
+                  onChange={handleChange}
                   options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
                 />
 
@@ -236,13 +227,14 @@ const AddVehicle = ({ onAddVehicle }) => {
                   floatingLabel="Current Mileage"
                   placeholder="Current Mileage"
                   type="number"
-                  id="mileage"
+                  id="currentMileage"
                   label="Current Mileage"
                   autoComplete="off"
                   required
                   value={newVehicle.currentMileage}
                   min="0"
-                  onChange={(e) => setNewVehicle({ ...newVehicle, currentMileage: e.target.value })}
+                  max="100000000000"
+                  onChange={handleChange}
                 />
               </CForm>
             </CModalBody>

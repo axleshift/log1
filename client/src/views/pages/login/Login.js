@@ -52,11 +52,6 @@ const Login = () => {
       const response = await api.post('/api/v1/user/login', data)
       if (response.data.success) {
         const { accessToken, refreshToken, user } = response.data
-        console.log('Login Response:', {
-          accessToken: !!accessToken,
-          refreshToken: !!refreshToken,
-          user,
-        })
 
         // Check if refreshToken exists before storing
         if (!refreshToken) {

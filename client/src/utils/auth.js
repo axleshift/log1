@@ -55,3 +55,17 @@ export const hasRole = (requiredRole) => {
   const userInfo = getUserInfo()
   return userInfo?.role === requiredRole
 }
+
+export const getRole = () => {
+  const accessToken = sessionStorage.getItem('accessToken')
+  if (accessToken) {
+    try {
+      const decodedToken = jwtDecode(accessToken)
+      return decodedToken.role
+    } catch (error) {
+      console.error('Error decoding token:', error)
+      return null
+    }
+  }
+  return null
+}

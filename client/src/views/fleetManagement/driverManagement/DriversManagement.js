@@ -2,17 +2,7 @@ import React, { useEffect, useState } from 'react'
 import AddDriver from './ComponentsDriver/AddDrivers'
 import TableDriver from './ComponentsDriver/TableDriver'
 import { CCard, CCardBody, CContainer, CHeader } from '@coreui/react'
-import axios from 'axios'
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
+import api from '../../../utils/api'
 const DriversManagement = () => {
   const [driver, setDrivers] = useState([])
   const [loading, setLoading] = useState(false)
