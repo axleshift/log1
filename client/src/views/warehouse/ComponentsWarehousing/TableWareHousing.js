@@ -16,12 +16,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faCircle } from '@fortawesome/free-solid-svg-icons'
 import DeleteItem from './DeleteItem'
 import UpdateItem from './UpdateItem'
+import { getRole } from '../../../utils/auth'
 
 const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateItem }) => {
   const [filteredWarehousing, setFilteredWarehousing] = useState([])
   const [localError, setLocalError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const user = JSON.parse(sessionStorage.getItem('user'))
+  const role = getRole()
   const adminRoles = ['manager', 'admin']
 
   useEffect(() => {
@@ -143,7 +144,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
               </CHeader>
               <CContainer className="d-flex justify-content-end mt-3">
                 <UpdateItem warehousing={warehousing} onUpdateItem={onUpdateItem} />
-                {adminRoles.includes(user.role) && (
+                {adminRoles.includes(role) && (
                   <DeleteItem warehousing={warehousing} onDeleteItem={onDeleteItem} />
                 )}
               </CContainer>

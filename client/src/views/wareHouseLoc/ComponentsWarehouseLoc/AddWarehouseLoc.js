@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import axios from 'axios'
 import {
   CButton,
   CModal,
@@ -14,17 +13,7 @@ import {
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
+import api from '../../../utils/api'
 const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
   const [validated, setValidated] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -70,16 +59,13 @@ const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
           setSuccess(response.data.message)
           onAddWarehouseLoc(response.data.data)
           setTimeout(() => {
-            setSuccess(null)
-            setFormData(initialState)
-            setVisible(false)
             setLoading(false)
+            setSuccess(null)
+            setVisible(false)
             setError(null)
+            setFormData(initialState)
+            setValidated(false)
           }, 2000)
-          setFormData({
-            warehouseName: '',
-            address: '',
-          })
         }
       } catch (error) {
         setError(error.response.data.message)

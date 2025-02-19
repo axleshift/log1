@@ -24,7 +24,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import './TablesWarehouseLoc.css'
 import DeleteWarehouseLoc from './DeleteWarehouseLoc'
 import UpdateWarehouseLoc from './UpdateWarehouseLoc'
-
+import { getRole } from '../../../utils/auth'
 const TablesWarehouseLoc = ({
   warehouseLoc,
   loading,
@@ -37,7 +37,7 @@ const TablesWarehouseLoc = ({
   const [currentPage, setCurrentPage] = useState(1)
   const [localError, setLocalError] = useState(null)
   const itemsPerPage = 10
-  const user = JSON.parse(sessionStorage.getItem('user'))
+  const user = getRole()
   const adminRoles = ['manager', 'admin']
   const adminOnly = 'admin'
 
@@ -55,7 +55,7 @@ const TablesWarehouseLoc = ({
           .includes(searchQuery.toLowerCase())
         const matchesAddress = item.address.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesCreatedBy =
-          adminRoles.includes(user.role) &&
+          adminRoles.includes(user) &&
           item.createdBy.toLowerCase().includes(searchQuery.toLowerCase())
 
         return matchesWarehouseName || matchesAddress || matchesCreatedBy
@@ -113,7 +113,7 @@ const TablesWarehouseLoc = ({
                   Warehouse Name
                 </CTableHeaderCell>
                 <CTableHeaderCell className="fixed-width bg-secondary">Address</CTableHeaderCell>
-                {adminOnly.includes(user.role) && (
+                {adminOnly.includes(user) && (
                   <CTableHeaderCell className="fixed-width bg-secondary">
                     Created By
                   </CTableHeaderCell>
@@ -135,7 +135,7 @@ const TablesWarehouseLoc = ({
                       <span>{warehouseLoc.address}</span>
                     </CTooltip>
                   </CTableDataCell>
-                  {adminOnly.includes(user.role) && (
+                  {adminOnly.includes(user) && (
                     <CTableDataCell className="fixed-width" color="danger">
                       <CTooltip content={warehouseLoc.createdBy}>
                         <span>{warehouseLoc.createdBy}</span>
@@ -147,7 +147,7 @@ const TablesWarehouseLoc = ({
                       warehouseLoc={warehouseLoc}
                       onUpdateWarehouseLoc={onUpdateWarehouseLoc}
                     />
-                    {adminRoles.includes(user.role) && (
+                    {adminRoles.includes(user) && (
                       <DeleteWarehouseLoc
                         warehouseLoc={warehouseLoc}
                         onDeleteWarehouseLoc={onDeleteWarehouseLoc}

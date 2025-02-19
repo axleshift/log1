@@ -1,19 +1,8 @@
 import React, { useState } from 'react'
-import axios from 'axios'
 import { CButton, CSpinner, CAlert } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
+import api from '../../../utils/api'
 
 const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
   const [loading, setLoading] = useState(false)

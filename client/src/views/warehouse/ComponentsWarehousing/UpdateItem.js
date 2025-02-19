@@ -16,17 +16,7 @@ import {
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
-
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
+import api from '../../../utils/api'
 
 const UpdateItem = ({ warehousing, onUpdateItem }) => {
   const [error, setError] = useState(null)
@@ -35,8 +25,6 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
   const [visible, setVisible] = useState(false)
   const [warehouses, setWarehouses] = useState([])
   const today = new Date().toISOString().split('T')[0]
-  const user = JSON.parse(sessionStorage.getItem('user'))
-  const adminOnly = 'admin'
   const [formData, setFormData] = useState({
     from: warehousing.from,
     items: warehousing.items, // Use the items array from the warehousing object

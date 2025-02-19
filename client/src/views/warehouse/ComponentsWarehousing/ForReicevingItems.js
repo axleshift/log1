@@ -18,19 +18,7 @@ import React, { useState, useEffect } from 'react'
 import AddItem from './AddItem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import axios from 'axios'
-
-const token = sessionStorage.getItem('accessToken')
-const API = import.meta.env.VITE_APP_API_URL
-const api = axios.create({
-  baseURL: API,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  },
-})
-
+import api from '../../../utils/api'
 const ForReicevingItems = ({ onAddItem }) => {
   const [reicevingItems, setReicevingItems] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
