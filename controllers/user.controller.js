@@ -1,44 +1,21 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.models.js";
-import multer from "multer";
 import path from "path";
+import fs from "fs/promises";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, "../uploads/")); // Use absolute path
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    },
-});
-
-// Configure multer upload
-export const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
-    },
-    fileFilter: function (req, file, cb) {
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-        if (!allowedTypes.includes(file.mimetype)) {
-            return cb(new Error("Only .jpeg, .png and .gif format allowed!"), false);
-        }
-        cb(null, true);
-    },
-});
 
 const generateAccessToken = (user) => {
     const payload = {
         userId: user._id,
         role: user.role,
+        username: user.username,
+        email: user.email,
     };
     return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1m", // Set the token to expire in 24 hours
+        expiresIn: "1h", // Set the token to expire in 1 hour
     });
 };
 
@@ -50,7 +27,7 @@ export const refreshToken = async (req, res) => {
 
     try {
         const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-        const newAccessToken = jwt.sign({ userId: decodedToken.userId, role: decodedToken.role, username: decodedToken.username, email: decodedToken.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+        const newAccessToken = jwt.sign({ userId: decodedToken.userId, role: decodedToken.role, username: decodedToken.username, email: decodedToken.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "7d" });
         return res.json({ accessToken: newAccessToken });
     } catch (error) {
         console.error("Error verifying refresh token:", error);
@@ -66,7 +43,12 @@ export const login = async (req, res) => {
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
+        // Check if user is active
+        if (!user.isActive) {
+            return res.status(403).json({
+                message: "Your account has been deactivated. Please contact an administrator.",
+            });
+        }
         // Generate tokens
         const accessToken = generateAccessToken(user);
         res.cookie("accessToken", accessToken, {
@@ -74,7 +56,7 @@ export const login = async (req, res) => {
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 60 * 1000, // 1 min
-            path: "http://localhost:5000",
+            // path: "http://localhost:5000",
         });
         // Set refresh token in HTTP-only cookie
         const refreshToken = jwt.sign({ userId: user._id, role: user.role, username: user.username, email: user.email }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
@@ -83,7 +65,7 @@ export const login = async (req, res) => {
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            path: "http://localhost:5000",
+            // path: "http://localhost:5000",
         });
         // Save refresh token to user
         user.refreshToken = refreshToken;
@@ -164,22 +146,53 @@ export const register = async (req, res) => {
     }
 };
 
+// export const logout = async (req, res) => {
+//     try {
+//         const refreshToken = req.cookies.refreshToken;
+
+//         if (refreshToken) {
+//             // Find user and remove refresh token
+//             await User.findOneAndUpdate({ refreshToken }, { $set: { refreshToken: null } });
+//         }
+
+//         // Clear refresh token cookie
+//         res.clearCookie("refreshToken");
+
+//         res.json({ success: true, message: "Logged out successfully" });
+//     } catch (error) {
+//         console.error("Logout error:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
+
 export const logout = async (req, res) => {
     try {
-        const refreshToken = req.cookies.refreshToken;
+        // Clear cookies
+        res.cookie("accessToken", "", {
+            httpOnly: true,
+            expires: new Date(0),
+        });
+        res.cookie("refreshToken", "", {
+            httpOnly: true,
+            expires: new Date(0),
+        });
 
-        if (refreshToken) {
-            // Find user and remove refresh token
-            await User.findOneAndUpdate({ refreshToken }, { $set: { refreshToken: null } });
+        // Clear refresh token from user document if stored
+        if (req.user) {
+            await User.findByIdAndUpdate(req.user.userId, {
+                refreshToken: null,
+            });
         }
 
-        // Clear refresh token cookie
-        res.clearCookie("refreshToken");
-
-        res.json({ success: true, message: "Logged out successfully" });
+        res.json({
+            success: true,
+            message: "Logged out successfully",
+        });
     } catch (error) {
-        console.error("Logout error:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
     }
 };
 
@@ -190,5 +203,199 @@ export const getUser = async (req, res) => {
     } catch (error) {
         console.error("Error fetching user:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const inActiveUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Toggle the isActive status
+        user.isActive = !user.isActive;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: `User ${user.isActive ? "activated" : "deactivated"} successfully`,
+            isActive: user.isActive,
+        });
+    } catch (error) {
+        console.error("Error toggling user status:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Create update object
+        const updateData = {};
+
+        // Only include fields that are present and not empty
+        if (updates.username?.trim()) updateData.username = updates.username;
+        if (updates.email?.trim()) updateData.email = updates.email;
+        if (updates.role?.trim()) updateData.role = updates.role;
+
+        // Handle password update
+        if (updates.password?.trim()) {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(updates.password, salt);
+        }
+
+        // Handle photo upload
+        if (req.file) {
+            try {
+                // Get existing user to check for old photo
+                const existingUser = await User.findById(id);
+                if (existingUser?.photo) {
+                    const oldPhotoPath = path.join(__dirname, "../uploads", path.basename(existingUser.photo));
+                    try {
+                        // Check if file exists before trying to delete
+                        await fs.access(oldPhotoPath);
+                        await fs.unlink(oldPhotoPath);
+                    } catch (err) {
+                        console.log("No existing photo found or error deleting:", err);
+                    }
+                }
+
+                // Save new photo path
+                updateData.photo = req.file.filename;
+            } catch (err) {
+                console.error("Error handling photo:", err);
+                // Continue with update even if photo handling fails
+            }
+        }
+
+        // Find and update the user
+        const user = await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select("-password"); // Exclude password from response
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Construct response with full photo URL
+        const userResponse = user.toObject();
+        if (userResponse.photo) {
+            userResponse.photoUrl = `${process.env.API_URL}/uploads/${userResponse.photo}`;
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            data: userResponse,
+        });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Error updating user",
+        });
+    }
+};
+
+export const getProfile = async (req, res) => {
+    try {
+        // The user ID should be available from the authenticate middleware
+        const userId = req.user._id;
+
+        const user = await User.findById(userId).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: user,
+        });
+    } catch (error) {
+        console.error("Profile fetch error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching profile",
+        });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+    try {
+        const { username, email, currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        // Update basic info
+        const updateData = {};
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+
+        // Handle password change
+        if (newPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Current password is required",
+                });
+            }
+
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Current password is incorrect",
+                });
+            }
+
+            updateData.password = await bcrypt.hash(newPassword, 10);
+        }
+
+        // Handle photo upload
+        if (req.file) {
+            // Delete old photo if exists
+            if (user.photo) {
+                try {
+                    const oldPhotoPath = path.join(__dirname, "../uploads", user.photo);
+                    await fs.unlink(oldPhotoPath);
+                } catch (err) {
+                    console.log("Error deleting old photo:", err);
+                }
+            }
+            updateData.photo = req.file.filename;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, { new: true }).select("-password -refreshToken");
+
+        // Add full URL for photo
+        const userResponse = updatedUser.toObject();
+        if (userResponse.photo) {
+            userResponse.photoUrl = `${process.env.API_URL}/uploads/${userResponse.photo}`;
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            data: userResponse,
+        });
+    } catch (error) {
+        console.error("Profile update error:", error);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Error updating profile",
+        });
     }
 };

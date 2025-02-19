@@ -1,48 +1,61 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.models.js";
 
 export const authenticate = async (req, res, next) => {
-    // try {
-    //     // Get token from header
-    //     const authHeader = req.headers.authorization;
-    //     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    //         return res.status(401).json({ message: "No token provided" });
-    //     }
-
-    //     // Extract token
-    //     const token = authHeader.split(" ")[1];
-
-    //     // Verify token
-    //     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    //         if (err) {
-    //             console.log("Token verification failed:", err.message);
-    //             return res.status(403).json({ message: "Invalid or expired token" });
-    //         }
-
-    //         // Add user info to request
-    //         req.user = decoded;
-    //         next();
-    //     });
-    // } catch (error) {
-    //     console.error("Auth middleware error:", error);
-    //     return res.status(500).json({ message: "Internal server error" });
-    // }
     try {
-        const authHeader = req.headers["authorization"];
-        const token = authHeader && authHeader.split(" ")[1];
+        let token;
 
-        if (!token) {
-            return res.status(401).json({ message: "No token provided" });
+        // Get token from Authorization header
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            token = req.headers.authorization.split(" ")[1];
         }
 
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-            if (err) {
-                return res.status(403).json({ message: "Invalid or expired token" });
+        // Check if token exists
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Not authorized, no token",
+            });
+        }
+
+        try {
+            // Verify token
+            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+            // Get user from token
+            const user = await User.findById(decoded.userId).select("-password");
+
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: "User not found",
+                });
             }
-            req.user = decoded;
+
+            // Check if user is active
+            if (!user.isActive) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Your account has been deactivated",
+                });
+            }
+
+            // Add user to request object
+            req.user = user;
             next();
-        });
+        } catch (error) {
+            console.error("Token verification error:", error);
+            return res.status(401).json({
+                success: false,
+                message: "Not authorized, token failed",
+            });
+        }
     } catch (error) {
-        return res.status(500).json({ message: "Internal server error" });
+        console.error("Auth middleware error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
     }
 };
 

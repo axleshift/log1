@@ -16,12 +16,22 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Serve static files from uploads directory
+app.use(
+    "/uploads",
+    (req, res, next) => {
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        res.setHeader("Access-Control-Allow-Origin", process.env.DEV_URL || process.env.ORIGIN);
+        next();
+    },
+    express.static(path.join(__dirname, "uploads"))
+);
 app.use(
     cors({
-        origin: "http://localhost:5000" || process.env.ORIGIN,
+        origin: process.env.DEV_URL || process.env.ORIGIN,
         credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"],
+        exposedHeaders: ["Content-Range", "X-Content-Range"],
     })
 );
 
@@ -44,13 +54,15 @@ app.use("/api/v1/", userRouter);
 //Start server
 
 // Error handling middleware
+// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({
         success: false,
-        message: "Something went wrong!",
+        message: err.message || "Something went wrong!",
     });
 });
+
 const PORT = process.env.PORT || 5057;
 app.listen(PORT, () => {
     // connect to database
