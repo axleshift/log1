@@ -65,6 +65,11 @@ const _nav = [
         name: 'Maintenance Management',
         to: '/fleetManagement/MaintenanceManagement',
       },
+      {
+        component: CNavItem,
+        name: 'Fuel Management',
+        to: '/fleetManagement/FuelManagement',
+      },
       // {
       //   component: CNavItem,
       //   name: 'Accordion',

@@ -10,7 +10,7 @@ import {
 } from '@coreui/react'
 import { cilAccountLogout, cilUser, cilUserPlus } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import avatar8 from './../../assets/images/avatars/8.jpg'
+import avatar1 from './../../assets/images/avatars/1.jpg'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../utils/auth'
 import axios from 'axios'
@@ -66,8 +66,10 @@ const AppHeaderDropdown = () => {
     if (user?.photo) {
       const photoUrl = user.photo.startsWith('http')
         ? user.photo
-        : `${API_URL}/uploads/${user.photo}`
+        : `${API_URL}/uploads/profiles/${user.photo}`
       setPreview(photoUrl)
+    } else {
+      setPreview(null)
     }
   }, [user, API_URL])
 
@@ -90,7 +92,7 @@ const AppHeaderDropdown = () => {
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
         <CAvatar
-          src={preview || avatar8}
+          src={preview || avatar1}
           size="md"
           style={{
             width: '40px',

@@ -89,12 +89,78 @@ export const login = async (req, res) => {
     }
 };
 
+// export const register = async (req, res) => {
+//     try {
+//         const { username, email, password, role } = req.body;
+
+//         // Validate required fields
+//         if (!username || !email || !password) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Please provide all required fields",
+//             });
+//         }
+
+//         // Check if user already exists
+//         const existingUser = await User.findOne({ email });
+//         if (existingUser) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "User with this email already exists",
+//             });
+//         }
+
+//         // Hash password
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         // Create new user
+//         const user = new User({
+//             username,
+//             email,
+//             password: hashedPassword,
+//             role: role || "user",
+//             photo: req.file ? req.file.filename : null,
+//         });
+
+//         // Save user
+//         await user.save();
+
+//         res.status(201).json({
+//             success: true,
+//             message: "User registered successfully",
+//             user: {
+//                 id: user._id,
+//                 username: user.username,
+//                 email: user.email,
+//                 role: user.role,
+//                 photo: user.photo,
+//             },
+//         });
+//     } catch (error) {
+//         console.error("Registration error:", error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Internal server error",
+//             error: error.message,
+//         });
+//     }
+// };
+
 export const register = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
         // Validate required fields
         if (!username || !email || !password) {
+            // If there's a file uploaded but validation fails, delete it
+            if (req.file) {
+                try {
+                    const filePath = path.join(__dirname, "../uploads/profiles", req.file.filename);
+                    await fs.unlink(filePath);
+                } catch (err) {
+                    console.error("Error deleting uploaded file:", err);
+                }
+            }
             return res.status(400).json({
                 success: false,
                 message: "Please provide all required fields",
@@ -104,6 +170,15 @@ export const register = async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            // If there's a file uploaded but user exists, delete it
+            if (req.file) {
+                try {
+                    const filePath = path.join(__dirname, "../uploads/profiles", req.file.filename);
+                    await fs.unlink(filePath);
+                } catch (err) {
+                    console.error("Error deleting uploaded file:", err);
+                }
+            }
             return res.status(400).json({
                 success: false,
                 message: "User with this email already exists",
@@ -113,13 +188,24 @@ export const register = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Handle photo upload
+        let photoFilename = null;
+        if (req.file) {
+            try {
+                photoFilename = req.file.filename;
+            } catch (err) {
+                console.error("Error handling photo:", err);
+                // Continue with registration even if photo handling fails
+            }
+        }
+
         // Create new user
         const user = new User({
             username,
             email,
             password: hashedPassword,
             role: role || "user",
-            photo: req.file ? req.file.filename : null,
+            photo: photoFilename,
         });
 
         // Save user
@@ -137,6 +223,16 @@ export const register = async (req, res) => {
             },
         });
     } catch (error) {
+        // If there's an error and a file was uploaded, delete it
+        if (req.file) {
+            try {
+                const filePath = path.join(__dirname, "../uploads/profiles", req.file.filename);
+                await fs.unlink(filePath);
+            } catch (err) {
+                console.error("Error deleting uploaded file:", err);
+            }
+        }
+
         console.error("Registration error:", error);
         res.status(500).json({
             success: false,
@@ -253,7 +349,7 @@ export const updateUser = async (req, res) => {
                 // Get existing user to check for old photo
                 const existingUser = await User.findById(id);
                 if (existingUser?.photo) {
-                    const oldPhotoPath = path.join(__dirname, "../uploads", path.basename(existingUser.photo));
+                    const oldPhotoPath = path.join(__dirname, "../uploads/profiles", path.basename(existingUser.photo));
                     try {
                         // Check if file exists before trying to delete
                         await fs.access(oldPhotoPath);
@@ -284,7 +380,7 @@ export const updateUser = async (req, res) => {
         // Construct response with full photo URL
         const userResponse = user.toObject();
         if (userResponse.photo) {
-            userResponse.photoUrl = `${process.env.API_URL}/uploads/${userResponse.photo}`;
+            userResponse.photoUrl = `${process.env.API_URL}/uploads/profiles/${userResponse.photo}`;
         }
 
         res.status(200).json({
@@ -300,6 +396,45 @@ export const updateUser = async (req, res) => {
         });
     }
 };
+
+// controllers/user.controller.js
+
+// controllers/user.controller.js
+// export const updateUser = async (req, res) => {
+//     try {
+//         if (req.file) {
+//             // Save the correct path to the database
+//             req.body.photo = `/uploads/profiles/${req.file.filename}`;
+
+//             // If there's an existing photo, delete it
+//             const user = await User.findById(req.user._id);
+//             if (user.photo) {
+//                 const oldPhotoPath = path.join(__dirname, "..", "uploads", "profiles", path.basename(user.photo));
+//                 try {
+//                     await fs.access(oldPhotoPath);
+//                     await fs.unlink(oldPhotoPath);
+//                 } catch (error) {
+//                     console.log("No existing photo found or error deleting:", error);
+//                 }
+//             }
+//         }
+
+//         const updatedUser = await User.findByIdAndUpdate(req.user._id, { $set: req.body }, { new: true }).select("-password");
+
+//         res.status(200).json({
+//             success: true,
+//             message: "Profile updated successfully",
+//             user: updatedUser,
+//         });
+//     } catch (error) {
+//         console.error("Update error:", error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Error updating user profile",
+//             error: error.message,
+//         });
+//     }
+// };
 
 export const getProfile = async (req, res) => {
     try {
@@ -369,7 +504,7 @@ export const updateProfile = async (req, res) => {
             // Delete old photo if exists
             if (user.photo) {
                 try {
-                    const oldPhotoPath = path.join(__dirname, "../uploads", user.photo);
+                    const oldPhotoPath = path.join(__dirname, "../uploads/profiles", user.photo);
                     await fs.unlink(oldPhotoPath);
                 } catch (err) {
                     console.log("Error deleting old photo:", err);
@@ -383,7 +518,7 @@ export const updateProfile = async (req, res) => {
         // Add full URL for photo
         const userResponse = updatedUser.toObject();
         if (userResponse.photo) {
-            userResponse.photoUrl = `${process.env.API_URL}/uploads/${userResponse.photo}`;
+            userResponse.photoUrl = `${process.env.API_URL}/uploads/profiles/${userResponse.photo}`;
         }
 
         res.status(200).json({

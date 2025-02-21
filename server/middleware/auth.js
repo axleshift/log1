@@ -44,17 +44,19 @@ export const authenticate = async (req, res, next) => {
             req.user = user;
             next();
         } catch (error) {
-            console.error("Token verification error:", error);
-            return res.status(401).json({
-                success: false,
-                message: "Not authorized, token failed",
-            });
+            if (error.name === "TokenExpiredError") {
+                return res.status(401).json({
+                    success: false,
+                    message: "Token expired",
+                    isExpired: true,
+                });
+            }
+            throw error;
         }
     } catch (error) {
-        console.error("Auth middleware error:", error);
-        return res.status(500).json({
+        return res.status(401).json({
             success: false,
-            message: "Server Error",
+            message: "Not authorized",
         });
     }
 };
@@ -68,11 +70,27 @@ export const authenticateAdmin = (req, res, next) => {
     });
 };
 
-export const authenticateUser = (req, res, next) => {
-    authenticate(req, res, () => {
-        if (!req.user.userId) {
-            return res.status(403).json({ message: "Access denied. User rights required." });
-        }
-        next();
-    });
+// export const authenticateUser = (req, res, next) => {
+//     authenticate(req, res, () => {
+//         if (!req.user.userId) {
+//             return res.status(403).json({ message: "Access denied. User rights required." });
+//         }
+//         next();
+//     });
+// };
+
+export const authenticateUser = async (req, res, next) => {
+    try {
+        await authenticate(req, res, () => {
+            if (!req.user._id) {
+                return res.status(403).json({ message: "Access denied. User rights required." });
+            }
+            next();
+        });
+    } catch (error) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication failed",
+        });
+    }
 };

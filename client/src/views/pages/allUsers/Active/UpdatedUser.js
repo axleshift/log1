@@ -16,6 +16,7 @@ import {
   CImage,
 } from '@coreui/react'
 import api from '../../../../utils/api'
+import avatar1 from '../../../../assets/images/avatars/1.jpg'
 
 const EditUser = ({ user, visible, onClose, onUpdate }) => {
   const [form, setForm] = useState({
@@ -49,8 +50,10 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
       if (user.photo) {
         const photoUrl = user.photo.startsWith('http')
           ? user.photo
-          : `${API_URL}/uploads/${user.photo}`
+          : `${API_URL}/uploads/profiles/${user.photo}`
         setPreview(photoUrl)
+      } else {
+        setPreview(null) // Reset preview if no photo is available
       }
     }
   }, [user, API_URL])
@@ -67,7 +70,10 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
           throw new Error('Passwords do not match')
         }
       }
-
+      if (!user || !user._id) {
+        console.error('No user ID available')
+        return
+      }
       const formData = new FormData()
       formData.append('username', form.username)
       formData.append('email', form.email)
@@ -80,6 +86,13 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
       if (form.photo) {
         formData.append('photo', form.photo)
       }
+
+      // Only append fields that have values
+      // if (form.username) formData.append('username', form.username)
+      // if (form.email) formData.append('email', form.email)
+      // if (form.password) formData.append('password', form.password)
+      // if (form.role) formData.append('role', form.role)
+      // if (form.photo) formData.append('photo', form.photo)
 
       const response = await api.put(`/api/v1/user/update-user/${user._id}`, formData)
 
@@ -203,13 +216,17 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
           {preview && (
             <div className="mb-3">
               <CImage
-                src={preview}
+                src={preview || avatar1}
                 alt="Preview"
                 align="center"
                 rounded
                 width={200}
                 height={200}
                 crossOrigin="anonymous"
+                onError={(e) => {
+                  e.target.onerror = null // Prevents infinite loop if avatar1 also fails
+                  e.target.src = avatar1
+                }}
               />
             </div>
           )}

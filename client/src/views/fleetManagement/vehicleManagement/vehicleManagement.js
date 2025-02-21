@@ -38,8 +38,12 @@ const VehicleManagement = () => {
   }
 
   const handleUpdateVehicle = (updatedVehicle) => {
-    setVehicles((preVehicles) =>
-      preVehicles.map((vehicle) => (vehicle._id === updatedVehicle._id ? updatedVehicle : vehicle)),
+    setVehicles(
+      (preVehicles) =>
+        preVehicles.map((vehicle) =>
+          vehicle._id === updatedVehicle._id ? updatedVehicle : vehicle,
+        ),
+      fetchVehicle(),
     )
   }
   return (

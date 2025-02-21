@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   CButton,
   CCard,
@@ -34,6 +34,7 @@ const Register = () => {
   const [success, setSuccess] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [preview, setPreview] = useState(null)
+
   const handleChange = (e) => {
     const { id, value } = e.target
     setForm((prevData) => ({
@@ -42,37 +43,11 @@ const Register = () => {
     }))
   }
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setForm((prev) => ({
-        ...prev,
-        photo: file,
-      }))
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreview(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault()
     setIsLoading(true)
     setError(null)
-    const submitData = new FormData()
-    submitData.append('username', form.username)
-    submitData.append('email', form.email)
-    submitData.append('password', form.password)
-    submitData.append('role', form.role)
-    if (form.photo) {
-      submitData.append('photo', form.photo)
-    }
-    for (let pair of submitData.entries()) {
-      console.log(pair[0] + ': ' + pair[1])
-    }
+
     try {
       // Password match validation
       if (form.password !== form.repeatPassword) {
@@ -80,11 +55,7 @@ const Register = () => {
         setIsLoading(false)
         return
       }
-      const response = await api.post('/api/v1/user/register', form, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      const response = await api.post('/api/v1/user/register', form)
 
       if (response.data && response.data.success) {
         setSuccess('Registration successful')
@@ -209,23 +180,7 @@ const Register = () => {
                       <option value="driver">Driver</option>
                     </CFormSelect>
                   </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CFormInput type="file" accept="image/*" onChange={handlePhotoChange} />
-                  </CInputGroup>
 
-                  {preview && (
-                    <div className="mb-3">
-                      <img
-                        src={preview}
-                        alt="Preview"
-                        style={{
-                          maxWidth: '200px',
-                          maxHeight: '200px',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    </div>
-                  )}
                   <CButton color="success" type="submit" disabled={isLoading}>
                     {isLoading ? (
                       <>

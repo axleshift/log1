@@ -16,6 +16,7 @@ import {
 } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../../../utils/api'
+import avarat1 from '../../../../assets/images/avatars/1.jpg'
 
 const MyAccount = () => {
   const [user, setUser] = useState(null)
@@ -105,8 +106,10 @@ const MyAccount = () => {
       if (user.photo) {
         const photoUrl = user.photo.startsWith('http')
           ? user.photo
-          : `${API_URL}/uploads/${user.photo}`
+          : `${API_URL}/uploads/profiles/${user.photo}`
         setPreview(photoUrl)
+      } else {
+        setPreview(avarat1)
       }
     }
   }, [user, API_URL])

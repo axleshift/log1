@@ -10,49 +10,42 @@ const WareHousing = () => {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const fetchWarehousing = async () => {
-    setLoading(true)
-    try {
-      const response = await api.get('/api/v1/warehouse/items')
-      if (response.status === 200) {
-        setWarehousing(response.data.data)
-      }
-    } catch (error) {
-      setError(error.response.data.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchItems = async () => {
-    try {
-      setLoading(true)
-      const response = await api.get('/api/v1/warehouse/items/all')
-      if (response.data.success) {
-        setItems(response.data.data)
-      }
-    } catch (error) {
-      setError(error.message || 'Failed to fetch items')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [refresh, setRefresh] = useState(0)
 
   useEffect(() => {
-    fetchItems()
-    fetchWarehousing()
-  }, [])
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const [itemsRes, warehouseRes] = await Promise.all([
+          api.get('/api/v1/warehouse/items/all'),
+          api.get('/api/v1/warehouse/items'),
+        ])
+
+        if (itemsRes.data.success) setItems(itemsRes.data.data)
+        if (warehouseRes.status === 200) setWarehousing(warehouseRes.data.data)
+      } catch (error) {
+        setError(error.response?.data?.message || error.message || 'Failed to fetch data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [refresh])
+  const handleRefresh = () => {
+    setRefresh((prev) => prev + 1)
+  }
 
   const handleAddItem = (newItem) => {
     setWarehousing((prevItems) => [...prevItems, newItem])
     setItems((prevItems) => [...prevItems, newItem])
-    fetchItems()
+    handleRefresh()
   }
 
   const handleDeleteItem = (deletedItemId) => {
     setWarehousing((prevItems) => prevItems.filter((item) => item._id !== deletedItemId))
     setItems((prevItems) => prevItems.filter((item) => item._id !== deletedItemId))
-    fetchItems()
+    handleRefresh()
   }
 
   const handleUpdateItem = (updatedItem) => {
@@ -62,7 +55,7 @@ const WareHousing = () => {
     setItems((prevItems) =>
       prevItems.map((item) => (item._id === updatedItem._id ? updatedItem : item)),
     )
-    fetchItems()
+    handleRefresh()
   }
 
   return (

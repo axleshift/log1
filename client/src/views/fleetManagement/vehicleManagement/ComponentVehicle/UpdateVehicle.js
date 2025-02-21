@@ -54,8 +54,8 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
   ]
 
   const fuelTypes = [
-    { label: 'Diesel', value: 'diesel' },
-    { label: 'Gasoline', value: 'gasoline' },
+    { label: 'Diesel', value: 'Diesel' },
+    { label: 'Gasoline', value: 'Gasoline' },
   ]
 
   const handleEditVehicle = async (e) => {

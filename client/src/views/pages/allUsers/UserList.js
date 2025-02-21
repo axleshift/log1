@@ -164,164 +164,166 @@ const UserList = ({ onUpdateUser }) => {
 
   return (
     <>
-      <CContainer className="m-3 d-flex justify-content-center align-items-center">
-        <h1>Accounts</h1>
-      </CContainer>
-      <CContainer className="m-3 d-flex justify-content-between">
-        <CButton
-          color="primary"
-          className="m-3 "
-          disabled={loading}
-          onClick={() => navigate('/dashboard')}
-        >
-          {loading ? 'Loading...' : <FontAwesomeIcon icon={faHouse} />}
-        </CButton>
+      <CContainer className=" justify-content-center align-items-center">
+        <CContainer className="m-3 d-flex justify-content-center align-items-center">
+          <h1>Accounts</h1>
+        </CContainer>
+        <CContainer className="m-3 d-flex justify-content-between">
+          <CButton
+            color="primary"
+            className="m-3 "
+            disabled={loading}
+            onClick={() => navigate('/dashboard')}
+          >
+            {loading ? 'Loading...' : <FontAwesomeIcon icon={faHouse} />}
+          </CButton>
 
-        <CButton color="primary" className="m-3" onClick={() => navigate('/register')}>
-          Add User
-        </CButton>
-      </CContainer>
-      <CContainer className="m-3">
-        {localError && (
-          <CAlert color="danger" className="mb-3">
-            {localError}
-          </CAlert>
-        )}
-        {success && (
-          <CAlert color="success" className="mb-3">
-            {success}
-          </CAlert>
-        )}
+          <CButton color="primary" className="m-3" onClick={() => navigate('/register')}>
+            Add User
+          </CButton>
+        </CContainer>
+        <CContainer className="m-3">
+          {localError && (
+            <CAlert color="danger" className="mb-3">
+              {localError}
+            </CAlert>
+          )}
+          {success && (
+            <CAlert color="success" className="mb-3">
+              {success}
+            </CAlert>
+          )}
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <CInputGroup className="w-50">
-            <CFormInput
-              type="text"
-              value={searchQuery}
-              id="search"
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search users..."
-            />
-            <CInputGroupText>
-              <FontAwesomeIcon icon={faSearch} />
-            </CInputGroupText>
-          </CInputGroup>
-
-          <CButtonGroup>
-            <CButton
-              color={statusFilter === 'all' ? 'primary' : 'secondary'}
-              onClick={() => setStatusFilter('all')}
-            >
-              All
-            </CButton>
-            <CButton
-              color={statusFilter === 'active' ? 'primary' : 'secondary'}
-              onClick={() => setStatusFilter('active')}
-            >
-              Active
-            </CButton>
-            <CButton
-              color={statusFilter === 'inactive' ? 'primary' : 'secondary'}
-              onClick={() => setStatusFilter('inactive')}
-            >
-              Inactive
-            </CButton>
-          </CButtonGroup>
-        </div>
-
-        <div className="text-muted small mb-3">
-          Search by: username, email, role, status (active/inactive), or action
-          (activate/deactivate)
-        </div>
-
-        <CCard>
-          <CCardHeader>
-            <h4>User List</h4>
-          </CCardHeader>
-          <CCardBody>
-            <CTable hover responsive className="text-center">
-              <CTableHead>
-                <CTableRow>
-                  <CTableHeaderCell>Username</CTableHeaderCell>
-                  <CTableHeaderCell>Email</CTableHeaderCell>
-                  <CTableHeaderCell>Role</CTableHeaderCell>
-                  <CTableHeaderCell>Created Date</CTableHeaderCell>
-                  <CTableHeaderCell>Status</CTableHeaderCell>
-                  <CTableHeaderCell>Actions</CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {currentItems.map((item) => (
-                  <CTableRow key={item._id}>
-                    <CTableDataCell>{item.username}</CTableDataCell>
-                    <CTableDataCell>{item.email}</CTableDataCell>
-                    <CTableDataCell>{item.role}</CTableDataCell>
-                    <CTableDataCell>{item.createdAt.slice(0, 10)}</CTableDataCell>
-                    <CTableDataCell>
-                      <CBadge color={item.isActive ? 'success' : 'danger'}>
-                        {item.isActive ? 'Active' : 'Inactive'}
-                      </CBadge>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CContainer className=" d-flex justify-content-center align-items-center">
-                        <CButton
-                          variant="outline"
-                          className="me-2"
-                          color={item.isActive ? 'danger' : 'success'}
-                          onClick={() => toggleUserStatus(item._id)}
-                        >
-                          {item.isActive ? 'Deactivate' : 'Activate'}
-                        </CButton>
-                        <CButton
-                          variant="outline"
-                          className="me-2"
-                          color="primary"
-                          onClick={() => handleEditClick(item)}
-                        >
-                          <FontAwesomeIcon icon={faEdit} />
-                        </CButton>
-                      </CContainer>
-                    </CTableDataCell>
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
-            {selectedUser && (
-              <UpdatedUser
-                user={selectedUser}
-                visible={editModalVisible}
-                onClose={() => {
-                  setEditModalVisible(false)
-                  setSelectedUser(null)
-                }}
-                onUpdate={handleUserUpdate}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <CInputGroup className="w-50">
+              <CFormInput
+                type="text"
+                value={searchQuery}
+                id="search"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search users..."
               />
-            )}
-            <CPagination align="center">
-              <CPaginationItem
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              <CInputGroupText>
+                <FontAwesomeIcon icon={faSearch} />
+              </CInputGroupText>
+            </CInputGroup>
+
+            <CButtonGroup>
+              <CButton
+                color={statusFilter === 'all' ? 'primary' : 'secondary'}
+                onClick={() => setStatusFilter('all')}
               >
-                Previous
-              </CPaginationItem>
-              {[...Array(totalPages).keys()].map((page) => (
+                All
+              </CButton>
+              <CButton
+                color={statusFilter === 'active' ? 'primary' : 'secondary'}
+                onClick={() => setStatusFilter('active')}
+              >
+                Active
+              </CButton>
+              <CButton
+                color={statusFilter === 'inactive' ? 'primary' : 'secondary'}
+                onClick={() => setStatusFilter('inactive')}
+              >
+                Inactive
+              </CButton>
+            </CButtonGroup>
+          </div>
+
+          <div className="text-muted small mb-3">
+            Search by: username, email, role, status (active/inactive), or action
+            (activate/deactivate)
+          </div>
+
+          <CCard>
+            <CCardHeader>
+              <h4>User List</h4>
+            </CCardHeader>
+            <CCardBody>
+              <CTable hover responsive className="text-center">
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell>Username</CTableHeaderCell>
+                    <CTableHeaderCell>Email</CTableHeaderCell>
+                    <CTableHeaderCell>Role</CTableHeaderCell>
+                    <CTableHeaderCell>Created Date</CTableHeaderCell>
+                    <CTableHeaderCell>Status</CTableHeaderCell>
+                    <CTableHeaderCell>Actions</CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {currentItems.map((item) => (
+                    <CTableRow key={item._id}>
+                      <CTableDataCell>{item.username}</CTableDataCell>
+                      <CTableDataCell>{item.email}</CTableDataCell>
+                      <CTableDataCell>{item.role}</CTableDataCell>
+                      <CTableDataCell>{item.createdAt.slice(0, 10)}</CTableDataCell>
+                      <CTableDataCell>
+                        <CBadge color={item.isActive ? 'success' : 'danger'}>
+                          {item.isActive ? 'Active' : 'Inactive'}
+                        </CBadge>
+                      </CTableDataCell>
+                      <CTableDataCell>
+                        <CContainer className=" d-flex justify-content-center align-items-center">
+                          <CButton
+                            variant="outline"
+                            className="me-2"
+                            color={item.isActive ? 'danger' : 'success'}
+                            onClick={() => toggleUserStatus(item._id)}
+                          >
+                            {item.isActive ? 'Deactivate' : 'Activate'}
+                          </CButton>
+                          <CButton
+                            variant="outline"
+                            className="me-2"
+                            color="primary"
+                            onClick={() => handleEditClick(item)}
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </CButton>
+                        </CContainer>
+                      </CTableDataCell>
+                    </CTableRow>
+                  ))}
+                </CTableBody>
+              </CTable>
+              {selectedUser && (
+                <UpdatedUser
+                  user={selectedUser}
+                  visible={editModalVisible}
+                  onClose={() => {
+                    setEditModalVisible(false)
+                    setSelectedUser(null)
+                  }}
+                  onUpdate={handleUserUpdate}
+                />
+              )}
+              <CPagination align="center">
                 <CPaginationItem
-                  key={page + 1}
-                  active={page + 1 === currentPage}
-                  onClick={() => setCurrentPage(page + 1)}
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 >
-                  {page + 1}
+                  Previous
                 </CPaginationItem>
-              ))}
-              <CPaginationItem
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              >
-                Next
-              </CPaginationItem>
-            </CPagination>
-          </CCardBody>
-        </CCard>
+                {[...Array(totalPages).keys()].map((page) => (
+                  <CPaginationItem
+                    key={page + 1}
+                    active={page + 1 === currentPage}
+                    onClick={() => setCurrentPage(page + 1)}
+                  >
+                    {page + 1}
+                  </CPaginationItem>
+                ))}
+                <CPaginationItem
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                >
+                  Next
+                </CPaginationItem>
+              </CPagination>
+            </CCardBody>
+          </CCard>
+        </CContainer>
       </CContainer>
     </>
   )

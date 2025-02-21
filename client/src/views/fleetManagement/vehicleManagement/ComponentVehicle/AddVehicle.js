@@ -55,8 +55,8 @@ const AddVehicle = ({ onAddVehicle }) => {
   ]
 
   const fuelTypes = [
-    { label: 'Diesel', value: 'diesel' },
-    { label: 'Gasoline', value: 'gasoline' },
+    { label: 'Diesel', value: 'Diesel' },
+    { label: 'Gasoline', value: 'Gasoline' },
   ]
 
   const options = [

@@ -24,6 +24,9 @@ const DispatchingItems = React.lazy(
 )
 const Warehousing = React.lazy(() => import('./views/warehouse/WareHousing'))
 const WareHouseLoc = React.lazy(() => import('./views/wareHouseLoc/WareHouseLoc'))
+const FuelManagement = React.lazy(
+  () => import('./views/fleetManagement/fuelManagement/FuelManagement'),
+)
 // const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 // const Cards = React.lazy(() => import('./views/base/cards/Cards'))
 // const Carousels = React.lazy(() => import('./views/base/carousels/Carousels'))
@@ -115,6 +118,11 @@ const routes = [
     path: '/wareHouseLoc/WareHouseLoc',
     name: 'WareHouseLoc',
     element: WareHouseLoc,
+  },
+  {
+    path: '/fleetManagement/FuelManagement',
+    name: 'Fuel Management',
+    element: FuelManagement,
   },
 
   // { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },

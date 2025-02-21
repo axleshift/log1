@@ -6,15 +6,17 @@ import maintenanceRouter from "../../routes/v1/maintenance.routes.js";
 import receivingRouter from "../../routes/v1/receiving.routes.js";
 import warehouseRouter from "../../routes/v1/warehouse.router.js";
 import warehouseLocRouter from "../../routes/v1/warehouseLoc.router.js";
+import fuelLogRouter from "../../routes/v1/fuelLog.routes.js";
 import { authenticate, authenticateUser } from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.use("/vehicle", authenticate, vehicleRouter);
-router.use("/driver", authenticate, driverRouter);
-router.use("/maintenance", authenticate, maintenanceRouter);
+router.use("/vehicle", authenticate, authenticateUser, vehicleRouter);
+router.use("/driver", authenticate, authenticateUser, driverRouter);
+router.use("/maintenance", authenticate, authenticateUser, maintenanceRouter);
 router.use("/user", userRouter);
-router.use("/receiving", authenticate, receivingRouter);
-router.use("/warehouse", authenticate, warehouseRouter);
-router.use("/warehouseLoc", authenticate, warehouseLocRouter);
+router.use("/receiving", authenticate, authenticateUser, receivingRouter);
+router.use("/warehouse", authenticate, authenticateUser, warehouseRouter);
+router.use("/warehouseLoc", authenticate, authenticateUser, warehouseLocRouter);
+router.use("/fuelLogs", authenticate, authenticateUser, fuelLogRouter);
 export default router;
