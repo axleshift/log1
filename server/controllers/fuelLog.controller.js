@@ -184,23 +184,7 @@ export const deleteFuelLog = async (req, res) => {
 export const updateFuelLog = async (req, res) => {
     try {
         const { id } = req.params;
-        // const updates = req.body;
-
-        const updates = {
-            date: req.body.date,
-            receiptNumber: req.body.receiptNumber,
-            vehicleId: req.body.vehicleId,
-            driverId: req.body.driverId, // Make sure this is included
-            fuelQuantity: req.body.fuelQuantity,
-            costPerLiter: req.body.costPerLiter,
-            totalCost: req.body.totalCost,
-            route: {
-                start: req.body.route.start,
-                end: req.body.route.end,
-                distance: req.body.route.distance,
-            },
-            notes: req.body.notes,
-        };
+        const updates = req.body;
 
         // Check if fuel log exists
         const fuelLog = await FuelLog.findById(id);
