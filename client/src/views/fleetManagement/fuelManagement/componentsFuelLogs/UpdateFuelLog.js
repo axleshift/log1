@@ -403,12 +403,49 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
 
     if (id.includes('route.')) {
       const routeField = id.split('.')[1]
+      setFormData((prevData) => {
+        const newData = {
+          ...prevData,
+          route: {
+            ...prevData.route,
+            [routeField]: value,
+          },
+        }
+
+        // Calculate fuel efficiency when both distance and fuel quantity are available
+        if (newData.route.distance && newData.fuelQuantity) {
+          const distance = parseFloat(newData.route.distance)
+          const fuelQuantity = parseFloat(newData.fuelQuantity)
+
+          if (distance > 0 && fuelQuantity > 0) {
+            // L/100km calculation
+            const litersPer100km = (fuelQuantity / distance) * 100
+            newData.litersPer100km = litersPer100km.toFixed(2)
+
+            // km/L calculation
+            const kmPerLiter = distance / fuelQuantity
+            newData.kmPerLiter = kmPerLiter.toFixed(2)
+
+            // MPG calculation
+            const gallons = fuelQuantity * 0.264172
+            const miles = distance * 0.621371
+            const mpg = miles / gallons
+            newData.mpg = mpg.toFixed(2)
+          }
+        }
+
+        return newData
+      })
+    } else if (id === 'vehicleId') {
+      const selectedVehicle = vehicleOptions.find((vehicle) => vehicle._id === value)
+      const driverDetails = drivers.find((driver) => driver._id === selectedVehicle?.assignedDriver)
+
       setFormData((prevData) => ({
         ...prevData,
-        route: {
-          ...prevData.route,
-          [routeField]: value,
-        },
+        vehicleId: value,
+        driverId: selectedVehicle?.assignedDriver || '',
+        fuelType: selectedVehicle?.fuelType || '',
+        driverName: driverDetails?.name || '',
       }))
     } else if (id === 'fuelQuantity' || id === 'costPerLiter') {
       setFormData((prevData) => {
@@ -417,28 +454,35 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
           [id]: value,
         }
 
-        // Calculate total cost
-        if (id === 'fuelQuantity' && newData.costPerLiter) {
-          const quantity = parseFloat(value)
-          const cost = parseFloat(newData.costPerLiter)
-          newData.totalCost = (quantity * cost).toFixed(2)
-        } else if (id === 'costPerLiter' && newData.fuelQuantity) {
-          const quantity = parseFloat(newData.fuelQuantity)
-          const cost = parseFloat(value)
-          newData.totalCost = (quantity * cost).toFixed(2)
+        // Calculate total cost whenever fuelQuantity or costPerLiter changes
+        const quantity =
+          id === 'fuelQuantity' ? parseFloat(value) : parseFloat(prevData.fuelQuantity)
+        const costPerLiter =
+          id === 'costPerLiter' ? parseFloat(value) : parseFloat(prevData.costPerLiter)
+
+        if (!isNaN(quantity) && !isNaN(costPerLiter)) {
+          newData.totalCost = (quantity * costPerLiter).toFixed(2)
         }
 
-        // Calculate fuel efficiency
-        if (newData.fuelQuantity && newData.route.distance) {
+        // Calculate fuel efficiency when both distance and fuel quantity are available
+        if (id === 'fuelQuantity' && newData.route.distance) {
           const distance = parseFloat(newData.route.distance)
-          const fuelQuantity = parseFloat(newData.fuelQuantity)
+          const fuelQuantity = parseFloat(value)
 
           if (distance > 0 && fuelQuantity > 0) {
-            newData.litersPer100km = ((fuelQuantity / distance) * 100).toFixed(2)
-            newData.kmPerLiter = (distance / fuelQuantity).toFixed(2)
+            // L/100km calculation
+            const litersPer100km = (fuelQuantity / distance) * 100
+            newData.litersPer100km = litersPer100km.toFixed(2)
+
+            // km/L calculation
+            const kmPerLiter = distance / fuelQuantity
+            newData.kmPerLiter = kmPerLiter.toFixed(2)
+
+            // MPG calculation
             const gallons = fuelQuantity * 0.264172
             const miles = distance * 0.621371
-            newData.mpg = (miles / gallons).toFixed(2)
+            const mpg = miles / gallons
+            newData.mpg = mpg.toFixed(2)
           }
         }
 
@@ -609,6 +653,7 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
             <CFormLabel htmlFor="route.start">Route Information</CFormLabel>
             <div className="row g-3">
               <div className="col-md-4">
+                <CFormLabel htmlFor="route.start">Start Location</CFormLabel>
                 <CFormInput
                   type="text"
                   id="route.start" // Changed from route.startLocation
@@ -619,6 +664,7 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
                 />
               </div>
               <div className="col-md-4">
+                <CFormLabel htmlFor="route.end">End Location</CFormLabel>
                 <CFormInput
                   type="text"
                   id="route.end" // Changed from route.endLocation
@@ -629,6 +675,7 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
                 />
               </div>
               <div className="col-md-4">
+                <CFormLabel htmlFor="route.distance">Distance (km)</CFormLabel>
                 <CFormInput
                   type="number"
                   id="route.distance"
@@ -639,6 +686,35 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
                   min="0"
                   step="0.1"
                 />
+              </div>
+            </div>
+          </div>
+          <div className="col-md-12">
+            <div className="row g-3">
+              <div className="col-md-4">
+                <CFormLabel htmlFor="litersPer100km">Liters per 100 km</CFormLabel>
+                <CInputGroup>
+                  <CFormInput
+                    type="number"
+                    id="litersPer100km"
+                    value={formData.litersPer100km}
+                    disabled
+                  />
+                </CInputGroup>
+              </div>
+
+              <div className="col-md-4">
+                <CFormLabel htmlFor="kmPerLiter">Km per Liter</CFormLabel>
+                <CInputGroup>
+                  <CFormInput type="number" id="kmPerLiter" value={formData.kmPerLiter} disabled />
+                </CInputGroup>
+              </div>
+
+              <div className="col-md-4">
+                <CFormLabel htmlFor="mpg">MPG</CFormLabel>
+                <CInputGroup>
+                  <CFormInput type="number" id="mpg" value={formData.mpg} disabled />
+                </CInputGroup>
               </div>
             </div>
           </div>
