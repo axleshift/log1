@@ -11,10 +11,19 @@ const fuelLogSchema = new mongoose.Schema(
             ref: "Driver",
             required: true,
         },
+
+        vehicleDetails: {
+            brand: String,
+            model: String,
+            regisNumber: String,
+            fuelType: String,
+        },
+        driverDetails: {
+            driverName: String,
+        },
         date: {
             type: Date,
             required: true,
-            default: Date.now,
         },
         receiptNumber: {
             type: String,
@@ -35,7 +44,7 @@ const fuelLogSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
-        odometerReading: {
+        currentMileage: {
             type: Number,
             required: true,
         },

@@ -1,13 +1,15 @@
 import FuelLog from "../models/fuelLog.models.js";
+import Vehicle from "../models/vehicle.models.js";
 import path from "path";
 import fs from "fs/promises";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 export const createFuelLog = async (req, res) => {
     try {
         // Validate required fields from the request body
-        const { vehicleId, driverId, receiptNumber, fuelQuantity, fuelType, costPerLiter, totalCost, odometerReading, route, notes, litersPer100km, kmPerLiter, mpg } = req.body;
+        const { vehicleId, driverId, vehicleDetails, driverDetails, date, receiptNumber, fuelQuantity, fuelType, costPerLiter, totalCost, route, notes, litersPer100km, kmPerLiter, mpg } = req.body;
 
         if (!vehicleId || !driverId || !fuelQuantity || !receiptNumber) {
             if (req.file) {
@@ -54,24 +56,20 @@ export const createFuelLog = async (req, res) => {
                 console.error("Error handling photo:", error);
             }
         }
-
+        await Vehicle.findByIdAndUpdate(req.body.vehicleId, { currentMileage: req.body.currentMileage }, { new: true });
         // Create new fuel log instance
         const fuelLog = new FuelLog({
             vehicleId,
             driverId,
+            vehicleDetails,
+            driverDetails,
+            date,
             receiptNumber,
             fuelQuantity,
-            // fuelType: fuelType || "",
-            // costPerLiter: costPerLiter || 0,
-            // totalCost: totalCost || 0,
-            // odometerReading: odometerReading || 0,
-            // receiptImage: photoFilename,
-            // route: route || { start: "", end: "", distance: "" },
-            // notes: notes || "",
+            currentMileage: req.body.currentMileage,
             fuelType,
             costPerLiter,
             totalCost,
-            odometerReading,
             receiptImage: photoFilename,
             route,
             notes,
@@ -195,6 +193,83 @@ export const updateFuelLog = async (req, res) => {
             });
         }
 
+        // Field mapping for user-friendly messages
+        const fieldLabels = {
+            vehicleId: "Vehicle",
+            driverId: "Driver",
+            date: "Date",
+            receiptNumber: "Receipt Number",
+            fuelQuantity: "Fuel Quantity",
+            currentMileage: "Odometer Reading", // Changed to Odometer Reading
+            fuelType: "Fuel Type",
+            costPerLiter: "Cost per Liter",
+            totalCost: "Total Cost",
+        };
+
+        // Validate required fields
+        const requiredFields = Object.keys(fieldLabels);
+        const missingFields = [];
+
+        requiredFields.forEach((field) => {
+            if (!updates[field] && updates[field] !== 0) {
+                missingFields.push(fieldLabels[field]); // Use friendly field names
+            }
+        });
+
+        if (missingFields.length > 0) {
+            // If there's a new file being uploaded, delete it since validation failed
+            if (req.file) {
+                try {
+                    const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+                    await fs.unlink(filePath);
+                } catch (err) {
+                    console.error("Error deleting uploaded file:", err);
+                }
+            }
+            return res.status(400).json({
+                success: false,
+                message: `The following fields are required: ${missingFields.join(", ")}`,
+            });
+        }
+
+        // Validate numeric fields with friendly names
+        const numericValidation = {
+            fuelQuantity: "Fuel Quantity must be a positive number",
+            currentMileage: "Odometer Reading must be a positive number", // Changed to Odometer Reading
+            costPerLiter: "Cost per Liter must be a positive number",
+            totalCost: "Total Cost must be a positive number",
+        };
+
+        for (const [field, errorMessage] of Object.entries(numericValidation)) {
+            if (isNaN(updates[field]) || updates[field] <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: errorMessage,
+                });
+            }
+        }
+
+        // Check if receipt number already exists (excluding current fuel log)
+        const existingFuelLog = await FuelLog.findOne({
+            receiptNumber: updates.receiptNumber,
+            _id: { $ne: id },
+        });
+
+        if (existingFuelLog) {
+            if (req.file) {
+                try {
+                    const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+                    await fs.unlink(filePath);
+                } catch (err) {
+                    console.error("Error deleting uploaded file:", err);
+                }
+            }
+            return res.status(400).json({
+                success: false,
+                message: "Receipt Number already exists for another fuel log",
+            });
+        }
+
         // Handle file upload if there's a new receipt
         if (req.file) {
             // Delete old receipt if it exists
@@ -210,7 +285,10 @@ export const updateFuelLog = async (req, res) => {
         }
 
         // Update the fuel log
-        const updatedFuelLog = await FuelLog.findByIdAndUpdate(id, updates, { new: true });
+        const updatedFuelLog = await FuelLog.findByIdAndUpdate(id, updates, { new: true, runValidators: true }).populate("vehicleId").populate("driverId");
+
+        // Update vehicle's odometer reading
+        await Vehicle.findByIdAndUpdate(updates.vehicleId, { currentMileage: updates.currentMileage }, { new: true });
 
         res.status(200).json({
             success: true,
@@ -218,9 +296,32 @@ export const updateFuelLog = async (req, res) => {
             message: "Fuel log updated successfully",
         });
     } catch (error) {
+        // Handle validation errors
+        if (error.name === "ValidationError") {
+            // Transform validation error messages to use "Odometer Reading"
+            const errorMessages = Object.values(error.errors).map((err) => {
+                return err.message.replace("Current Mileage", "Odometer Reading");
+            });
+
+            return res.status(400).json({
+                success: false,
+                message: errorMessages.join(", "),
+            });
+        }
+
+        // Clean up uploaded file if there's an error
+        if (req.file) {
+            try {
+                const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+                await fs.unlink(filePath);
+            } catch (err) {
+                console.error("Error deleting uploaded file:", err);
+            }
+        }
+
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message.replace("Current Mileage", "Odometer Reading"),
         });
     }
 };

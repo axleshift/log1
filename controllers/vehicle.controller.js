@@ -56,7 +56,7 @@ export const updateVehicle = async (req, res) => {
             });
         }
         const updatedVehicle = await Vehicle.findByIdAndUpdate(id, vehicle, { new: true });
-        res.status(200).json({ success: true, data: updatedVehicle });
+        res.status(200).json({ success: true, data: updatedVehicle, message: "Vehicle updated successfully" });
     } catch (error) {
         console.log({ "Error in updating vehicle: ": error.message });
         res.status(500).json({ success: false, message: "Server Error" });
@@ -86,11 +86,12 @@ export const getAvailableVehicles = async (req, res) => {
         res.status(200).json({
             success: true,
             data: vehicles,
+            message: "Available vehicles fetched successfully",
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message || "Internal server error",
         });
     }
 };
@@ -136,6 +137,7 @@ export const getAvailableVehicles2 = async (req, res) => {
         res.status(200).json({
             success: true,
             data: vehicles,
+            message: "Available vehicles fetched successfully",
         });
     } catch (error) {
         res.status(500).json({

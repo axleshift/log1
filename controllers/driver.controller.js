@@ -1,5 +1,6 @@
 import Driver from "./../models/driver.models.js";
 import Vehicle from "./../models/vehicle.models.js";
+import fuelLogModels from "../models/fuelLog.models.js";
 import mongoose from "mongoose";
 
 export const getDrivers = async (req, res) => {
@@ -35,7 +36,7 @@ export const createDriver = async (req, res) => {
         if (existingDriver) {
             return res.status(400).json({
                 success: false,
-                message: "Driver already exists",
+                message: "Driverlicense number already exists",
             });
         }
 
@@ -204,7 +205,7 @@ export const updateDriver = async (req, res) => {
             select: "regisNumber brand model", // specify the fields you need
         });
 
-        return res.status(200).json({ success: true, data: updatedDriver });
+        return res.status(200).json({ success: true, data: updatedDriver, message: "Driver updated successfully" });
     } catch (error) {
         console.error("Error in updating driver:", error);
         return res.status(500).json({ success: false, message: "Server Error" });
@@ -231,7 +232,6 @@ export const deleteDriver = async (req, res) => {
                 status: "available",
             });
         }
-
         await Driver.findByIdAndDelete(id);
         res.status(200).json({ success: true, message: "Driver deleted successfully" });
     } catch (error) {
