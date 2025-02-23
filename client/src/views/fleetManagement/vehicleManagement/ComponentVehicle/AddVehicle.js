@@ -16,8 +16,10 @@ import { CModalTitle } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../../utils/api'
+import { useToast } from '../../../../components/Toast/Toast'
 
 const AddVehicle = ({ onAddVehicle }) => {
+  const { showSuccess, showError } = useToast()
   const [validated, setValidated] = useState(false)
   const [visible, setVisible] = useState(false)
   const [error, setError] = useState(null)
@@ -74,17 +76,18 @@ const AddVehicle = ({ onAddVehicle }) => {
     try {
       const response = await api.post('/api/v1/vehicle', newVehicle)
       if (response.data.success) {
-        setSuccess('Vehicle added successfully')
+        showSuccess(response.data.message)
         onAddVehicle(response.data.data)
         setTimeout(() => {
-          setSuccess(null)
           setNewVehicle(initialState)
           setLoading(false)
           setValidated(false)
+          setVisible(false)
         }, 2000)
       }
     } catch (error) {
       setError(error.response.data.message)
+      showError(error.response.data.message)
       setTimeout(() => {
         setError(null)
       }, 2000)

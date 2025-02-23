@@ -17,8 +17,10 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../utils/api'
+import { useToast } from '../../../components/Toast/Toast'
 
 const UpdateItem = ({ warehousing, onUpdateItem }) => {
+  const { showSuccess, showErrors } = useToast()
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
@@ -41,6 +43,7 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
         setWarehouses(response.data.data)
       } catch (error) {
         setError(error.response.data.message)
+        showErrors(error.response.data.message)
       }
     }
     fetchWarehouses()
@@ -85,11 +88,11 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
         ...formData,
         byReceived: email,
       })
-      if (response.status === 200) {
+      if (response.data.success) {
         const updatedItem = response.data.data
         const warehouse = warehouses.find((w) => w._id === updatedItem.warehouse)
         updatedItem.warehouse = warehouse // Add warehouse details to the updated item
-        setSuccess(response.data.message)
+        showSuccess(response.data.message)
         onUpdateItem(response.data.data)
         setTimeout(() => {
           setSuccess(null)
@@ -98,6 +101,7 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
       }
     } catch (error) {
       setError(error.response.data.message)
+      showErrors(error.response.data.message)
       setTimeout(() => {
         setError(null)
       }, 2000)

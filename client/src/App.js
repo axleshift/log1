@@ -6,6 +6,7 @@ import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 import ProtectedRoute from './components/ProtectedRoutes/ProtectedRoute'
 import { useTokenExpiration } from './hooks/useTokenExpiration'
+import { ToastProvider } from './components/Toast/Toast'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -37,65 +38,67 @@ const App = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <HashRouter>
-      <Suspense
-        fallback={
-          <div className="pt-3 text-center">
-            <CSpinner color="primary" variant="grow" />
-          </div>
-        }
-      >
-        <Routes>
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route
-            exact
-            path="/profile"
-            name="profile"
-            element={
-              <ProtectedRoute>
-                <MyAccount />
-              </ProtectedRoute>
-            }
-          />
-          {/* <Route exact path="/register" name="Register Page" element={<Register />} /> */}
-          <Route
-            exact
-            path="/register"
-            name="Register Page"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Register />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            exact
-            path="/all-users"
-            name="All Users"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Getallusers />
-              </ProtectedRoute>
-            }
-          />
+    <ToastProvider>
+      <HashRouter>
+        <Suspense
+          fallback={
+            <div className="pt-3 text-center">
+              <CSpinner color="primary" variant="grow" />
+            </div>
+          }
+        >
+          <Routes>
+            <Route exact path="/login" name="Login Page" element={<Login />} />
+            <Route
+              exact
+              path="/profile"
+              name="profile"
+              element={
+                <ProtectedRoute>
+                  <MyAccount />
+                </ProtectedRoute>
+              }
+            />
+            {/* <Route exact path="/register" name="Register Page" element={<Register />} /> */}
+            <Route
+              exact
+              path="/register"
+              name="Register Page"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Register />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              exact
+              path="/all-users"
+              name="All Users"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Getallusers />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route exact path="/401" name="Page 401" element={<Page401 />} />
-          <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          {/* <Route path="*" name="Home" element={<DefaultLayout />} /> */}
-          <Route
-            path="*"
-            name="Home"
-            element={
-              <ProtectedRoute>
-                {' '}
-                <DefaultLayout />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Suspense>
-    </HashRouter>
+            <Route exact path="/401" name="Page 401" element={<Page401 />} />
+            <Route exact path="/404" name="Page 404" element={<Page404 />} />
+            <Route exact path="/500" name="Page 500" element={<Page500 />} />
+            {/* <Route path="*" name="Home" element={<DefaultLayout />} /> */}
+            <Route
+              path="*"
+              name="Home"
+              element={
+                <ProtectedRoute>
+                  {' '}
+                  <DefaultLayout />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </HashRouter>
+    </ToastProvider>
   )
 }
 

@@ -3,32 +3,22 @@ import { CAlert, CButton, CSpinner } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../utils/api'
-
-// import axios from 'axios'
-// const token = sessionStorage.getItem('accessToken')
-// const API = import.meta.env.VITE_APP_API_URL
-// const api = axios.create({
-//   baseURL: API,
-//   withCredentials: true,
-//   headers: {
-//     'Content-Type': 'application/json',
-//     ...(token && { Authorization: `Bearer ${token}` }),
-//   },
-// })
+import { useToast } from '../../../components/Toast/Toast'
 const DeleteItem = ({ warehousing, onDeleteItem }) => {
+  const { showError, showSuccess } = useToast()
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const handleDelete = async () => {
     setLoading(true)
     const response = await api.delete(`/api/v1/warehouse/delete/${warehousing._id}`)
-    if (response.status === 200) {
-      alert('Item deleted successfully')
+    if (response.data.success) {
+      showSuccess(response.data.message)
       onDeleteItem(warehousing._id)
       setLoading(false)
-      setError(null)
     } else {
       setLoading(false)
       setError(response.data.message)
+      showError(response.data.message)
     }
   }
 

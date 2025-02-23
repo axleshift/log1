@@ -16,7 +16,9 @@ import {
   CForm,
 } from '@coreui/react'
 import api from '../../../../utils/api'
+import { useToast } from '../../../../components/Toast/Toast'
 const UpdateDriver = ({ driver, onUpdateDriver }) => {
+  const { showSuccess, showError } = useToast()
   const [visible, setVisible] = useState(false)
   const [success, setSuccess] = useState(null)
   const [vehiclesOptions, setVehiclesOptions] = useState([])
@@ -47,7 +49,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
       const response = await api.get('/api/v1/vehicle/available')
       setVehiclesOptions(response.data.data)
     } catch (error) {
-      console.error('Error fetching vehicles:', error)
+      showError(error.message)
     }
   }
 
@@ -72,17 +74,17 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
     }
     try {
       const resposne = await api.put(`/api/v1/driver/${driver._id}`, updateDriver)
-      if (resposne.status === 200) {
-        setSuccess('Driver updated successfully')
+      if (resposne.data.success) {
+        showSuccess(resposne.data.message)
         onUpdateDriver(resposne.data.data)
         setTimeout(() => {
-          setSuccess(null)
           setVisible(false)
           setUpdateDriver(initialState)
         }, 2000)
       }
     } catch (error) {
       setError(error.response.data.message)
+      showError(error.response.data.message)
       setTimeout(() => {
         setError(null)
       }, 2000)
@@ -205,7 +207,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 label="Status"
                 autoComplete="off"
                 required
-                value={updateDriver.status}
+                value={updateDriver.status || ''}
                 onChange={handleChange}
               >
                 {options.map((option) => (
@@ -218,12 +220,13 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 (updateDriver.status === 'on_duty' && (
                   <CFormSelect
                     className="mb-3"
-                    floatingLabel="Vehicle"
-                    label="Vehicle"
-                    id="vehicle"
-                    value={updateDriver.assignedVehicle}
+                    floatingLabel="Assigned Vehicle"
+                    label="Assigned Vehicle"
+                    id="assignedVehicle"
+                    value={updateDriver.assignedVehicle || ''}
                     onChange={handleChange}
                   >
+                    <option value="">Select a vehicle</option>
                     {vehiclesOptions.map((vehicle) => (
                       <option key={vehicle._id} value={vehicle._id}>
                         {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}

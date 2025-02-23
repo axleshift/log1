@@ -338,65 +338,81 @@ import {
   CFormLabel,
   CInputGroup,
   CInputGroupText,
+  CModalTitle,
   CImage,
+  CAlert,
+  CFormTextarea,
 } from '@coreui/react'
-// import { toast } from 'react-toastify'
 import api from '../../../../utils/api'
+import { useToast } from '../../../../components/Toast/Toast'
 
 const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers }) => {
+  const { showSuccess, showError } = useToast()
   const API_URL = import.meta.env.VITE_APP_API_URL
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(null)
   const [preview, setPreview] = useState(null)
+  const [error, setError] = useState(null)
+  const [vehicleOptions, setVehicleOptions] = useState([])
+  const [driverOptions, setDriverOptions] = useState([])
+  const maxDate = new Date().toISOString().split('T')[0]
   const [formData, setFormData] = useState({
-    date: '',
-    receiptNumber: '',
-    vehicleId: '',
-    driverId: '',
-    fuelQuantity: '',
-    costPerLiter: '',
-    totalCost: '',
-    odometerReading: '',
-    route: {
-      start: '', // Changed from startLocation
-      end: '', // Changed from endLocation
-      distance: '',
+    date: new Date(fuelLog.date).toISOString().split('T')[0],
+    receiptNumber: fuelLog.receiptNumber,
+    vehicleId: fuelLog.vehicleId?._id || fuelLog.vehicleId,
+    driverId: fuelLog.driverId?._id || fuelLog.driverId,
+    vehicleDetails: {
+      brand: fuelLog.vehicleId?.brand || fuelLog.vehicleDetails?.brand || '',
+      model: fuelLog.vehicleId?.model || fuelLog.vehicleDetails?.model || '',
+      regisNumber: fuelLog.vehicleId?.regisNumber || fuelLog.vehicleDetails?.regisNumber || '',
+      fuelType: fuelLog.vehicleId?.fuelType || fuelLog.vehicleDetails?.fuelType || '',
     },
-    litersPer100km: '',
-    kmPerLiter: '',
-    mpg: '',
-    notes: '',
-    receiptImage: null,
+    driverDetails: {
+      driverName: fuelLog.driverId?.driverName || fuelLog.driverDetails?.driverName || '',
+    },
+    fuelQuantity: fuelLog.fuelQuantity,
+    costPerLiter: fuelLog.costPerLiter,
+    totalCost: fuelLog.totalCost,
+    currentMileage: fuelLog.currentMileage || '',
+    fuelType: fuelLog.fuelType || '',
+    route: {
+      start: fuelLog.route.start,
+      end: fuelLog.route.end,
+      distance: fuelLog.route.distance,
+    },
+    litersPer100km: fuelLog.litersPer100km,
+    kmPerLiter: fuelLog.kmPerLiter,
+    mpg: fuelLog.mpg,
+    notes: fuelLog.notes || '',
   })
   const [validated, setValidated] = useState(false)
 
   useEffect(() => {
-    if (fuelLog) {
-      setFormData({
-        date: new Date(fuelLog.date).toISOString().split('T')[0],
-        receiptNumber: fuelLog.receiptNumber,
-        vehicleId: fuelLog.vehicleId._id || fuelLog.vehicleId,
-        driverId: fuelLog.driverId._id || fuelLog.driverId,
-        fuelQuantity: fuelLog.fuelQuantity,
-        costPerLiter: fuelLog.costPerLiter,
-        totalCost: fuelLog.totalCost,
-        odometerReading: fuelLog.odometerReading,
-        route: {
-          start: fuelLog.route.start, // Changed from startLocation
-          end: fuelLog.route.end, // Changed from endLocation
-          distance: fuelLog.route.distance,
-        },
-        litersPer100km: fuelLog.litersPer100km,
-        kmPerLiter: fuelLog.kmPerLiter,
-        mpg: fuelLog.mpg,
-        notes: fuelLog.notes || '',
-      })
-
-      // Set initial image preview if receipt exists
-      if (fuelLog.receiptImage) {
-        setPreview(`${API_URL}/uploads/receipts/${fuelLog.receiptImage}`)
-      }
+    if (fuelLog?.receiptImage) {
+      setPreview(`${API_URL}/uploads/receipts/${fuelLog.receiptImage}`)
     }
   }, [fuelLog])
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setLoading(true)
+        const [driversResponse, vehiclesResponse] = await Promise.all([
+          api.get('/api/v1/driver'),
+          api.get('/api/v1/vehicle/in-use'),
+        ])
+
+        setDriverOptions(driversResponse.data.data)
+        setVehicleOptions(vehiclesResponse.data.data)
+      } catch (error) {
+        showError('Error fetching initial data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchInitialData()
+  }, [])
 
   const handleChange = (e) => {
     const { id, value } = e.target
@@ -444,8 +460,19 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
         ...prevData,
         vehicleId: value,
         driverId: selectedVehicle?.assignedDriver || '',
+        // Store all vehicle details
+        vehicleDetails: {
+          brand: selectedVehicle?.brand || '',
+          model: selectedVehicle?.model || '',
+          regisNumber: selectedVehicle?.regisNumber || '',
+          fuelType: selectedVehicle?.fuelType || '',
+        },
+        // Store driver details
+        driverDetails: {
+          driverName: driverDetails?.driverName || '',
+        },
+        currentMileage: selectedVehicle?.currentMileage || '',
         fuelType: selectedVehicle?.fuelType || '',
-        driverName: driverDetails?.name || '',
       }))
     } else if (id === 'fuelQuantity' || id === 'costPerLiter') {
       setFormData((prevData) => {
@@ -495,7 +522,6 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
       }))
     }
   }
-
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -532,6 +558,17 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
           Object.keys(formData.route).forEach((routeKey) => {
             formDataToSend.append(`route[${routeKey}]`, formData.route[routeKey])
           })
+        } else if (key === 'vehicleDetails') {
+          Object.keys(formData.vehicleDetails).forEach((detailKey) => {
+            formDataToSend.append(
+              `vehicleDetails[${detailKey}]`,
+              formData.vehicleDetails[detailKey],
+            )
+          })
+        } else if (key === 'driverDetails') {
+          Object.keys(formData.driverDetails).forEach((detailKey) => {
+            formDataToSend.append(`driverDetails[${detailKey}]`, formData.driverDetails[detailKey])
+          })
         } else if (key === 'receiptImage' && formData[key]) {
           formDataToSend.append(key, formData[key])
         } else {
@@ -542,221 +579,297 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
       const response = await api.put(`/api/v1/fuelLogs/fuel-logs/${fuelLog._id}`, formDataToSend)
 
       if (response.data.success) {
-        // toast.success('Fuel log updated successfully')
-        onUpdate(response.data.data)
+        showSuccess(response.data.message)
+        onUpdate({
+          ...response.data.data,
+          vehicleId: {
+            _id: formData.vehicleId,
+            brand: formData.vehicleDetails.brand,
+            model: formData.vehicleDetails.model,
+            regisNumber: formData.vehicleDetails.regisNumber,
+          },
+          driverId: {
+            _id: formData.driverId,
+            driverName: formData.driverDetails.driverName,
+          },
+        })
         onClose()
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error updating fuel log')
+      showError(error.response?.data?.message || 'Error updating fuel log')
+      setError(error.response?.data?.message || 'Error updating fuel log')
     } finally {
       setLoading(false)
     }
   }
 
+  const isVehicleDeleted = !vehicles.some((v) => v._id === formData.vehicleId)
+
   return (
     <CModal visible={visible} onClose={onClose} size="lg" backdrop="static">
-      <CModalHeader closeButton>Update Fuel Log</CModalHeader>
+      <CModalHeader>
+        <CModalTitle>Add Fuel Log</CModalTitle>
+      </CModalHeader>
+      {error && (
+        <CAlert color="danger" className="m-3">
+          {error}
+        </CAlert>
+      )}
+      {success && (
+        <CAlert color="success" className="m-3">
+          {success}
+        </CAlert>
+      )}
+
       <CModalBody>
-        <CForm
-          className="row g-3 needs-validation"
-          noValidate
-          validated={validated}
-          onSubmit={handleSubmit}
-        >
-          <div className="col-md-6">
-            <CFormLabel htmlFor="date">Date</CFormLabel>
+        <CForm noValidate validated={validated}>
+          <CInputGroup>
+            {' '}
             <CFormInput
               type="date"
+              className="mb-3"
+              floatingLabel="date"
+              label="Receipt Number"
               id="date"
+              max={maxDate}
               value={formData.date}
               onChange={handleChange}
               required
+              disabled={isVehicleDeleted}
             />
-          </div>
+            <CFormSelect
+              className="mb-3"
+              floatingLabel="Vehicle"
+              label="Vehicle"
+              id="vehicleId"
+              value={formData.vehicleId || ''}
+              onChange={handleChange}
+              required
+              disabled
+            >
+              {vehicleOptions.map((vehicle) => (
+                <option key={vehicle._id} value={vehicle._id}>
+                  {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}
+                </option>
+              ))}
+              <option value="">
+                {' '}
+                {`${formData.vehicleDetails.brand} / ${formData.vehicleDetails.model} / ${formData.vehicleDetails.regisNumber} [DELETED]`}
+              </option>
+            </CFormSelect>
+          </CInputGroup>
 
-          <div className="col-md-6">
-            <CFormLabel htmlFor="receiptNumber">Receipt Number</CFormLabel>
+          <CInputGroup>
             <CFormInput
+              className="mb-3"
               type="text"
+              floatingLabel="Driver Name"
+              placeholder="Driver Name"
+              id="driverName"
+              value={
+                drivers.find((driver) => driver._id === formData.driverId)?.driverName ||
+                `${formData.driverDetails.driverName} [DELETED]`
+              }
+              onChange={handleChange}
+              disabled
+            />
+
+            <CFormSelect
+              className="mb-3"
+              floatingLabel="Fuel Type"
+              label="Fuel Type"
+              id="fuelType"
+              required
+              value={formData.fuelType || ''}
+              onChange={handleChange}
+              disabled
+            >
+              <option value="">Select Fuel Type</option>
+              <option value="Gasoline">Gasoline</option>
+              <option value="Diesel">Diesel</option>
+            </CFormSelect>
+          </CInputGroup>
+          <CInputGroup>
+            <CFormInput
+              className="mb-3"
+              type="text"
+              floatingLabel="Official Reciept"
+              placeholder="Official Reciept"
               id="receiptNumber"
               value={formData.receiptNumber}
               onChange={handleChange}
               required
+              autoComplete="off"
+              disabled={isVehicleDeleted}
             />
-          </div>
-
-          <div className="col-md-6">
-            <CFormLabel htmlFor="vehicleId">Vehicle</CFormLabel>
-            <CFormSelect id="vehicleId" value={formData.vehicleId} onChange={handleChange} required>
-              <option value="">Select Vehicle</option>
-              {vehicles.map((vehicle) => (
-                <option key={vehicle._id} value={vehicle._id}>
-                  {`${vehicle.brand} ${vehicle.model} (${vehicle.regisNumber})`}
-                </option>
-              ))}
-            </CFormSelect>
-          </div>
-
-          <div className="col-md-6">
-            <CFormLabel htmlFor="driverId">Driver</CFormLabel>
-            <CFormSelect id="driverId" value={formData.driverId} onChange={handleChange} required>
-              <option value="">Select Driver</option>
-              {drivers.map((driver) => (
-                <option key={driver._id} value={driver._id}>
-                  {driver.driverName}
-                </option>
-              ))}
-            </CFormSelect>
-          </div>
-
-          <div className="col-md-6">
-            <CFormLabel htmlFor="fuelQuantity">Fuel Quantity (L)</CFormLabel>
             <CFormInput
+              className="mb-3"
               type="number"
+              floatingLabel="Fuel Quantity"
+              placeholder="Fuel Quantity"
               id="fuelQuantity"
               value={formData.fuelQuantity}
               onChange={handleChange}
               required
+              autoComplete="off"
               min="0"
               step="0.01"
+              feedbackInvalid="Please enter a valid fuel quantity"
+              disabled={isVehicleDeleted}
             />
-          </div>
 
-          <div className="col-md-6">
-            <CFormLabel htmlFor="costPerLiter">Cost per Liter</CFormLabel>
             <CFormInput
+              className="mb-3"
               type="number"
+              floatingLabel="Cost Per Liter"
+              placeholder="Cost Per Liter"
               id="costPerLiter"
               value={formData.costPerLiter}
               onChange={handleChange}
-              required
+              autoComplete="off"
+              feedbackInvalid="Please enter a valid cost per liter"
+              disabled={isVehicleDeleted}
+            />
+            <CFormInput
+              className="mb-3"
+              type="number"
+              floatingLabel="Total Cost"
+              placeholder="Total Cost"
+              id="totalCost"
+              value={formData.totalCost}
+              onChange={handleChange}
+              autoComplete="off"
               min="0"
               step="0.01"
+              disabled
+              feedbackInvalid="Please enter a valid total cost"
             />
-          </div>
+          </CInputGroup>
+          <CInputGroup>
+            <CFormInput
+              className="mb-3"
+              type="number"
+              floatingLabel="Odometer Reading"
+              placeholder="Odometer Reading"
+              id="currentMileage"
+              value={formData.currentMileage}
+              onChange={handleChange}
+              autoComplete="off"
+              feedbackInvalid="Please enter a valid odometer reading"
+              disabled={isVehicleDeleted}
+            />
+            <CFormInput
+              className="mb-3"
+              type="text"
+              floatingLabel="Start Location"
+              placeholder="Start Location"
+              id="route.start"
+              value={formData.route.start}
+              onChange={handleChange}
+              autoComplete="off"
+              feedbackInvalid="Please enter a valid start location"
+              disabled={isVehicleDeleted}
+            />
 
-          <div className="col-md-6">
-            <CFormLabel htmlFor="totalCost">Total Cost</CFormLabel>
+            <CFormInput
+              className="mb-3"
+              type="text"
+              floatingLabel="End Location"
+              placeholder="End Location"
+              id="route.end"
+              value={formData.route.end}
+              onChange={handleChange}
+              autoComplete="off"
+              feedbackInvalid="Please enter a valid end location"
+              disabled={isVehicleDeleted}
+            />
 
-            <CInputGroup>
-              <CFormInput type="number" id="totalCost" value={formData.totalCost} disabled />
-            </CInputGroup>
-          </div>
-          <div className="col-md-6">
-            <CFormLabel htmlFor="odometerReading">Odometer Reading</CFormLabel>
-            <CInputGroup>
-              <CFormInput type="number" id="odometerReading" value={formData.odometerReading} />
-            </CInputGroup>
-          </div>
-
-          <div className="col-md-12">
-            <CFormLabel htmlFor="route.start">Route Information</CFormLabel>
-            <div className="row g-3">
-              <div className="col-md-4">
-                <CFormLabel htmlFor="route.start">Start Location</CFormLabel>
-                <CFormInput
-                  type="text"
-                  id="route.start" // Changed from route.startLocation
-                  placeholder="Start Location"
-                  value={formData.route.start} // Changed from startLocation
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="col-md-4">
-                <CFormLabel htmlFor="route.end">End Location</CFormLabel>
-                <CFormInput
-                  type="text"
-                  id="route.end" // Changed from route.endLocation
-                  placeholder="End Location"
-                  value={formData.route.end} // Changed from endLocation
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="col-md-4">
-                <CFormLabel htmlFor="route.distance">Distance (km)</CFormLabel>
-                <CFormInput
-                  type="number"
-                  id="route.distance"
-                  placeholder="Distance (km)"
-                  value={formData.route.distance}
-                  onChange={handleChange}
-                  required
-                  min="0"
-                  step="0.1"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="col-md-12">
-            <div className="row g-3">
-              <div className="col-md-4">
-                <CFormLabel htmlFor="litersPer100km">Liters per 100 km</CFormLabel>
-                <CInputGroup>
-                  <CFormInput
-                    type="number"
-                    id="litersPer100km"
-                    value={formData.litersPer100km}
-                    disabled
-                  />
-                </CInputGroup>
-              </div>
-
-              <div className="col-md-4">
-                <CFormLabel htmlFor="kmPerLiter">Km per Liter</CFormLabel>
-                <CInputGroup>
-                  <CFormInput type="number" id="kmPerLiter" value={formData.kmPerLiter} disabled />
-                </CInputGroup>
-              </div>
-
-              <div className="col-md-4">
-                <CFormLabel htmlFor="mpg">MPG</CFormLabel>
-                <CInputGroup>
-                  <CFormInput type="number" id="mpg" value={formData.mpg} disabled />
-                </CInputGroup>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-12">
-            <CFormLabel htmlFor="receiptImage">Receipt Image</CFormLabel>
+            <CFormInput
+              className="mb-3"
+              type="number"
+              floatingLabel="Distance/kilometers"
+              placeholder="Distance"
+              id="route.distance"
+              value={formData.route.distance}
+              onChange={handleChange}
+              autoComplete="off"
+              min="0"
+              step="0.01"
+              feedbackInvalid="Please enter a valid distance"
+              disabled={isVehicleDeleted}
+            />
+          </CInputGroup>
+          <CInputGroup className="mb-3">
+            <CFormInput
+              type="text"
+              floatingLabel="L/100km"
+              placeholder="Liters per 100km"
+              id="litersPer100km"
+              value={formData.litersPer100km}
+              disabled
+            />
+            <CFormInput
+              type="text"
+              floatingLabel="km/L"
+              placeholder="Kilometers per Liter"
+              id="kmPerLiter"
+              value={formData.kmPerLiter}
+              disabled
+            />
+            <CFormInput
+              type="text"
+              floatingLabel="MPG"
+              placeholder="Miles per Gallon"
+              id="mpg"
+              value={formData.mpg}
+              disabled
+            />
+          </CInputGroup>
+          <CFormLabel htmlFor="receipt">Picture Of Receipts</CFormLabel>
+          <CInputGroup className="mb-3">
             <CFormInput
               type="file"
-              id="receiptImage"
+              id="receipt"
+              accept="images/*"
               onChange={handleFileChange}
-              accept="image/*"
+              disabled={isVehicleDeleted}
             />
-          </div>
-
-          {/* Image Preview */}
+          </CInputGroup>
           {preview && (
-            <div className="col-md-12 text-center">
+            <div className="mb-3">
               <CImage
-                id="receipt-preview"
-                name="receipt-preview"
                 src={preview}
-                alt="Receipt Preview"
                 rounded
                 align="center"
+                alt="Receipts"
                 width={200}
                 height={200}
               />
             </div>
           )}
 
-          <div className="col-md-12">
-            <CFormLabel htmlFor="notes">Notes</CFormLabel>
-            <CFormInput type="text" id="notes" value={formData.notes} onChange={handleChange} />
-          </div>
+          <CFormTextarea
+            className="mb-3"
+            type="text"
+            floatingLabel="Notes"
+            placeholder="Notes"
+            rows={3}
+            id="notes"
+            value={formData.notes}
+            autoCapitalize="on"
+            autoComplete="off"
+            onChange={handleChange}
+            feedbackInvalid="Please enter a valid notes"
+            disabled={isVehicleDeleted}
+          />
         </CForm>
       </CModalBody>
       <CModalFooter>
         <CButton color="secondary" onClick={onClose}>
-          Cancel
+          Close
         </CButton>
-        <CButton color="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? <CSpinner size="sm" /> : 'Update'}
+        <CButton color="primary" onClick={handleSubmit} disabled={loading || isVehicleDeleted}>
+          {loading ? <CSpinner color="primary" size="sm" /> : 'Add'}
         </CButton>
       </CModalFooter>
     </CModal>

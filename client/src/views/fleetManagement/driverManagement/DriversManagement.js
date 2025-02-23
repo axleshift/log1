@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import AddDriver from './ComponentsDriver/AddDrivers'
 import TableDriver from './ComponentsDriver/TableDriver'
-import { CCard, CCardBody, CContainer, CHeader } from '@coreui/react'
+import {
+  CCard,
+  CCardBody,
+  CContainer,
+  CHeader,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CButton,
+} from '@coreui/react'
 import api from '../../../utils/api'
+import { useToast } from '../../../components/Toast/Toast'
 const DriversManagement = () => {
+  const { showError } = useToast()
   const [driver, setDrivers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [selectedLogId, setSelectedLogId] = useState(null)
 
   const fetchDrivers = async () => {
     setLoading(true)
@@ -17,9 +31,11 @@ const DriversManagement = () => {
         setLoading(false)
       } else {
         setError(response.data.message)
+        showError(response.data.message)
       }
     } catch (error) {
       setError(error.response?.data?.message || error.message)
+      showError(error.response?.data?.message || error.message)
     } finally {
       setLoading(false)
     }
@@ -31,6 +47,11 @@ const DriversManagement = () => {
 
   const handleAddDriver = (newDriver) => {
     setDrivers((preDrivers) => [...preDrivers, newDriver])
+    fetchDrivers()
+  }
+  const handleDeleteClick = (id) => {
+    setSelectedLogId(id)
+    setDeleteModal(true)
   }
 
   const handleDeleteDriver = (driverId) => {
@@ -55,11 +76,25 @@ const DriversManagement = () => {
             driver={driver}
             loading={loading}
             error={error}
-            onDeleteDriver={handleDeleteDriver}
+            onDeleteDriver={handleDeleteClick}
             onUpdateDriver={handleUpdateDriver}
           />
         </CCardBody>
       </CCard>
+      <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
+        <CModalHeader closeButton>Confirm Delete</CModalHeader>
+        <CModalBody>
+          Are you sure you want to delete this driver? This action cannot be undone.
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setDeleteModal(false)}>
+            Cancel
+          </CButton>
+          <CButton color="danger" onClick={handleDeleteDriver}>
+            Delete
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   )
 }

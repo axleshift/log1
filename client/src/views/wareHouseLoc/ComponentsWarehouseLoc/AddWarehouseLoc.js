@@ -14,7 +14,9 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../utils/api'
+import { useToast } from '../../../components/Toast/Toast'
 const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
+  const { showSuccess, showError } = useToast()
   const [validated, setValidated] = useState(false)
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -55,12 +57,11 @@ const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
           ...formData,
           createdBy: email,
         })
-        if (response.status === 201) {
-          setSuccess(response.data.message)
+        if (response.data.success) {
+          showSuccess(response.data.message)
           onAddWarehouseLoc(response.data.data)
           setTimeout(() => {
             setLoading(false)
-            setSuccess(null)
             setVisible(false)
             setError(null)
             setFormData(initialState)
@@ -69,6 +70,7 @@ const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
         }
       } catch (error) {
         setError(error.response.data.message)
+        showError(error.response.data.message)
         setTimeout(() => {
           setError(null)
         }, 2000)

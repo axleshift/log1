@@ -16,8 +16,10 @@ import {
   CForm,
 } from '@coreui/react'
 import api from '../../../../utils/api'
+import { useToast } from '../../../../components/Toast/Toast'
 
 const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
+  const { showSuccess, showError } = useToast()
   const [visible, setVisible] = useState(false)
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
@@ -68,16 +70,16 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
     try {
       const response = await api.put(`/api/v1/vehicle/${vehicle._id}`, editVehicle)
       if (response.data.success) {
-        setSuccess('Vehicle updated successfully')
+        showSuccess(response.data.message)
         onUpdateVehicle(response.data.data)
         setTimeout(() => {
-          setSuccess(null)
           setLoading(false)
           setValidated(false)
           setVisible(false)
         }, 2000)
       }
     } catch (error) {
+      showError(error.response.data.message)
       setError(error.response.data.message)
       setTimeout(() => {
         setError(null)

@@ -16,8 +16,10 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../../utils/api'
+import { useToast } from '../../../../components/Toast/Toast'
 
 const AddDrivers = ({ onAddDriver }) => {
+  const { showSuccess, showError } = useToast()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
   const [error, setError] = useState(null)
@@ -50,6 +52,7 @@ const AddDrivers = ({ onAddDriver }) => {
       setVehiclesOptions(response.data.data)
     } catch (error) {
       console.error('Error fetching vehicles:', error)
+      // showError(error.message)
     }
   }
 
@@ -75,7 +78,7 @@ const AddDrivers = ({ onAddDriver }) => {
     try {
       const response = await api.post('/api/v1/driver', newDriver)
       if (response.status === 201) {
-        setSuccess('Driver added successfully')
+        showSuccess(response.data.message)
         onAddDriver(response.data.data)
         setTimeout(() => {
           setNewDriver(initialState)
@@ -87,6 +90,10 @@ const AddDrivers = ({ onAddDriver }) => {
       }
     } catch (error) {
       setError(error.response.data.message)
+      showError(error.response.data.message)
+      setTimeout(() => {
+        setError(null)
+      }, 3000)
     } finally {
       setLoading(false)
     }
@@ -199,7 +206,7 @@ const AddDrivers = ({ onAddDriver }) => {
                   className="mb-3"
                   floatingLabel="Vehicle"
                   label="Vehicle"
-                  id="vehicle"
+                  id="assignedVehicle"
                   required
                   value={newDriver.assignedVehicle}
                   onChange={handleChange}

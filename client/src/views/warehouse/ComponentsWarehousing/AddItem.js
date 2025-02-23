@@ -15,8 +15,10 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState, useEffect } from 'react'
 import api from '../../../utils/api'
+import { useToast } from '../../../components/Toast/Toast'
 
 const AddItem = ({ onAddItem, item = {} }) => {
+  const { showSuccess, showError } = useToast()
   const [buttonText, setButtonText] = useState('Add Item')
   const [success, setSuccess] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -68,6 +70,7 @@ const AddItem = ({ onAddItem, item = {} }) => {
         setWarehouses(response.data.data)
       } catch (error) {
         setError(error.response.data.message)
+        showError(error.response.data.message)
       }
     }
     fetchWarehouses()
@@ -96,11 +99,11 @@ const AddItem = ({ onAddItem, item = {} }) => {
         byReceived: email,
       })
 
-      if (response.status === 201) {
+      if (response.data.success) {
         const newItem = response.data.data
         const warehouse = warehouses.find((w) => w._id === newItem.warehouse)
         newItem.warehouse = warehouse // Add warehouse details to the new item
-        setSuccess(response.data.message)
+        showSuccess(response.data.message)
         onAddItem(newItem)
         setButtonText('Already Added')
 
@@ -111,9 +114,11 @@ const AddItem = ({ onAddItem, item = {} }) => {
         }, 1500)
       } else {
         setError(response.data.message || 'An unexpected error occurred')
+        showError(response.data.message || 'An unexpected error occurred')
       }
     } catch (error) {
       setError(error.response?.data?.message || error.message)
+      showError(error.response?.data?.message || error.message)
     }
   }
 

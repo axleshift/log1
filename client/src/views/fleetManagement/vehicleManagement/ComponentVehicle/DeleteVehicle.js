@@ -3,8 +3,10 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { CButton, CSpinner, CAlert } from '@coreui/react'
+import { useToast } from '../../../../components/Toast/Toast'
 
 const DeleteVehicle = ({ vehicle, onDeleteVehicle }) => {
+  const { showSuccess, showErrors } = useToast()
   const token = sessionStorage.getItem('accessToken')
   const API = import.meta.env.VITE_APP_API_URL
   const api = axios.create({
@@ -22,8 +24,8 @@ const DeleteVehicle = ({ vehicle, onDeleteVehicle }) => {
     setLoading(true)
     try {
       const response = await api.delete(`/api/v1/vehicle/${vehicle._id}`)
-      if (response.status === 200) {
-        alert('Vehicle deleted successfully')
+      if (response.data.success) {
+        showSuccess(response.data.message)
         setLoading(false)
         onDeleteVehicle(vehicle._id)
         setLoading(false)
@@ -31,6 +33,7 @@ const DeleteVehicle = ({ vehicle, onDeleteVehicle }) => {
       }
     } catch (error) {
       setError(error)
+      showErrors(error.response.data.message)
     } finally {
       setLoading(false)
     }

@@ -3,8 +3,10 @@ import { CButton, CSpinner, CAlert } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../utils/api'
+import { useToast } from '../../../components/Toast/Toast'
 
 const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
+  const { showSuccess, showError } = useToast()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -12,14 +14,15 @@ const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
     setLoading(true)
     try {
       const response = await api.delete(`/api/v1/warehouseLoc/delete/${warehouseLoc._id}`)
-      if (response.status === 200) {
-        alert('Warehouse Location deleted successfully')
+      if (response.data.success) {
+        showSuccess(response.data.message)
         onDeleteWarehouseLoc(warehouseLoc._id)
         setLoading(false)
         setError(null)
       }
     } catch (err) {
       setError(err)
+      showError(err.message)
     } finally {
       setLoading(false)
     }

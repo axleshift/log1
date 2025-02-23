@@ -16,9 +16,11 @@ import api from '../../../utils/api'
 import AddFuelLog from './componentsFuelLogs/AddFuelLog'
 import TableFuelLogs from './componentsFuelLogs/TableFuelLogs'
 import UpdateFuelLog from './componentsFuelLogs/UpdateFuelLog'
+import { useToast } from '../../../components/Toast/Toast'
 
 const FuelManagement = () => {
   const API_URL = import.meta.env.VITE_APP_API_URL
+  const { showSuccess, showError } = useToast()
   const [fuelLogs, setFuelLogs] = useState([])
   const [vehicles, setVehicles] = useState([])
   const [drivers, setDrivers] = useState([])
@@ -43,7 +45,9 @@ const FuelManagement = () => {
       setFuelLogs(fuelLogsRes.data.data)
       setVehicles(vehiclesRes.data.data)
       setDrivers(driversRes.data.data)
+      showSuccess('Data fetched successfully')
     } catch (error) {
+      showError(error.response?.data?.message || 'Error fetching data')
       setError(error.message)
     } finally {
       setLoading(false)
@@ -58,10 +62,10 @@ const FuelManagement = () => {
     try {
       await api.delete(`/api/v1/fuelLogs/fuel-logs/${selectedLogId}`)
       setFuelLogs((prev) => prev.filter((log) => log._id !== selectedLogId))
-      // toast.success('Fuel log deleted successfully')
+      showSuccess('Fuel log deleted successfully')
       setDeleteModal(false)
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error deleting fuel log')
+      showError(error.response?.data?.message || 'Error deleting fuel log')
     }
   }
 
@@ -84,8 +88,9 @@ const FuelManagement = () => {
       const imageUrl = `${API_URL}/uploads/receipts/${fuelLog.receiptImage}`
       setSelectedImage(imageUrl)
       setImageModal(true)
+      showSuccess('Receipt image loaded successfully')
     } else {
-      toast.info('No receipt image available')
+      showError('No receipt image available')
     }
   }
 
@@ -102,6 +107,7 @@ const FuelManagement = () => {
   }
   const handleAddFuelLog = (newFuelLogs) => {
     setFuelLogs((preFuelLogs) => [...preFuelLogs, newFuelLogs])
+    fetchData()
   }
 
   return (
@@ -147,10 +153,10 @@ const FuelManagement = () => {
             Are you sure you want to delete this fuel log? This action cannot be undone.
           </CModalBody>
           <CModalFooter>
-            <CButton color="secondary" onClick={() => setDeleteModal(false)}>
+            <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
               Cancel
             </CButton>
-            <CButton color="danger" onClick={handleDeleteConfirm}>
+            <CButton color="danger" variant="outline" onClick={handleDeleteConfirm}>
               Delete
             </CButton>
           </CModalFooter>
@@ -187,6 +193,7 @@ const FuelManagement = () => {
           <CModalFooter>
             <CButton
               color="secondary"
+              variant="outline"
               onClick={() => {
                 setImageModal(false)
                 setSelectedImage(null)
@@ -194,7 +201,11 @@ const FuelManagement = () => {
             >
               Close
             </CButton>
-            <CButton color="primary" onClick={() => window.open(selectedImage, '_blank')}>
+            <CButton
+              color="primary"
+              variant="outline"
+              onClick={() => window.open(selectedImage, '_blank')}
+            >
               Open in New Tab
             </CButton>
           </CModalFooter>

@@ -20,7 +20,10 @@ import {
 import api from '../../../../utils/api'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useToast } from '../../../../components/Toast/Toast'
+
 const AddFuelLog = ({ onAddFuelog }) => {
+  const { showSuccess, showError } = useToast()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
@@ -29,16 +32,28 @@ const AddFuelLog = ({ onAddFuelog }) => {
   const [preview, setPreview] = useState(null)
   const [drivers, setDrivers] = useState([])
   const [vehicleOptions, setVehicleOptions] = useState([])
+  const maxDate = new Date().toISOString().split('T')[0]
   const API_URL = import.meta.env.VITE_APP_API_URL
   const initialState = {
     vehicleId: '',
     driverId: '',
+    // Add these fields to store the details even if vehicle/driver is deleted
+    vehicleDetails: {
+      brand: '',
+      model: '',
+      regisNumber: '',
+      fuelType: '',
+    },
+    driverDetails: {
+      driverName: '',
+    },
+    date: '',
     receiptNumber: '',
     fuelQuantity: '',
     fuelType: '',
     costPerLiter: '',
     totalCost: '',
-    odometerReading: '',
+    currentMileage: '',
     receiptImage: null,
     route: {
       start: '',
@@ -63,8 +78,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
         setDrivers(driversResponse.data.data)
         setVehicleOptions(vehiclesResponse.data.data)
       } catch (error) {
-        console.error('Error fetching initial data:', error)
-        setError(error.message)
+        showError('Error fetching initial data')
       } finally {
         setLoading(false)
       }
@@ -72,53 +86,6 @@ const AddFuelLog = ({ onAddFuelog }) => {
 
     fetchInitialData()
   }, [])
-
-  // const handleChange = (e) => {
-  //   const { id, value } = e.target
-
-  //   if (id.includes('route.')) {
-  //     // Handle nested route object
-  //     const routeField = id.split('.')[1] // Gets 'start', 'end', or 'distance'
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       route: {
-  //         ...prevData.route,
-  //         [routeField]: value,
-  //       },
-  //     }))
-  //   } else if (id === 'vehicleId') {
-  //     const selectedVehicle = vehicleOptions.find((vehicle) => vehicle._id === value)
-  //     const driverDetails = drivers.find((driver) => driver._id === selectedVehicle?.assignedDriver)
-
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       vehicleId: value,
-  //       driverId: selectedVehicle?.assignedDriver || '',
-  //       fuelType: selectedVehicle?.fuelType || '',
-  //       driverName: driverDetails?.name || '',
-  //     }))
-  //   } else if (id === 'fuelQuantity' || id === 'costPerLiter') {
-  //     setFormData((prevData) => {
-  //       const updatedData = {
-  //         ...prevData,
-  //         [id]: value,
-  //       }
-
-  //       if (updatedData.fuelQuantity && updatedData.costPerLiter) {
-  //         const quantity = parseFloat(updatedData.fuelQuantity)
-  //         const cost = parseFloat(updatedData.costPerLiter)
-  //         updatedData.totalCost = (quantity * cost).toFixed(2)
-  //       }
-
-  //       return updatedData
-  //     })
-  //   } else {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       [id]: value,
-  //     }))
-  //   }
-  // }
 
   const handleChange = (e) => {
     const { id, value } = e.target
@@ -166,8 +133,19 @@ const AddFuelLog = ({ onAddFuelog }) => {
         ...prevData,
         vehicleId: value,
         driverId: selectedVehicle?.assignedDriver || '',
+        // Store all vehicle details
+        vehicleDetails: {
+          brand: selectedVehicle?.brand || '',
+          model: selectedVehicle?.model || '',
+          regisNumber: selectedVehicle?.regisNumber || '',
+          fuelType: selectedVehicle?.fuelType || '',
+        },
+        // Store driver details
+        driverDetails: {
+          driverName: driverDetails?.driverName || '',
+        },
+        currentMileage: selectedVehicle?.currentMileage || '',
         fuelType: selectedVehicle?.fuelType || '',
-        driverName: driverDetails?.name || '',
       }))
     } else if (id === 'fuelQuantity' || id === 'costPerLiter') {
       setFormData((prevData) => {
@@ -251,12 +229,23 @@ const AddFuelLog = ({ onAddFuelog }) => {
       const formDataToSend = new FormData()
       formDataToSend.append('vehicleId', formData.vehicleId)
       formDataToSend.append('driverId', formData.driverId)
+
+      // Append vehicle details
+      formDataToSend.append('vehicleDetails[brand]', formData.vehicleDetails.brand)
+      formDataToSend.append('vehicleDetails[model]', formData.vehicleDetails.model)
+      formDataToSend.append('vehicleDetails[regisNumber]', formData.vehicleDetails.regisNumber)
+      formDataToSend.append('vehicleDetails[fuelType]', formData.vehicleDetails.fuelType)
+
+      // Append driver details
+      formDataToSend.append('driverDetails[driverName]', formData.driverDetails.driverName)
+
+      formDataToSend.append('date', formData.date)
       formDataToSend.append('receiptNumber', formData.receiptNumber)
       formDataToSend.append('fuelQuantity', formData.fuelQuantity)
       formDataToSend.append('fuelType', formData.fuelType)
       formDataToSend.append('costPerLiter', formData.costPerLiter)
       formDataToSend.append('totalCost', formData.totalCost)
-      formDataToSend.append('odometerReading', formData.odometerReading)
+      formDataToSend.append('currentMileage', formData.currentMileage)
       formDataToSend.append('notes', formData.notes)
       formDataToSend.append('litersPer100km', formData.litersPer100km)
       formDataToSend.append('kmPerLiter', formData.kmPerLiter)
@@ -273,6 +262,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
       const response = await api.post('/api/v1/fuelLogs/fuel-logs', formDataToSend)
       if (response.data.success) {
         onAddFuelog(response.data.data)
+        showSuccess(response.data.message)
         setSuccess(response.data.message)
         setTimeout(() => {
           setSuccess(false)
@@ -282,6 +272,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
         }, 2000)
       }
     } catch (error) {
+      showError(error.response.data.message)
       setError(error.response.data.message)
       setTimeout(() => {
         setError(null)
@@ -321,6 +312,18 @@ const AddFuelLog = ({ onAddFuelog }) => {
         <CModalBody>
           <CForm noValidate validated={validated}>
             <CInputGroup>
+              <CFormInput
+                type="date"
+                className="mb-3"
+                floatingLabel="date"
+                label="Receipt Number"
+                id="date"
+                max={maxDate}
+                value={formData.date}
+                onChange={handleChange}
+                required
+              />
+
               <CFormSelect
                 className="mb-3"
                 floatingLabel="Vehicle"
@@ -426,8 +429,8 @@ const AddFuelLog = ({ onAddFuelog }) => {
                 type="number"
                 floatingLabel="Odometer Reading"
                 placeholder="Odometer Reading"
-                id="odometerReading"
-                value={formData.odometerReading}
+                id="currentMileage"
+                value={formData.currentMileage}
                 onChange={handleChange}
                 autoComplete="off"
                 feedbackInvalid="Please enter a valid odometer reading"

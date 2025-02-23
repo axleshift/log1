@@ -42,7 +42,6 @@ const vehicleSchema = new mongoose.Schema(
         assignedDriver: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Driver",
-            default: null,
         },
         currentLoad: {
             type: Number,
