@@ -13,7 +13,7 @@ const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
   const deleteWarehouseLoc = async () => {
     setLoading(true)
     try {
-      const response = await api.delete(`/api/v1/warehouseLoc/delete/${warehouseLoc._id}`)
+      const response = await api.patch(`/api/v1/warehouseLoc/delete/${warehouseLoc._id}`)
       if (response.data.success) {
         showSuccess(response.data.message)
         onDeleteWarehouseLoc(warehouseLoc._id)

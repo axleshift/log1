@@ -2,7 +2,7 @@ import Warehouse from "../models/warehouse.models.js";
 import mongoose from "mongoose";
 
 export const addWarehouseItem = async (req, res) => {
-    const { from, items, dateArrival, warehouse, byReceived, PoNumber } = req.body;
+    const { from, items, dateArrival, warehouse, warehouseLocDetails, byReceived, PoNumber } = req.body;
 
     if (!from || !items || !dateArrival || !warehouse) {
         return res.status(400).json({ success: false, message: "All fields are required" });
@@ -25,6 +25,7 @@ export const addWarehouseItem = async (req, res) => {
         items: items.map((item) => ({ itemName: item.itemName, quantity: item.quantity })),
         dateArrival,
         warehouse,
+        warehouseLocDetails,
         byReceived,
         PoNumber,
     });
@@ -40,7 +41,7 @@ export const addWarehouseItem = async (req, res) => {
 export const getWarehouseItems = async (req, res) => {
     try {
         console.log("Fetching warehouse items...");
-        const warehouseItems = await Warehouse.find({}).populate("warehouse", "warehouseName");
+        const warehouseItems = await Warehouse.find({}).populate("warehouse", "warehouseName deleted");
         res.status(200).json({ success: true, data: warehouseItems });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" });
@@ -90,10 +91,25 @@ export const getAllItems = async (req, res) => {
             { $unwind: "$items" },
             {
                 $lookup: {
-                    from: "warehouselocs", // Collection name for warehouse locations
+                    from: "warehouselocs",
                     localField: "warehouse",
                     foreignField: "_id",
                     as: "warehouseDetails",
+                },
+            },
+            {
+                $addFields: {
+                    warehouseInfo: {
+                        $cond: {
+                            if: { $gt: [{ $size: "$warehouseDetails" }, 0] },
+                            then: { $arrayElemAt: ["$warehouseDetails", 0] },
+                            else: {
+                                warehouseName: "$warehouseLocDetails.warehouseName",
+                                address: "$warehouseLocDetails.address",
+                                deleted: true, // Mark as deleted since it's not in warehouselocs collection
+                            },
+                        },
+                    },
                 },
             },
             {
@@ -103,7 +119,7 @@ export const getAllItems = async (req, res) => {
                     quantity: { $sum: "$items.quantity" },
                     locations: {
                         $addToSet: {
-                            warehouse: { $first: "$warehouseDetails" },
+                            warehouse: "$warehouseInfo",
                             quantity: "$items.quantity",
                         },
                     },

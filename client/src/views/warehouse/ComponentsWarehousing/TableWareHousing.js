@@ -11,6 +11,8 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
+  CPopover,
+  CBadge,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faCircle } from '@fortawesome/free-solid-svg-icons'
@@ -121,7 +123,20 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
             <CAccordionHeader>
               <ul className="list-unstyled p-0 m-0 w-100">
                 <li>
-                  From: <strong>{warehousing.from}</strong>
+                  From:{' '}
+                  {warehousing.warehouse ? (
+                    <div className="d-inline-flex align-items-center">
+                      {console.log('Warehouse data:', warehousing.warehouse)}
+                      {warehousing.warehouse.warehouseName}
+                      {warehousing.warehouse.deleted ? (
+                        <CBadge color="danger" className="ms-2">
+                          Deleted
+                        </CBadge>
+                      ) : null}
+                    </div>
+                  ) : (
+                    `${warehousing.warehouseLocDetails.warehouseName} [DELETED to database]`
+                  )}
                 </li>
                 <li>
                   Purcahse Order: <strong>{warehousing.PoNumber}</strong>

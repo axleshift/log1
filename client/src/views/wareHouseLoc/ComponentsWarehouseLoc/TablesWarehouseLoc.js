@@ -158,35 +158,46 @@ const TablesWarehouseLoc = ({
               ))}
             </CTableBody>
           </CTable>
+
+          {filteredWarehouseLoc.length > 0 && (
+            <CContainer className="d-flex justify-content-between align-items-center">
+              <CContainer>
+                Showing {indexOfFirstItem + 1} to{' '}
+                {Math.min(indexOfLastItem, filteredWarehouseLoc.length)} of{' '}
+                {filteredWarehouseLoc.length} entries
+              </CContainer>
+
+              <CPagination className="mt-3">
+                <CPaginationItem
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                >
+                  Previous
+                </CPaginationItem>
+                {[...Array(totalPages).keys()].map((page) => (
+                  <CPaginationItem
+                    key={page + 1}
+                    active={page + 1 === currentPage}
+                    onClick={() => setCurrentPage(page + 1)}
+                  >
+                    {page + 1}
+                  </CPaginationItem>
+                ))}
+                <CPaginationItem
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                >
+                  Next
+                </CPaginationItem>
+              </CPagination>
+            </CContainer>
+          )}
+
           {localError && (
             <CAlert color="danger" className="text-center mt-5 w-75 mx-auto justify-content-center">
               {localError}
             </CAlert>
           )}
-
-          <CPagination align="center">
-            <CPaginationItem
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            >
-              Previous
-            </CPaginationItem>
-            {[...Array(totalPages).keys()].map((page) => (
-              <CPaginationItem
-                key={page + 1}
-                active={page + 1 === currentPage}
-                onClick={() => setCurrentPage(page + 1)}
-              >
-                {page + 1}
-              </CPaginationItem>
-            ))}
-            <CPaginationItem
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            >
-              Next
-            </CPaginationItem>
-          </CPagination>
         </CCardBody>
       </CCard>
     </>

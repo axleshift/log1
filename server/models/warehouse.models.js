@@ -28,6 +28,11 @@ const warehouseSchema = new mongoose.Schema(
             ref: "WarehouseLoc",
             required: true,
         },
+
+        warehouseLocDetails: {
+            warehouseName: String,
+            address: String,
+        },
         items: [itemSchema], // Add the array of items
         byReceived: {
             type: String,

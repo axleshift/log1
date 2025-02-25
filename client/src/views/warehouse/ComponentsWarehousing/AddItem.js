@@ -31,6 +31,10 @@ const AddItem = ({ onAddItem, item = {} }) => {
     PoNumber: item.PoNumber,
     dateArrival: today,
     warehouse: '',
+    warehouseLocDetails: {
+      warehouseName: '',
+      address: '',
+    },
     byReceived: '',
   })
 
@@ -94,6 +98,19 @@ const AddItem = ({ onAddItem, item = {} }) => {
     }
 
     try {
+      if (!formData.warehouse) {
+        setError('Please select a warehouse.')
+        return
+      }
+      const warehouse = warehouses.find((w) => w._id === formData.warehouse)
+      if (!warehouse) {
+        setError('Selected warehouse not found.')
+        return
+      }
+      formData.warehouseLocDetails = {
+        warehouseName: warehouse.warehouseName,
+        address: warehouse.address,
+      }
       const response = await api.post('/api/v1/warehouse/addItem', {
         ...formData,
         byReceived: email,

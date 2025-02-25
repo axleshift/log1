@@ -18,8 +18,6 @@ import {
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import api from '../../../utils/api'
-
 const ItemsTableWarehouse = ({ items, loading, error }) => {
   const [filteredItems, setFilteredItems] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -75,21 +73,27 @@ const ItemsTableWarehouse = ({ items, loading, error }) => {
   }
 
   const getUniqueLocations = (locations) => {
-    if (!locations) return []
+    if (!locations || !Array.isArray(locations)) return []
 
     const uniqueWarehouses = new Map()
 
     locations.forEach((location) => {
-      const warehouseId = location.warehouse._id
+      if (!location?.warehouse) return
+
+      const warehouseId = location.warehouse._id || 'deleted'
+
       if (!uniqueWarehouses.has(warehouseId)) {
         uniqueWarehouses.set(warehouseId, {
-          ...location.warehouse,
-          quantity: location.quantity,
-          status: location.status || 'Stocked', // Include status
+          warehouse: {
+            ...location.warehouse,
+            // If warehouse is from warehouseLocDetails, it's already deleted
+            deleted: location.warehouse.deleted || !location.warehouse._id,
+          },
+          quantity: location.quantity || 0,
         })
       } else {
         const existing = uniqueWarehouses.get(warehouseId)
-        existing.quantity += location.quantity
+        existing.quantity += location.quantity || 0
         uniqueWarehouses.set(warehouseId, existing)
       }
     })
@@ -153,18 +157,38 @@ const ItemsTableWarehouse = ({ items, loading, error }) => {
                   <strong>{item.quantity}</strong>
                 </CTableDataCell>
                 <CTableDataCell>
-                  <CContainer className="locations-list ">
-                    {getUniqueLocations(item.locations).map((warehouse, idx) => (
-                      <CContainer key={idx} className="location-item">
-                        <CContainer className="location-details">
-                          <span className="warehouse-name">{warehouse.warehouseName}</span>
-                          <span className="warehouse-address">{warehouse.address}</span>
-                          <span className="quantity-badge">Qty: {warehouse.quantity}</span>
+                  <CContainer className="locations-list">
+                    {getUniqueLocations(item.locations).map((locationData, index) => {
+                      const warehouse = locationData.warehouse
+
+                      return (
+                        <CContainer
+                          key={warehouse?._id || `deleted-${index}`}
+                          className="location-item"
+                        >
+                          <CContainer className="location-details">
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="warehouse-name">
+                                {warehouse?.warehouseName || 'Unknown Warehouse'}
+                              </span>
+                              <CBadge
+                                color={warehouse?.deleted ? 'danger' : 'success'}
+                                className="ms-2"
+                              >
+                                {warehouse?.deleted ? 'Deleted' : 'Active'}
+                              </CBadge>
+                            </div>
+                            <span className="warehouse-address">
+                              {warehouse?.address || 'No address available'}
+                            </span>
+                            <span className="quantity-badge">Qty: {locationData.quantity}</span>
+                          </CContainer>
                         </CContainer>
-                      </CContainer>
-                    ))}
+                      )
+                    })}
                   </CContainer>
                 </CTableDataCell>
+
                 <CTableDataCell>
                   <CBadge
                     color={getStatusBadgeColor(

@@ -63,134 +63,106 @@ const TableFuelLogs = ({
   }
 
   // Get vehicle details
-  // const getVehicleDetails = (vehicleId, log) => {
-  //   if (
-  //     typeof vehicleId === 'object' &&
-  //     vehicleId?.brand &&
-  //     vehicleId?.model &&
-  //     vehicleId?.regisNumber
-  //   ) {
-  //     return `${vehicleId.brand} ${vehicleId.model} (${vehicleId.regisNumber})`
-  //   }
+  const getVehicleDetails = (vehicleId, log) => {
+    if (
+      typeof vehicleId === 'object' &&
+      vehicleId?.brand &&
+      vehicleId?.model &&
+      vehicleId?.regisNumber
+    ) {
+      return `${vehicleId.brand} ${vehicleId.model} (${vehicleId.regisNumber})`
+    }
 
-  //   if (!vehicleId && log?.vehicleDetails) {
-  //     return `${log.vehicleDetails.brand} ${log.vehicleDetails.model} (${log.vehicleDetails.regisNumber}) [Deleted]`
-  //   }
+    if (!vehicleId && log?.vehicleDetails) {
+      return `${log.vehicleDetails.brand} ${log.vehicleDetails.model} (${log.vehicleDetails.regisNumber}) [Deleted]`
+    }
 
-  //   const vehicle = vehicles.find((v) => v._id === vehicleId)
-  //   if (vehicle) {
-  //     return `${vehicle.brand} ${vehicle.model} (${vehicle.regisNumber})`
-  //   }
+    const vehicle = vehicles.find((v) => v._id === vehicleId)
+    if (vehicle) {
+      return `${vehicle.brand} ${vehicle.model} (${vehicle.regisNumber})`
+    }
+  }
 
-  // }
+  // // Get driver details
+  const getDriverDetails = (driverId, log) => {
+    if (typeof driverId === 'object' && driverId?.driverName) {
+      return driverId.driverName
+    }
 
-  // // // Get driver details
-  // const getDriverDetails = (driverId, log) => {
-  //   if (typeof driverId === 'object' && driverId?.driverName) {
-  //     return driverId.driverName
-  //   }
+    if (!driverId && log?.driverDetails?.driverName) {
+      return `${log.driverDetails.driverName} [Deleted]`
+    }
 
-  //   if (!driverId && log?.driverDetails?.driverName) {
-  //     return `${log.driverDetails.driverName} [Deleted]`
-  //   }
-
-  //   const driver = drivers.find((d) => d._id === driverId)
-  //   if (driver?.driverName) {
-  //     return driver.driverName
-  //   }
-
-  // }
-
-  // Delete these functions as they're not needed
-  // const getVehicleDetails = (vehicleId, log) => { ... }
-  // const getDriverDetails = (driverId, log) => { ... }
-  const filteredAndSortedData = fuelLogs.filter((log) => {
-    if (!log) return false
-
-    const searchLower = searchTerm.toLowerCase()
-
-    // Get vehicle and driver info for searching
-    const vehicleInfo = log.vehicleId
-      ? `${log.vehicleId.brand} ${log.vehicleId.model} ${log.vehicleId.regisNumber}`
-      : `${log.vehicleDetails.brand} ${log.vehicleDetails.model} ${log.vehicleDetails.regisNumber}`
-
-    const driverInfo = log.driverId ? log.driverId.driverName : log.driverDetails.driverName
-
-    // Search in all relevant fields
-    return (
-      vehicleInfo.toLowerCase().includes(searchLower) ||
-      driverInfo.toLowerCase().includes(searchLower) ||
-      (log.receiptNumber?.toLowerCase() || '').includes(searchLower) ||
-      (log.date ? new Date(log.date).toLocaleDateString().includes(searchLower) : false) ||
-      (log.fuelQuantity?.toString() || '').includes(searchLower) ||
-      (log.totalCost?.toString() || '').includes(searchLower)
-    )
-  })
+    const driver = drivers.find((d) => d._id === driverId)
+    if (driver?.driverName) {
+      return driver.driverName
+    }
+  }
 
   //   // Filter and sort data
-  // const filteredAndSortedData = fuelLogs
-  //   .filter((log) => {
-  //     if (!log) return false // Skip if log is null
+  const filteredAndSortedData = fuelLogs
+    .filter((log) => {
+      if (!log) return false // Skip if log is null
 
-  //     // Safely get vehicle and driver details
-  //     const vehicleDetails = getVehicleDetails(log.vehicleId, log).toLowerCase()
-  //     const driverDetails = getDriverDetails(log.driverId, log).toLowerCase()
-  //     const searchLower = searchTerm.toLowerCase()
+      // Safely get vehicle and driver details
+      const vehicleDetails = getVehicleDetails(log.vehicleId, log).toLowerCase()
+      const driverDetails = getDriverDetails(log.driverId, log).toLowerCase()
+      const searchLower = searchTerm.toLowerCase()
 
-  //     // Safely check all searchable fields
-  //     const matchesSearch =
-  //       (log.receiptNumber?.toLowerCase() || '').includes(searchLower) ||
-  //       vehicleDetails.includes(searchLower) ||
-  //       driverDetails.includes(searchLower) ||
-  //       (log.date ? new Date(log.date).toLocaleDateString().includes(searchLower) : false) ||
-  //       (log.fuelQuantity?.toString() || '').includes(searchLower) ||
-  //       (log.totalCost?.toString() || '').includes(searchLower)
+      // Safely check all searchable fields
+      const matchesSearch =
+        (log.receiptNumber?.toLowerCase() || '').includes(searchLower) ||
+        vehicleDetails.includes(searchLower) ||
+        driverDetails.includes(searchLower) ||
+        (log.date ? new Date(log.date).toLocaleDateString().includes(searchLower) : false) ||
+        (log.fuelQuantity?.toString() || '').includes(searchLower) ||
+        (log.totalCost?.toString() || '').includes(searchLower)
 
-  //     // Safely check vehicle filter
-  //     const matchesVehicle = filterVehicle
-  //       ? (typeof log.vehicleId === 'object' ? log.vehicleId?._id : log.vehicleId) === filterVehicle
-  //       : true
+      // Safely check vehicle filter
+      const matchesVehicle = filterVehicle
+        ? (typeof log.vehicleId === 'object' ? log.vehicleId?._id : log.vehicleId) === filterVehicle
+        : true
 
-  //     return matchesSearch && matchesVehicle
-  //   })
-  //   .sort((a, b) => {
-  //     let aValue, bValue
+      return matchesSearch && matchesVehicle
+    })
+    .sort((a, b) => {
+      let aValue, bValue
 
-  //     switch (sortField) {
-  //       case 'vehicle':
-  //         aValue = getVehicleDetails(a.vehicleId, a)
-  //         bValue = getVehicleDetails(b.vehicleId, b)
-  //         break
-  //       case 'driver':
-  //         aValue = getDriverDetails(a.driverId, a)
-  //         bValue = getDriverDetails(b.driverId, b)
-  //         break
-  //       case 'date':
-  //         aValue = new Date(a.date || '').getTime()
-  //         bValue = new Date(b.date || '').getTime()
-  //         break
-  //       case 'fuelQuantity':
-  //       case 'costPerLiter':
-  //       case 'totalCost':
-  //         aValue = parseFloat(a[sortField] || 0)
-  //         bValue = parseFloat(b[sortField] || 0)
-  //         break
-  //       default:
-  //         aValue = a[sortField] || ''
-  //         bValue = b[sortField] || ''
-  //     }
+      switch (sortField) {
+        case 'vehicle':
+          aValue = getVehicleDetails(a.vehicleId, a)
+          bValue = getVehicleDetails(b.vehicleId, b)
+          break
+        case 'driver':
+          aValue = getDriverDetails(a.driverId, a)
+          bValue = getDriverDetails(b.driverId, b)
+          break
+        case 'date':
+          aValue = new Date(a.date || '').getTime()
+          bValue = new Date(b.date || '').getTime()
+          break
+        case 'fuelQuantity':
+        case 'costPerLiter':
+        case 'totalCost':
+          aValue = parseFloat(a[sortField] || 0)
+          bValue = parseFloat(b[sortField] || 0)
+          break
+        default:
+          aValue = a[sortField] || ''
+          bValue = b[sortField] || ''
+      }
 
-  //     // Handle null/undefined values in sorting
-  //     if (!aValue && !bValue) return 0
-  //     if (!aValue) return 1
-  //     if (!bValue) return -1
+      // Handle null/undefined values in sorting
+      if (!aValue && !bValue) return 0
+      if (!aValue) return 1
+      if (!bValue) return -1
 
-  //     if (sortDirection === 'asc') {
-  //       return aValue > bValue ? 1 : -1
-  //     } else {
-  //       return aValue < bValue ? 1 : -1
-  //     }
-  //   })
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1
+      } else {
+        return aValue < bValue ? 1 : -1
+      }
+    })
 
   // Pagination calculations
   const indexOfLastItem = currentPage * itemsPerPage
@@ -223,36 +195,19 @@ const TableFuelLogs = ({
   return (
     <>
       {/* Search and Filter Controls */}
-      <CContainer className="mb-3">
-        <CContainer className="row g-3 mb-3">
-          <CContainer className="col-md-6 mt-3">
-            <CInputGroup>
-              <CFormInput
-                placeholder="Search by receipt #, vehicle, driver, date..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                id="search"
-              />
-              <CInputGroupText>
-                <FontAwesomeIcon icon={faSearch} />
-              </CInputGroupText>
-            </CInputGroup>
-          </CContainer>
-          {/* <CContainer className="col-md-6 mt-3">
-            <CFormSelect
-              id="filterVehicle"
-              value={filterVehicle}
-              onChange={(e) => setFilterVehicle(e.target.value)}
-            >
-              <option value="">All Vehicles</option>
-              {vehicles.map((vehicle) => (
-                <option key={vehicle._id} value={vehicle._id}>
-                  {`${vehicle.brand} ${vehicle.model} (${vehicle.regisNumber})`}
-                </option>
-              ))}
-            </CFormSelect>
-          </CContainer> */}
-        </CContainer>
+
+      <CContainer className="col-6 mt-3 mb-3">
+        <CInputGroup>
+          <CFormInput
+            placeholder="Search by receipt #, vehicle, driver, date..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            id="search"
+          />
+          <CInputGroupText>
+            <FontAwesomeIcon icon={faSearch} />
+          </CInputGroupText>
+        </CInputGroup>
       </CContainer>
 
       {/* Table */}
@@ -386,6 +341,7 @@ const TableFuelLogs = ({
             {Math.min(indexOfLastItem, filteredAndSortedData.length)} of{' '}
             {filteredAndSortedData.length} entries
           </CContainer>
+
           <CPagination className="mt-3">
             <CPaginationItem
               disabled={currentPage === 1}

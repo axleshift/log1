@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/add", addWarehouseLoc);
 router.get("/locations", getWarehouseLoc);
-router.delete("/delete/:id", deleteWarehouseLoc);
+router.patch("/delete/:id", deleteWarehouseLoc);
 router.put("/update/:id", updateWarehouseLoc);
 
 export default router;

@@ -28,10 +28,14 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
   const [warehouses, setWarehouses] = useState([])
   const today = new Date().toISOString().split('T')[0]
   const [formData, setFormData] = useState({
-    from: warehousing.from,
-    items: warehousing.items, // Use the items array from the warehousing object
+    from: warehousing.from || '',
+    items: warehousing.items || '', // Use the items array from the warehousing object
     dateArrival: today,
-    warehouse: warehousing.warehouse,
+    warehouse: warehousing.warehouse || '',
+    warehouseLocDetails: {
+      warehouseName: warehousing.warehouseName || '',
+      address: warehousing.address || '',
+    },
     status: warehousing.status, // Add the status field
   })
 
@@ -81,6 +85,15 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
     if (!email) {
       setError('User email not found. Please log in again.')
       return
+    }
+    const warehouse = warehouses.find((w) => w._id === formData.warehouse)
+    if (!warehouse) {
+      setError('Warehouse not found.')
+      return
+    }
+    formData.warehouseLocDetails = {
+      warehouseName: warehouse.warehouseName,
+      address: warehouse.address,
     }
     setLoading(true)
     try {
@@ -151,20 +164,19 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
               }
               readOnly
             />
-
             <CFormSelect
               placeholder="Warehouse"
               className="mb-3"
               floatingLabel="Warehouse"
               id="warehouse"
               onChange={handleChange}
-              value={formData.warehouse._id}
+              value={formData.warehouse || ''} // Add optional chaining and default to empty string
               required
             >
-              <option value={null}>Select Warehouse</option>
+              <option value="">Select Warehouse</option> {/* Change null to empty string */}
               {warehouses.map((warehouse) => (
                 <option key={warehouse._id} value={warehouse._id}>
-                  {warehouse.warehouseName}
+                  {warehouse.warehouseName || ''}
                 </option>
               ))}
             </CFormSelect>
