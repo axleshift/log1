@@ -17,12 +17,25 @@ export const addWarehouseLoc = async (req, res) => {
 
 export const getWarehouseLoc = async (req, res) => {
     try {
-        const warehouseLoc = await warehouseLocModels.find({});
+        const warehouseLoc = await warehouseLocModels.find({ deleted: false });
         res.status(200).json({ success: true, data: warehouseLoc });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+// export const deleteWarehouseLoc = async (req, res) => {
+//     const { id } = req.params;
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//         return res.status(404).json({ success: false, message: "Invalid id" });
+//     }
+//     try {
+//         await warehouseLocModels.findByIdAndUpdate(id);
+//         return res.status(200).json({ success: true, message: "Item deleted successfully" });
+//     } catch (error) {
+//         return res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
 
 export const deleteWarehouseLoc = async (req, res) => {
     const { id } = req.params;
@@ -30,7 +43,7 @@ export const deleteWarehouseLoc = async (req, res) => {
         return res.status(404).json({ success: false, message: "Invalid id" });
     }
     try {
-        await warehouseLocModels.findByIdAndDelete(id);
+        await warehouseLocModels.findByIdAndUpdate(id, { deleted: true }, { new: true });
         return res.status(200).json({ success: true, message: "Item deleted successfully" });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" });
