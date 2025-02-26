@@ -35,7 +35,7 @@ jobs:
         run: |
           cd client
           echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
-
+          npx eslint "src/**/*.js"
           npm i
           npm run lint
           npm run build
