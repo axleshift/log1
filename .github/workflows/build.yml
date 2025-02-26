@@ -39,7 +39,7 @@ jobs:
           npm i
           npm uninstall eslint
           npm install eslint@8.56.0
-          npm install eslint-plugin-react --save-dev
+          npm install --save-dev eslint-plugin-react eslint-plugin-prettier eslint-config-prettier eslint-plugin-react-hooks prettier
           npm run lint
           npm run build
 
