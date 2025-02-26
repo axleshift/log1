@@ -1,3 +1,53 @@
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
+// import path from 'node:path'
+// import autoprefixer from 'autoprefixer'
+
+// export default defineConfig(() => {
+//   return {
+//     base: './',
+//     build: {
+//       outDir: 'build',
+//       chunkSizeWarningLimit: 600,
+//     },
+//     css: {
+//       postcss: {
+//         plugins: [
+//           autoprefixer({}), // add options if needed
+//         ],
+//       },
+//     },
+//     esbuild: {
+//       loader: 'jsx',
+//       include: /src\/.*\.jsx?$/,
+//       exclude: [],
+//     },
+//     optimizeDeps: {
+//       esbuildOptions: {
+//         loader: {
+//           '.js': 'jsx',
+//         },
+//       },
+//     },
+//     plugins: [react()],
+//     resolve: {
+//       alias: [
+//         {
+//           find: 'src/',
+//           replacement: `${path.resolve(__dirname, 'src')}/`,
+//         },
+//       ],
+//       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.scss'],
+//     },
+//     server: {
+//       port: 5000,
+//       proxy: {
+//         // https://vitejs.dev/config/server-options.html
+//       },
+//     },
+//   }
+// })
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
@@ -5,15 +55,16 @@ import autoprefixer from 'autoprefixer'
 
 export default defineConfig(() => {
   return {
-    base: './',
+    base: '/',
+    logLevel: 'info',
+    clearScreen: false,
     build: {
       outDir: 'build',
+      chunkSizeWarningLimit: 600,
     },
     css: {
       postcss: {
-        plugins: [
-          autoprefixer({}), // add options if needed
-        ],
+        plugins: [autoprefixer({})],
       },
     },
     esbuild: {
@@ -41,6 +92,7 @@ export default defineConfig(() => {
     },
     server: {
       port: 5000,
+      host: true,
       proxy: {
         // https://vitejs.dev/config/server-options.html
       },
