@@ -33,7 +33,6 @@ jobs:
 
         run: |
           cd client
-          npm i -g eslint@8.56.0 
           npm i
           npm run lint
           npm run build
