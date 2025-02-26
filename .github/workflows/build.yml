@@ -17,6 +17,7 @@ jobs:
       REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
       SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
       ORIGIN: ${{ vars.ORIGIN }}
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
 
     steps:
       - name: Clone repository
@@ -33,6 +34,8 @@ jobs:
 
         run: |
           cd client
+          echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
+
           npm i
           npm run lint
           npm run build
