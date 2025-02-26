@@ -37,9 +37,7 @@ jobs:
           echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
           echo "API_TOKEN_GITHUB=${{ secrets.API_TOKEN_GITHUB }}" >> .env
           npm i
-          npm uninstall eslint
-          npm install eslint@8.56.0
-          npm install --save-dev eslint-plugin-react eslint-plugin-prettier eslint-config-prettier eslint-plugin-react-hooks prettier
+          npm ci
           npm run lint
           npm run build
 
