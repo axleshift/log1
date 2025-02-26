@@ -5,15 +5,16 @@ import { CToast, CToastBody, CToastHeader, CToaster } from '@coreui/react'
 const ToastContext = createContext()
 
 export const ToastProvider = ({ children }) => {
-  const [toast, addToast] = useState(0)
+  const [toasts, addToast] = useState(0)
   const toaster = useRef()
 
   const showToast = (title, message, color = 'primary') => {
+    const key = new Date().getTime() + Math.random()
     const newToast = (
-      <CToast autohide={true} delay={3000} color={color}>
+      <CToast key={key} autohide={true} delay={3000} color={color}>
         <CToastHeader closeButton>
           <strong className="me-auto">{title}</strong>
-          <small>just now</small>
+          <small>{new Date().toLocaleTimeString()}</small>
         </CToastHeader>
         <CToastBody>{message}</CToastBody>
       </CToast>
@@ -40,7 +41,7 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ showSuccess, showError, showWarning, showInfo }}>
       {children}
-      <CToaster ref={toaster} push={toast} placement="bottom-end" />
+      <CToaster ref={toaster} push={toasts} placement="bottom-end" />
     </ToastContext.Provider>
   )
 }
