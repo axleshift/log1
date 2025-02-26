@@ -36,7 +36,7 @@ jobs:
           cd client
           echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
           echo "API_TOKEN_GITHUB=${{ secrets.API_TOKEN_GITHUB }}" >> .env
-          npm i
+          # npm i
           npm ci
           npm run lint
           npm run build
