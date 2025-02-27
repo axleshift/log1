@@ -40,7 +40,7 @@ jobs:
       - name: Debugging
         run: |
           ls -al node_modules/eslint-plugin-react
-          cat .eslintrc.js
+          cat client/eslintrc.config.js
           ls -al node_modules/.
 
       - name: Lint and fix
