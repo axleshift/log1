@@ -184,7 +184,7 @@ const FuelManagement = () => {
                   objectFit: 'contain',
                 }}
                 onError={(e) => {
-                  toast.error('Error loading image')
+                  showError('Error loading image')
                   e.target.src = 'placeholder-image-url.jpg' // Optional: provide a placeholder image
                 }}
               />
@@ -201,13 +201,19 @@ const FuelManagement = () => {
             >
               Close
             </CButton>
-            <CButton
+            {/* <CButton
               color="primary"
               variant="outline"
               onClick={() => window.open(selectedImage, '_blank')}
             >
               Open in New Tab
-            </CButton>
+            </CButton> */}
+
+            <a href={selectedImage} target="_blank" rel="noopener noreferrer">
+              <CButton color="primary" variant="outline">
+                Open in New Tab
+              </CButton>
+            </a>
           </CModalFooter>
         </CModal>
       </CContainer>

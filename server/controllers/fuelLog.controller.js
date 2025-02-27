@@ -11,7 +11,7 @@ export const createFuelLog = async (req, res) => {
         // Validate required fields from the request body
         const { vehicleId, driverId, vehicleDetails, driverDetails, date, receiptNumber, fuelQuantity, fuelType, costPerLiter, totalCost, route, notes, litersPer100km, kmPerLiter, mpg } = req.body;
 
-        if (!vehicleId || !driverId || !fuelQuantity || !receiptNumber) {
+        if (!vehicleId || !driverId || !fuelQuantity || !receiptNumber || !date) {
             if (req.file) {
                 try {
                     const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
@@ -23,7 +23,7 @@ export const createFuelLog = async (req, res) => {
 
             return res.status(400).json({
                 success: false,
-                message: "Vehicle, driver, and fuel quantity are required fields",
+                message: "Vehicle, driver, Date, receipt number, and fuel quantity are required fields",
             });
         }
 
