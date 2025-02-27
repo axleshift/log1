@@ -17,7 +17,8 @@
     "lint": "eslint \"src/**/*.js\"",
     "serve": "vite preview",
     "start": "vite --host",
-    "lint-fix": "eslint . --fix"
+    "lint:fix": "eslint --fix \"src/**/*.js\"",
+    "format": "prettier --write \"src/**/*.js\""
   },
   "dependencies": {
     "@coreui/chartjs": "^4.0.0",
