@@ -9,6 +9,7 @@ export default defineConfig(() => {
     build: {
       outDir: 'build',
       chunkSizeWarningLimit: 600,
+      suppressDeprecationWarnings: true,
     },
     css: {
       postcss: {
