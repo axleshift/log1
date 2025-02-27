@@ -16,7 +16,9 @@
     "build": "env-cmd -f ./.env vite build",
     "lint": "eslint \"src/**/*.js\"",
     "serve": "vite preview",
-    "start": "vite --host"
+    "start": "vite --host",
+    "lint:fix": "eslint --fix \"src/**/*.js\"",
+    "format": "prettier --write \"src/**/*.js\""
   },
   "dependencies": {
     "@coreui/chartjs": "^4.0.0",
@@ -53,6 +55,8 @@
     "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
+    "@eslint/config-array": "^0.19.2",
+    "@eslint/object-schema": "^2.1.6",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.19",
     "env-cmd": "^10.1.0",
@@ -62,6 +66,7 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^4.6.2",
     "glob": "^11.0.1",
+    "lru-cache": "^11.0.2",
     "postcss": "^8.4.38",
     "prettier": "3.3.2",
     "rimraf": "^6.0.1",
