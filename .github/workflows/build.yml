@@ -44,8 +44,7 @@ jobs:
           ls -al node_modules/.
 
       - name: Lint and fix
-        run: |
-        npm run lint:fix
+        run: npm run lint:fix
 
       - name: Build frontend
         run: |
