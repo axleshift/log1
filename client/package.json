@@ -15,9 +15,10 @@
   "scripts": {
     "build": "env-cmd -f ./.env vite build",
     "lint": "eslint \"src/**/*.js\"",
-    "lint-fix": "eslint . --fix",
     "serve": "vite preview",
-    "start": "vite --host"
+    "start": "vite --host",
+    "lint:fix": "eslint --fix \"src/**/*.js\"",
+    "format": "prettier --write \"src/**/*.js\""
   },
   "dependencies": {
     "@coreui/chartjs": "^4.0.0",
