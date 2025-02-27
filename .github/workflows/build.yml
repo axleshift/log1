@@ -28,9 +28,18 @@ jobs:
         with:
           node-version: 22
 
+      - name: Lint Client
+        run: |
+          cd client
+          npm i
+          npm run lint:fix
+
+      - name: Setup Environment Variables
+        run: |
+          cd client
+          echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL}}" >> .env
+
       - name: Build frontend
-        env:
-          VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }} # Add this at job level
 
         run: |
           cd client
