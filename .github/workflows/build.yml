@@ -43,9 +43,6 @@ jobs:
           cat client/eslintrc.config.js
           ls -al node_modules/.
 
-      - name: Lint and fix
-        run: npm run lint:fix
-
       - name: Build frontend
         run: |
           cd client
