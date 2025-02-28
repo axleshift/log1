@@ -26,33 +26,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x" # Use a Node.js LTS version
-
-      - name: Navigate to client directory
-        run: cd client
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: client
-
-      - name: Install eslint-plugin-react
-        run: npm install eslint-plugin-react
-        working-directory: client
-
-      - name: Install eslint-plugin-prettier
-        run: npm install eslint-plugin-prettier
-        working-directory: client
-
-      - name: Debugging
-        run: |
-          ls -al node_modules/eslint-plugin-react
-          cat client/.eslintrc.config.js
-          ls -al node_modules/.
-        working-directory: client
+          node-version: 22
 
       - name: Build frontend
         run: |
+          cd client
           npm ci
+          npm install eslint-plugin-react
+          npm install eslint-plugin-react
           npm run lint
           npm run build
         working-directory: client
