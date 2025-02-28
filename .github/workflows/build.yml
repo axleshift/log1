@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: "ubuntu-latest"
     env:
-      VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }} # Add this at job level
+      VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
       MONGO_URI: ${{ secrets.MONGO_URI }}
       NODE_ENV: production
       PORT: 5057
@@ -20,55 +20,56 @@ jobs:
       API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
 
     steps:
-      - name: Clone repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '20.x' # Use a Node.js LTS version
 
       - name: Navigate to client directory
         run: cd client
 
       - name: Install dependencies
         run: npm ci
+        working-directory: client
 
       - name: Install eslint-plugin-react
         run: npm install eslint-plugin-react
+        working-directory: client
+
+      - name: Install eslint-plugin-prettier
+        run: npm install eslint-plugin-prettier
+        working-directory: client
 
       - name: Debugging
         run: |
           ls -al node_modules/eslint-plugin-react
-          cat client/eslintrc.config.js
+          cat client/.eslintrc.js
           ls -al node_modules/.
+        working-directory: client
 
       - name: Build frontend
         run: |
-          cd client
-          npm i
+          npm ci
           npm run lint
           npm run build
+        working-directory: client
 
       - name: Upload frontend
-        id: push_directory_frontend
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
           source-directory: client/build
           destination-github-username: "freight-capstone"
-          # Replace with your module name
           destination-repository-name: "log1"
-          # Replace with your email address
           user-email: algie0506@gmail.com
-          # Replace (optional)
           commit-message: Production
-          # Replace core1 with your module name
           target-branch: log1-frontend
 
       - name: Build backend
-        # Change the following commands if you have custom build
         run: |
           cd server
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
@@ -78,12 +79,11 @@ jobs:
           echo "REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}" >> .env
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
           echo "ORIGIN=${{ vars.ORIGIN }}" >> .env
-          npm i
+          npm ci
           npm run lint
           rm -rf node_modules
 
       - name: Upload backend
-        id: push_directory_backend
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
@@ -97,11 +97,7 @@ jobs:
         with:
           source-directory: server/
           destination-github-username: "freight-capstone"
-          # Replace with your module name
           destination-repository-name: "log1"
-          # Replace with your email address
           user-email: algie0506@gmail.com
-          # Replace (optional)
           commit-message: Production
-          # Replace core1 with your module name
           target-branch: log1-backend
