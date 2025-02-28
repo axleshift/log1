@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: 22
 
+          
       - name: Build frontend
         run: |
           cd client
