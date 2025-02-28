@@ -46,7 +46,7 @@ jobs:
       - name: Debugging
         run: |
           ls -al node_modules/eslint-plugin-react
-          cat client/.eslintrc.config.js
+          cat client/.eslintrc.js
           ls -al node_modules/.
         working-directory: client
 
