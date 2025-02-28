@@ -31,9 +31,7 @@ jobs:
       - name: Build frontend
         run: |
           cd client
-          npm ci
-          npm install eslint-plugin-react
-          npm install eslint-plugin-react
+          npm i
           npm run lint
           npm run build
         working-directory: client
