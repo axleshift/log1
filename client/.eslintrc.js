@@ -1,4 +1,4 @@
-const PropTypes = require('prop-types') 
+const PropTypes = require('prop-types')
 
 module.exports = {
   // parser: '@typescript-eslint/parser', // Specifies the ESLint parser
