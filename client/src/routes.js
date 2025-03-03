@@ -15,9 +15,7 @@ const vehicleManagement = React.lazy(
 const DriverManagement = React.lazy(
   () => import('./views/fleetManagement/driverManagement/DriversManagement'),
 )
-const MaintenanceManagement = React.lazy(
-  () => import('./views/fleetManagement/maintenanace/MaintenanceManagement'),
-)
+
 const ReceivingItems = React.lazy(() => import('./views/schedule/receivingItems/ReceivingItems'))
 const DispatchingItems = React.lazy(
   () => import('./views/schedule/dispatchingItems/DispatchingItems'),
@@ -93,11 +91,6 @@ const routes = [
     path: '/fleetManagement/DriverManagement',
     name: 'Driver Management',
     element: DriverManagement,
-  },
-  {
-    path: '/fleetManagement/MaintenanceManagement',
-    name: 'Maintenance Management',
-    element: MaintenanceManagement,
   },
   {
     path: '/schedule/ReceivingItems',

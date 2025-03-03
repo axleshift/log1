@@ -11,6 +11,7 @@ import {
   CModalFooter,
   CFormSelect,
   CForm,
+  CInputGroup,
 } from '@coreui/react'
 import { CModalTitle } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -30,8 +31,8 @@ const AddVehicle = ({ onAddVehicle }) => {
     brand: '',
     model: '',
     year: '',
+    regisExprationDate: '',
     regisNumber: '',
-    type: '',
     capacity: '',
     fuelType: '',
     currentMileage: '',
@@ -96,6 +97,7 @@ const AddVehicle = ({ onAddVehicle }) => {
   }
   const currentYear = new Date().getFullYear()
   const MIN_YEAR = 1990
+  const today = new Date().toISOString().split('T')[0]
   return (
     <>
       {loading ? (
@@ -105,7 +107,7 @@ const AddVehicle = ({ onAddVehicle }) => {
           <CButton color="primary" variant="outline" onClick={() => setVisible(true)}>
             <FontAwesomeIcon icon={faPlus} /> Add Vehicle
           </CButton>
-          <CModal visible={visible} onClose={() => setVisible(false)}>
+          <CModal visible={visible} onClose={() => setVisible(false)} size="lg">
             <CModalHeader closeButton>
               <CModalTitle>Add Vehicle</CModalTitle>
             </CModalHeader>
@@ -121,110 +123,128 @@ const AddVehicle = ({ onAddVehicle }) => {
             )}
             <CModalBody>
               <CForm noValidate validated={validated}>
-                <CFormInput
-                  className="mb-3"
-                  floatingLabel="ID Number"
-                  placeholder="ID Number"
-                  type="text"
-                  id="idNum"
-                  label="ID Number"
-                  value={newVehicle.idNum}
-                  disabled
-                />
-                <CFormInput
-                  className="mb-3"
-                  floatingLabel="Brand"
-                  placeholder="Brand"
-                  type="text"
-                  id="brand"
-                  label="Brand"
-                  autoComplete="off"
-                  required
-                  value={newVehicle.brand}
-                  onChange={handleChange}
-                />
-                <CFormInput
-                  className="mb-3"
-                  floatingLabel="Model"
-                  placeholder="Model"
-                  type="text"
-                  id="model"
-                  label="Model"
-                  autoComplete="off"
-                  required
-                  value={newVehicle.model}
-                  onChange={handleChange}
-                />
-                <CFormInput
-                  type="number"
-                  className="mb-3"
-                  floatingLabel="Year"
-                  placeholder="Year"
-                  id="year"
-                  value={newVehicle.year}
-                  required
-                  min={MIN_YEAR}
-                  max={currentYear}
-                  onChange={handleChange}
-                  onBlur={(e) => {
-                    const inputYear = parseInt(e.target.value)
-                    const isValidYear =
-                      inputYear >= MIN_YEAR && inputYear <= currentYear && !isNaN(inputYear)
+                <CInputGroup>
+                  <CFormInput
+                    className="mb-3"
+                    floatingLabel="ID Number"
+                    placeholder="ID Number"
+                    type="text"
+                    id="idNum"
+                    label="ID Number"
+                    value={newVehicle.idNum}
+                    disabled
+                  />
+                  <CFormInput
+                    className="mb-3"
+                    floatingLabel="Brand"
+                    placeholder="Brand"
+                    type="text"
+                    id="brand"
+                    label="Brand"
+                    autoComplete="off"
+                    required
+                    value={newVehicle.brand}
+                    onChange={handleChange}
+                  />
+                  <CFormInput
+                    className="mb-3"
+                    floatingLabel="Model"
+                    placeholder="Model"
+                    type="text"
+                    id="model"
+                    label="Model"
+                    autoComplete="off"
+                    required
+                    value={newVehicle.model}
+                    onChange={handleChange}
+                  />
+                </CInputGroup>
+                <CInputGroup>
+                  <CFormInput
+                    type="number"
+                    className="mb-3"
+                    floatingLabel="Year"
+                    placeholder="Year"
+                    id="year"
+                    value={newVehicle.year}
+                    required
+                    min={MIN_YEAR}
+                    max={currentYear}
+                    onChange={handleChange}
+                    onBlur={(e) => {
+                      const inputYear = parseInt(e.target.value)
+                      const isValidYear =
+                        inputYear >= MIN_YEAR && inputYear <= currentYear && !isNaN(inputYear)
 
-                    if (!isValidYear) {
-                      alert(`Please enter a year between ${MIN_YEAR} and ${currentYear}`)
-                      setNewVehicle({ ...newVehicle, year: MIN_YEAR })
-                    }
-                  }}
-                />
-                <CFormInput
-                  className="mb-3"
-                  floatingLabel="Registration Number"
-                  placeholder="Registration Number"
-                  type="text"
-                  id="regisNumber"
-                  label="Registration Number"
-                  autoComplete="off"
-                  required
-                  value={newVehicle.regisNumber}
-                  onChange={handleChange}
-                />
-                <CFormSelect
-                  className="mb-3"
-                  floatingLabel="Vehicle Type"
-                  placeholder="Vehicle Type"
-                  id="type"
-                  value={newVehicle.type}
-                  required
-                  onChange={handleChange}
-                  options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
-                />
+                      if (!isValidYear) {
+                        alert(`Please enter a year between ${MIN_YEAR} and ${currentYear}`)
+                        setNewVehicle({ ...newVehicle, year: MIN_YEAR })
+                      }
+                    }}
+                  />
+                  <CFormInput
+                    className="mb-3"
+                    floatingLabel="Registration Number"
+                    placeholder="Registration Number"
+                    type="text"
+                    id="regisNumber"
+                    label="Registration Number"
+                    autoComplete="off"
+                    required
+                    value={newVehicle.regisNumber}
+                    onChange={handleChange}
+                  />
+                  <CFormInput
+                    className="mb-3"
+                    floatingLabel="Registration Expiration Date"
+                    placeholder="Registration Expiration Date"
+                    type="date"
+                    id="regisExprationDate"
+                    label="Registration Expiration Date"
+                    autoComplete="off"
+                    required
+                    min={today}
+                    value={newVehicle.regisExprationDate}
+                    onChange={handleChange}
+                  />
+                </CInputGroup>
+                <CInputGroup>
+                  <CFormSelect
+                    className="mb-3"
+                    floatingLabel="Vehicle Type"
+                    placeholder="Vehicle Type"
+                    id="type"
+                    value={newVehicle.type}
+                    required
+                    onChange={handleChange}
+                    options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
+                  />
 
-                <CFormInput
-                  className="mb-2"
-                  type="number"
-                  floatingLabel="Capacity"
-                  placeholder="Capacity"
-                  id="capacity"
-                  label="Capacity"
-                  autoComplete="off"
-                  required
-                  min="0"
-                  value={newVehicle.capacity}
-                  onChange={handleChange}
-                />
+                  <CFormInput
+                    className="mb-2"
+                    type="number"
+                    floatingLabel="Capacity"
+                    placeholder="Capacity"
+                    id="capacity"
+                    label="Capacity"
+                    autoComplete="off"
+                    required
+                    min="0"
+                    value={newVehicle.capacity}
+                    onChange={handleChange}
+                  />
 
-                <CFormSelect
-                  className="mb-3"
-                  floatingLabel="Fuel Type"
-                  placeholder="Fuel Type"
-                  id="fuelType"
-                  value={newVehicle.fuelType}
-                  required
-                  onChange={handleChange}
-                  options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
-                />
-
+                  <CFormSelect
+                    className="mb-3"
+                    floatingLabel="Fuel Type"
+                    placeholder="Fuel Type"
+                    id="fuelType"
+                    value={newVehicle.fuelType}
+                    required
+                    onChange={handleChange}
+                    options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
+                  />
+                </CInputGroup>
                 <CFormInput
                   className="mb-3"
                   floatingLabel="Current Mileage"

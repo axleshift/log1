@@ -4,19 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { CButton, CSpinner, CAlert } from '@coreui/react'
 import { useToast } from '../../../../components/Toast/Toast'
-
+import api from '../../../../utils/api'
 const DeleteVehicle = ({ vehicle, onDeleteVehicle }) => {
   const { showSuccess, showErrors } = useToast()
-  const token = sessionStorage.getItem('accessToken')
-  const API = import.meta.env.VITE_APP_API_URL
-  const api = axios.create({
-    baseURL: API,
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  })
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 

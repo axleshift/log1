@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import {
   CFormInput,
   CAlert,
@@ -11,6 +10,7 @@ import {
   CAccordionHeader,
   CAccordionBody,
   CHeader,
+  CBadge,
 } from '@coreui/react'
 import DeleteVehicle from './DeleteVehicle'
 import UpdateVehicle from './UpdateVehicle'
@@ -36,19 +36,20 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
       } else {
         const filteredVehicles = vehicle.filter((vehicles) => {
           return (
-            vehicles.idNum.toString().includes(searchQuery) ||
-            vehicles.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicles.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicles.year.toString().includes(searchQuery) ||
-            vehicles.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicles.regisNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            vehicles.capacity.toString().includes(searchQuery) ||
-            options
-              .find((option) => option.value === vehicles.status)
-              .label.toLowerCase()
+            vehicles.idNum?.toString().includes(searchQuery) ||
+            vehicles.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.model?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.year?.toString().includes(searchQuery) ||
+            vehicles.regisExprationDate?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.regisNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            vehicles.capacity?.toString().includes(searchQuery) ||
+            (options.find((option) => option.value === vehicles.status)?.label || '')
+              .toLowerCase()
               .includes(searchQuery.toLowerCase())
           )
         })
+
         setFilteredVehicles(filteredVehicles)
         if (filteredVehicles.length === 0) {
           setLocaLError('No vehicles found')
@@ -70,6 +71,8 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
         return 'orange'
       case 'inspection':
         return 'yellow'
+      case 'forRegistration':
+        return 'grey'
       default:
         return 'black'
     }
@@ -81,6 +84,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
     { value: 'maintenance', label: 'Maintenance' },
     { value: 'inactive', label: 'Inactive' },
     { value: 'inspection', label: 'Inspection' },
+    { value: 'forRegistration', label: 'For Registration' },
   ]
   if (vehicle.length === 0) {
     return (
@@ -110,9 +114,56 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
       <CAccordion className="m-2">
         {filteredVehicles.map((vehicle, index) => (
           <CAccordionItem key={vehicle._id || index}>
-            <CAccordionHeader>
-              <p className="w-100 m-1 ">
-                Registration Number:<strong className="ms-2">{vehicle.regisNumber}</strong>
+            <CAccordionHeader className="d-flex justify-content-between">
+              <CContainer>
+                <ul>
+                  <li>
+                    Registration Number: <strong>{vehicle.regisNumber}</strong>
+                  </li>
+                  <li>
+                    Driver:{' '}
+                    <strong>
+                      {vehicle.assignedDriver
+                        ? `${vehicle.assignedDriver.driverName} - ${vehicle.assignedDriver.licenseNumber}`
+                        : 'Not assigned'}
+                    </strong>
+                  </li>
+                  <li>
+                    Registration expiration Date:{' '}
+                    <strong>
+                      {vehicle.regisExprationDate ? (
+                        <>
+                          {new Date(vehicle.regisExprationDate).toISOString().split('T')[0]}{' '}
+                          <CBadge
+                            color={
+                              new Date(vehicle.regisExprationDate).toDateString() ===
+                              new Date().toDateString()
+                                ? 'danger'
+                                : new Date(vehicle.regisExprationDate) <=
+                                      new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000) &&
+                                    new Date(vehicle.regisExprationDate) > new Date()
+                                  ? 'warning'
+                                  : 'success'
+                            }
+                          >
+                            {new Date(vehicle.regisExprationDate).toDateString() ===
+                            new Date().toDateString()
+                              ? 'Expires Today'
+                              : new Date(vehicle.regisExprationDate) <=
+                                    new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000) &&
+                                  new Date(vehicle.regisExprationDate) > new Date()
+                                ? 'Expires in 2 weeks'
+                                : 'Registered'}
+                          </CBadge>
+                        </>
+                      ) : (
+                        'No expiration date'
+                      )}
+                    </strong>
+                  </li>
+                </ul>
+              </CContainer>
+              <CContainer className="d-flex justify-content-end">
                 <FontAwesomeIcon
                   icon={faCircle}
                   color={getStatusColor(vehicle.status)}
@@ -121,7 +172,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
                 <small className="m-2 float-end">
                   {options.find((option) => option.value === vehicle.status).label}
                 </small>
-              </p>
+              </CContainer>
             </CAccordionHeader>
             <CAccordionBody>
               <CHeader>ID: {vehicle.idNum}</CHeader>

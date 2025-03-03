@@ -1,9 +1,55 @@
 import Vehicle from "../models/vehicle.models.js";
 import mongoose from "mongoose";
+
+const updateVehicleStatusBasedOnExpiration = async (vehicle) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+
+    const expirationDate = new Date(vehicle.regisExprationDate);
+    expirationDate.setHours(0, 0, 0, 0);
+
+    if (expirationDate <= today && vehicle.status !== "forRegistration") {
+        try {
+            await Vehicle.findByIdAndUpdate(vehicle._id, { status: "forRegistration" });
+            return true;
+        } catch (error) {
+            console.log("Error updating vehicle status: ", error.message);
+            return false;
+        }
+    }
+    if (expirationDate > today && vehicle.status === "forRegistration") {
+        try {
+            // Get the latest vehicle data with populated assignedDriver
+            const currentVehicle = await Vehicle.findById(vehicle._id).populate("assignedDriver");
+
+            // Determine status based on whether there's an assigned driver
+            const updatedStatus = currentVehicle.assignedDriver ? "in_use" : "available";
+
+            await Vehicle.findByIdAndUpdate(vehicle._id, {
+                status: updatedStatus,
+            });
+            return true;
+        } catch (error) {
+            console.log("Error updating vehicle status: ", error.message);
+            return false;
+        }
+    }
+
+    return false;
+};
+
 export const getVehicles = async (req, res) => {
     try {
         const vehicles = await Vehicle.find({}).populate("assignedDriver");
-        res.status(200).json({ success: true, data: vehicles });
+
+        // Check and update status for each vehicle
+        for (let vehicle of vehicles) {
+            await updateVehicleStatusBasedOnExpiration(vehicle);
+        }
+        const updatedVehicles = await Vehicle.find({}).populate("assignedDriver");
+        // res.status(200).json({ success: true, data: vehicles });
+
+        res.status(200).json({ success: true, data: updatedVehicles });
     } catch (error) {
         console.log("Error in fetching vehicle: ", error.message);
         res.status(500).json({ success: false, message: "Internal server error" });
@@ -13,7 +59,7 @@ export const getVehicles = async (req, res) => {
 export const createVehicle = async (req, res) => {
     const vehicle = req.body;
 
-    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity || !vehicle.fuelType || !vehicle.currentMileage) {
+    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisExprationDate || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity || !vehicle.fuelType || !vehicle.currentMileage) {
         return res.status(400).json({ success: false, message: "All fields are required" });
     }
     const existingVehicle = await Vehicle.findOne({ regisNumber: vehicle.regisNumber });
@@ -25,7 +71,11 @@ export const createVehicle = async (req, res) => {
 
     try {
         await newVehicle.save();
-        return res.status(201).json({ success: true, message: "Vehicle created successfully", data: newVehicle });
+        // Check expiration status right after creation
+        await updateVehicleStatusBasedOnExpiration(newVehicle);
+        const updatedVehicle = await Vehicle.findById(newVehicle._id);
+        // return res.status(201).json({ success: true, message: "Vehicle created successfully", data: newVehicle });
+        return res.status(201).json({ success: true, message: "Vehicle created successfully", data: updatedVehicle });
     } catch (error) {
         console.error("Error in creat vehicle: ", error.message);
         return res.status(500).json({ message: error.message });
@@ -39,7 +89,7 @@ export const updateVehicle = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ success: false, message: "Vehicle not found" });
     }
-    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity || !vehicle.fuelType || !vehicle.currentMileage) {
+    if (!vehicle.idNum || !vehicle.brand || !vehicle.model || !vehicle.year || !vehicle.regisExprationDate || !vehicle.regisNumber || !vehicle.type || !vehicle.capacity || !vehicle.fuelType || !vehicle.currentMileage) {
         return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
@@ -56,7 +106,11 @@ export const updateVehicle = async (req, res) => {
             });
         }
         const updatedVehicle = await Vehicle.findByIdAndUpdate(id, vehicle, { new: true });
-        res.status(200).json({ success: true, data: updatedVehicle, message: "Vehicle updated successfully" });
+        // res.status(200).json({ success: true, data: updatedVehicle, message: "Vehicle updated successfully" });
+        await updateVehicleStatusBasedOnExpiration(updatedVehicle);
+        // Check expiration status after update
+        const finalVehicle = await Vehicle.findById(id);
+        res.status(200).json({ success: true, data: finalVehicle, message: "Vehicle updated successfully" });
     } catch (error) {
         console.log({ "Error in updating vehicle: ": error.message });
         res.status(500).json({ success: false, message: "Server Error" });

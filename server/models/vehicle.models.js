@@ -27,6 +27,10 @@ const vehicleSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        regisExprationDate: {
+            type: Date,
+            required: true,
+        },
         regisNumber: {
             type: String,
             required: true,
@@ -49,7 +53,7 @@ const vehicleSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["available", "in_use", "maintenance", "inactive", "inspection"],
+            enum: ["available", "in_use", "maintenance", "inactive", "inspection", "forRegistration"],
             default: "available",
         },
         sceduledMaintenance: {
