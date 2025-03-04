@@ -49,16 +49,6 @@ app.use("/uploads/profiles", ...createStaticFileMiddleware("profiles"));
 
 app.use("/uploads/receipts", ...createStaticFileMiddleware("receipts"));
 
-// Serve static files from uploads directory
-// app.use(
-//     "/uploads/profiles",
-//     (req, res, next) => {
-//         res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-//         res.setHeader("Access-Control-Allow-Origin", process.env.DEV_URL || process.env.ORIGIN);
-//         next();
-//     },
-//     express.static(path.join(__dirname, "uploads", "profiles"))
-// );
 const corsOptions = {
     origin: process.env.DEV_URL || process.env.ORIGIN,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",

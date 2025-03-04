@@ -145,7 +145,6 @@ const FuelManagement = () => {
             drivers={drivers}
           />
         )}
-
         {/* Delete Confirmation Modal */}
         <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
           <CModalHeader closeButton>Confirm Delete</CModalHeader>
@@ -161,7 +160,6 @@ const FuelManagement = () => {
             </CButton>
           </CModalFooter>
         </CModal>
-
         {/* Image View Modal */}
         <CModal
           visible={imageModal}

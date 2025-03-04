@@ -1,24 +1,26 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 // import classNames from 'classnames'
 
-// import {
-//   CAvatar,
-//   CButton,
-//   CButtonGroup,
-//   CCard,
-//   CCardBody,
-//   CCardFooter,
-//   CCardHeader,
-//   CCol,
-//   CProgress,
-//   CRow,
-//   CTable,
-//   CTableBody,
-//   CTableDataCell,
-//   CTableHead,
-//   CTableHeaderCell,
-//   CTableRow,
-// } from '@coreui/react'
+import {
+  CAvatar,
+  CButton,
+  CButtonGroup,
+  CCard,
+  CCardBody,
+  CCardFooter,
+  CCardHeader,
+  CCol,
+  CProgress,
+  CRow,
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow,
+  CSpinner,
+  CAlert,
+} from '@coreui/react'
 // import CIcon from '@coreui/icons-react'
 // import {
 //   cibCcAmex,
@@ -55,10 +57,49 @@ import { useNavigate } from 'react-router-dom'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 // import MainChart from './MainChart'
 import { useSelector } from 'react-redux'
+import FuelAnalyticsDashboard from './FuelAnalyticsDashboard'
+import api from '../../utils/api'
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const user = useSelector((state) => state.user)
+  const [fuelLogs, setFuelLogs] = useState([])
+  const [vehicles, setVehicles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const [fuelLogsResponse, vehiclesResponse] = await Promise.all([
+          api.get('/api/v1/fuelLogs/fuel-logs'),
+          api.get('/api/v1/vehicle/in-use'),
+        ])
+
+        setFuelLogs(fuelLogsResponse.data.data)
+        setVehicles(vehiclesResponse.data.data)
+      } catch (err) {
+        setError(err.message)
+        console.error('Error fetching dashboard data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <CSpinner size="sm" color="primary">
+        AI analysing Fuel data logs{' '}
+      </CSpinner>
+    )
+  }
+
+  if (error) {
+    return <CAlert color="danger">Error: {error}</CAlert>
+  }
 
   // const progressExample = [
   //   { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
@@ -184,6 +225,7 @@ const Dashboard = () => {
   return (
     <>
       <WidgetsDropdown className="mb-4" />
+      <FuelAnalyticsDashboard />
       {/* <CCard className="mb-4">
         <CCardBody>
           <CRow>
