@@ -24,7 +24,6 @@ const FuelManagement = () => {
   const [fuelLogs, setFuelLogs] = useState([])
   const [vehicles, setVehicles] = useState([])
   const [drivers, setDrivers] = useState([])
-  const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [deleteModal, setDeleteModal] = useState(false)

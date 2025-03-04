@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 export const getDrivers = async (req, res) => {
     try {
         const drivers = await Driver.find({}).populate("assignedVehicle");
+
         res.status(200).json({ success: true, data: drivers });
     } catch (error) {
         console.log("Error in fetching drivers: ", error.message);

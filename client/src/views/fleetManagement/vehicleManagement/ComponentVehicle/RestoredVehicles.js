@@ -1,40 +1,33 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use } from 'react'
+import api from '../../../../utils/api'
 import {
-  CFormInput,
+  CAccordion,
   CAlert,
   CContainer,
+  CFormInput,
   CInputGroup,
   CInputGroupText,
-  CAccordion,
   CAccordionItem,
   CAccordionHeader,
   CAccordionBody,
-  CHeader,
   CBadge,
-  CButton,
+  CSpinner,
+  CHeader,
 } from '@coreui/react'
-import UpdateVehicle from './UpdateVehicle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass, faCircle, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { getRole } from '../../../../utils/auth'
-
-const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicle }) => {
-  const [filteredVehicles, setFilteredVehicles] = useState([])
-  const userRole = getRole()
-  const adminRoles = ['manager', 'admin']
-  const [locaLError, setLocaLError] = useState(null)
+import { faMagnifyingGlass, faCircle } from '@fortawesome/free-solid-svg-icons'
+import RestoreButton from './RetoredButton'
+const RestoredVehicles = ({ restoredVehicle, onRestoreVehicle }) => {
   const [searchQuery, setSearchQuery] = useState('')
-
-  useEffect(() => {
-    setFilteredVehicles(vehicle)
-  }, [vehicle])
+  const [filteredVehicles, setFilteredVehicles] = useState([])
+  const [locaLError, setLocaLError] = useState(null)
 
   useEffect(() => {
     const handleSearch = () => {
       if (searchQuery === '') {
-        setFilteredVehicles(vehicle)
+        setFilteredVehicles(restoredVehicle)
       } else {
-        const filteredVehicles = vehicle.filter((vehicles) => {
+        const filteredVehicles = restoredVehicle.filter((vehicles) => {
           return (
             vehicles.idNum?.toString().includes(searchQuery) ||
             vehicles.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,7 +42,6 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
               .includes(searchQuery.toLowerCase())
           )
         })
-
         setFilteredVehicles(filteredVehicles)
         if (filteredVehicles.length === 0) {
           setLocaLError('No vehicles found')
@@ -59,7 +51,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
       }
     }
     handleSearch()
-  }, [searchQuery, vehicle])
+  }, [searchQuery, restoredVehicle])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -86,7 +78,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
     { value: 'inspection', label: 'Inspection' },
     { value: 'forRegistration', label: 'For Registration' },
   ]
-  if (vehicle.length === 0) {
+  if (filteredVehicles.length === 0) {
     return (
       <CAlert color="danger" className="text-center justify-content-center">
         No vehicles found
@@ -101,7 +93,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
           <CFormInput
             type="text"
             placeholder="Search vehicles"
-            id="search"
+            id="searchRestoredVehicles"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-50 me-2 "
@@ -111,22 +103,15 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
           </CInputGroupText>
         </CInputGroup>
       </CContainer>
-      <CAccordion className="m-2">
-        {filteredVehicles.map((vehicle, index) => (
-          <CAccordionItem key={vehicle._id || index}>
+      {locaLError && <CAlert color="danger">{locaLError}</CAlert>}
+      <CAccordion>
+        {filteredVehicles.map((vehicle) => (
+          <CAccordionItem key={vehicle._id}>
             <CAccordionHeader className="d-flex justify-content-between">
               <CContainer>
                 <ul>
                   <li>
                     Registration Number: <strong>{vehicle.regisNumber}</strong>
-                  </li>
-                  <li>
-                    Driver:{' '}
-                    <strong>
-                      {vehicle.assignedDriver
-                        ? `${vehicle.assignedDriver.driverName} - ${vehicle.assignedDriver.licenseNumber}`
-                        : 'Not assigned'}
-                    </strong>
                   </li>
                   <li>
                     Registration expiration Date:{' '}
@@ -175,48 +160,19 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
               </CContainer>
             </CAccordionHeader>
             <CAccordionBody>
-              <CHeader>ID: {vehicle.idNum}</CHeader>
-              <CHeader>Brand: {vehicle.brand}</CHeader>
-              <CHeader>Model: {vehicle.model}</CHeader>
               <CHeader>Year: {vehicle.year}</CHeader>
               <CHeader>Type: {vehicle.type}</CHeader>
               <CHeader>Capacity: {vehicle.capacity}</CHeader>
-              <CHeader>
-                Status: {options.find((option) => option.value === vehicle.status).label}
-              </CHeader>
-              <CHeader>
-                Driver:{' '}
-                {vehicle.assignedDriver
-                  ? `${vehicle.assignedDriver.driverName} - ${vehicle.assignedDriver.licenseNumber}`
-                  : 'Not assigned'}
-              </CHeader>
-              <CHeader>Fuel Type: {vehicle.fuelType}</CHeader>
-              <CHeader>Current Mileage: {vehicle.currentMileage}</CHeader>
-
+              <CHeader>Status: {vehicle.status}</CHeader>
               <CContainer className="d-flex justify-content-end mt-3">
-                <UpdateVehicle vehicle={vehicle} onUpdateVehicle={onUpdateVehicle} />
-                {adminRoles.includes(userRole) && (
-                  <CButton
-                    color="danger"
-                    variant="outline"
-                    onClick={() => onDeleteVehicle(vehicle._id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </CButton>
-                )}
+                <RestoreButton restoredVehicle={vehicle._id} onRestoreVehicle={onRestoreVehicle} />
               </CContainer>
             </CAccordionBody>
           </CAccordionItem>
         ))}
       </CAccordion>
-
-      {locaLError && (
-        <CAlert color="danger" className="text-center justify-content-center">
-          {locaLError}
-        </CAlert>
-      )}
     </>
   )
 }
 
-export default TableVehicle
+export default RestoredVehicles
