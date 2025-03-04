@@ -1,5 +1,6 @@
 import FuelLog from "../models/fuelLog.models.js";
 import Vehicle from "../models/vehicle.models.js";
+import mongoose from "mongoose";
 import path from "path";
 import fs from "fs/promises";
 import { fileURLToPath } from "url";
@@ -330,34 +331,51 @@ export const getFuelAnalytics = async (req, res) => {
     try {
         const { vehicleId, startDate, endDate } = req.query;
 
-        const query = {};
-        if (vehicleId) query.vehicleId = vehicleId;
+        const matchStage = {};
         if (startDate && endDate) {
-            query.date = {
+            matchStage.date = {
                 $gte: new Date(startDate),
                 $lte: new Date(endDate),
             };
         }
+        if (vehicleId) {
+            matchStage.vehicleId = new mongoose.Types.ObjectId(vehicleId);
+        }
 
-        const fuelLogs = await FuelLog.find(query);
+        const analytics = await FuelLog.aggregate([
+            {
+                $match: matchStage,
+            },
+            {
+                $group: {
+                    _id: "$vehicleId",
+                    totalFuelConsumption: { $sum: "$fuelQuantity" },
+                    averageEfficiency: { $avg: { $toDouble: "$litersPer100km" } },
+                    totalCost: { $sum: "$totalCost" },
+                    numberOfRefills: { $sum: 1 },
+                    vehicleDetails: { $first: "$vehicleDetails" },
+                    fuelLogs: {
+                        $push: {
+                            date: "$date",
+                            fuelQuantity: "$fuelQuantity",
+                            totalCost: "$totalCost",
+                            litersPer100km: "$litersPer100km",
+                        },
+                    },
+                },
+            },
+        ]);
 
-        // Calculate analytics
-        const analytics = {
-            totalFuelConsumption: 0,
-            averageFuelConsumption: 0,
-            totalCost: 0,
-            numberOfRefills: fuelLogs.length,
-        };
-
-        fuelLogs.forEach((log) => {
-            analytics.totalFuelConsumption += log.fuelQuantity;
-            analytics.totalCost += log.totalCost;
+        res.status(200).json({
+            success: true,
+            data: analytics,
         });
-
-        analytics.averageFuelConsumption = analytics.totalFuelConsumption / analytics.numberOfRefills;
-
-        res.status(200).json({ success: true, data: analytics });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Fuel analytics error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching analytics data",
+            error: error.message,
+        });
     }
 };
