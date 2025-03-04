@@ -64,6 +64,14 @@ const vehicleSchema = new mongoose.Schema(
         fuelType: { type: String, required: true },
         currentMileage: { type: Number, required: true },
         createdBy: [userSchema],
+        deleted: {
+            type: Boolean,
+            default: false,
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
+        },
     },
     {
         timestamps: true,

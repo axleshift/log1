@@ -1,4 +1,5 @@
 import Vehicle from "../models/vehicle.models.js";
+import Driver from "../models/driver.models.js";
 import mongoose from "mongoose";
 
 const updateVehicleStatusBasedOnExpiration = async (vehicle) => {
@@ -40,13 +41,31 @@ const updateVehicleStatusBasedOnExpiration = async (vehicle) => {
 
 export const getVehicles = async (req, res) => {
     try {
-        const vehicles = await Vehicle.find({}).populate("assignedDriver");
+        const vehicles = await Vehicle.find({ deleted: false }).populate("assignedDriver");
 
         // Check and update status for each vehicle
         for (let vehicle of vehicles) {
             await updateVehicleStatusBasedOnExpiration(vehicle);
         }
-        const updatedVehicles = await Vehicle.find({}).populate("assignedDriver");
+        const updatedVehicles = await Vehicle.find({ deleted: false }).populate("assignedDriver");
+        // res.status(200).json({ success: true, data: vehicles });
+
+        res.status(200).json({ success: true, data: updatedVehicles });
+    } catch (error) {
+        console.log("Error in fetching vehicle: ", error.message);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const getRestoredVehicles = async (req, res) => {
+    try {
+        const vehicles = await Vehicle.find({ deleted: true }).populate("assignedDriver");
+
+        // Check and update status for each vehicle
+        for (let vehicle of vehicles) {
+            await updateVehicleStatusBasedOnExpiration(vehicle);
+        }
+        const updatedVehicles = await Vehicle.find({ deleted: true }).populate("assignedDriver");
         // res.status(200).json({ success: true, data: vehicles });
 
         res.status(200).json({ success: true, data: updatedVehicles });
@@ -117,18 +136,45 @@ export const updateVehicle = async (req, res) => {
     }
 };
 
+// export const deleteVehicle = async (req, res) => {
+//     const { id } = req.params;
+
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//         return res.status(404).json({ success: false, message: " Invalid Vehicle Id" });
+//     }
+//     await Driver.findByIdAndUpdate({ assignedVehicle: id }, { assignedVehicle: null, status: "available" });
+
+//     try {
+//         await Vehicle.findByIdAndUpdate(id, { deleted: true, deletedAt: new Date() }, { new: true });
+//         res.status(200).json({ success: true, message: "Vehicle deleted successfully" });
+//     } catch (error) {
+//         console.log({ "Error in deleting vehicle: ": error.message });
+//         res.status(500).json({ success: false, message: "Server Error" });
+//     }
+// };
 export const deleteVehicle = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({ success: false, message: " Invalid Vehicle Id" });
+        return res.status(404).json({ success: false, message: "Invalid Vehicle Id" });
     }
 
     try {
-        await Vehicle.findByIdAndDelete(id);
+        // First, check if the vehicle exists
+        const vehicle = await Vehicle.findById(id);
+        if (!vehicle) {
+            return res.status(404).json({ success: false, message: "Vehicle not found" });
+        }
+
+        // Update the driver who has this vehicle assigned
+        await Driver.findOneAndUpdate({ assignedVehicle: id }, { assignedVehicle: null, status: "available" });
+
+        // Soft delete the vehicle
+        await Vehicle.findByIdAndUpdate(id, { deleted: true, deletedAt: new Date() }, { new: true });
+
         res.status(200).json({ success: true, message: "Vehicle deleted successfully" });
     } catch (error) {
-        console.log({ "Error in deleting vehicle: ": error.message });
+        console.log("Error in deleting vehicle:", error.message);
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
@@ -198,5 +244,51 @@ export const getAvailableVehicles2 = async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+};
+// For Fuel Analytics Dashboard
+export const getVehicleAnalytics = async (req, res) => {
+    try {
+        const vehicles = await Vehicle.find({}).populate("assignedDriver");
+
+        res.status(200).json({ success: true, data: vehicles });
+    } catch (error) {
+        console.log("Error in fetching vehicle: ", error.message);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+export const restoreVehicle = async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ success: false, message: "Invalid Vehicle Id" });
+    }
+
+    try {
+        // Find and restore the vehicle by setting deleted to false and clearing deletedAt
+        const restoredVehicle = await Vehicle.findByIdAndUpdate(
+            id,
+            {
+                deleted: false,
+                deletedAt: null,
+                status: "available", // Reset status to available
+                assignedDriver: null,
+            },
+            { new: true }
+        );
+
+        if (!restoredVehicle) {
+            return res.status(404).json({ success: false, message: "Vehicle not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Vehicle restored successfully",
+            data: restoredVehicle,
+        });
+    } catch (error) {
+        console.log("Error in restoring vehicle:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
     }
 };
