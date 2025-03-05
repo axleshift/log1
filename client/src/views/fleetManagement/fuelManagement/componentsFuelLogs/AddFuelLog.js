@@ -37,16 +37,18 @@ const AddFuelLog = ({ onAddFuelog }) => {
   const initialState = {
     vehicleId: '',
     driverId: '',
-    // Add these fields to store the details even if vehicle/driver is deleted
+    // Fields to store the details even if vehicle is deleted
     vehicleDetails: {
       brand: '',
       model: '',
       regisNumber: '',
       fuelType: '',
     },
+    // Fields to store the details even if driver is deleted
     driverDetails: {
       driverName: '',
     },
+    // details fuel log
     date: '',
     receiptNumber: '',
     fuelQuantity: '',
@@ -55,12 +57,14 @@ const AddFuelLog = ({ onAddFuelog }) => {
     totalCost: '',
     currentMileage: '',
     receiptImage: null,
+    // route details
     route: {
       start: '',
       end: '',
       distance: '',
     },
     notes: '',
+    // Fuel efficiency calculations
     litersPer100km: '',
     kmPerLiter: '',
     mpg: '',
@@ -239,6 +243,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
       // Append driver details
       formDataToSend.append('driverDetails[driverName]', formData.driverDetails.driverName)
 
+      // Append other fuel log details
       formDataToSend.append('date', formData.date)
       formDataToSend.append('receiptNumber', formData.receiptNumber)
       formDataToSend.append('fuelQuantity', formData.fuelQuantity)
@@ -251,10 +256,12 @@ const AddFuelLog = ({ onAddFuelog }) => {
       formDataToSend.append('kmPerLiter', formData.kmPerLiter)
       formDataToSend.append('mpg', formData.mpg)
 
+      // Append route details
       formDataToSend.append('route[start]', formData.route.start)
       formDataToSend.append('route[end]', formData.route.end)
       formDataToSend.append('route[distance]', formData.route.distance)
 
+      // Append receipt image
       if (formData.receiptImage) {
         formDataToSend.append('receiptImage', formData.receiptImage)
       }

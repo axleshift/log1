@@ -87,8 +87,8 @@ const AddVehicle = ({ onAddVehicle }) => {
         }, 2000)
       }
     } catch (error) {
-      setError(error.response.data.message)
-      showError(error.response.data.message)
+      showError(error.response?.data?.message || error.message)
+      setError(error.response?.data?.message || error.message)
       setTimeout(() => {
         setError(null)
       }, 2000)

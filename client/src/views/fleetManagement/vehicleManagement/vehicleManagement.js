@@ -90,7 +90,7 @@ const VehicleManagement = () => {
         preVehicles.map((vehicle) =>
           vehicle._id === updatedVehicle._id ? updatedVehicle : vehicle,
         ),
-      fetchVehicle(),
+      fetchData(),
     )
   }
 

@@ -33,6 +33,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
     year: vehicle.year,
     regisExprationDate: vehicle.regisExprationDate,
     regisNumber: vehicle.regisNumber,
+    type: vehicle.type,
     capacity: vehicle.capacity,
     fuelType: vehicle.fuelType,
     currentMileage: vehicle.currentMileage,
@@ -62,12 +63,15 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
   ]
 
   const handleEditVehicle = async (e) => {
+    e.preventDefault()
     setLoading(true)
     const form = e.currentTarget
     if (form.checkValidity() === false) {
+      e.preDefault()
       e.stopPropagation()
     }
     setValidated(true)
+    setLoading(true)
     try {
       const response = await api.put(`/api/v1/vehicle/${vehicle._id}`, editVehicle)
       if (response.data.success) {
@@ -80,8 +84,10 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
         }, 2000)
       }
     } catch (error) {
-      showError(error.response.data.message)
-      setError(error.response.data.message)
+      // showError(error.response.data.message)
+      // setError(error.response.data.message)
+      showError(error.response?.data?.message || error.message)
+      setError(error.response?.data?.message || error.message)
       setTimeout(() => {
         setError(null)
       }, 2000)
@@ -211,10 +217,10 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
                 floatingLabel="Vehicle Type"
                 placeholder="Vehicle Type"
                 id="type"
-                value={editVehicle.fuelType}
+                value={editVehicle.type}
                 required
                 onChange={handleChange}
-                options={[...vehicleTypes]}
+                options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
               />
 
               <CFormInput
@@ -239,7 +245,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
                 value={editVehicle.fuelType}
                 required
                 onChange={handleChange}
-                options={[, ...fuelTypes]}
+                options={[{ label: 'Select Fuel Type', value: '' }, ...fuelTypes]}
               />
             </CInputGroup>
             <CFormInput
@@ -265,7 +271,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
             onClick={() => {
               setVisible(false)
               setError(null)
-              setNewEditVehicle(vehicle)
+              setNewEditVehicle(initialState)
               setValidated(false)
             }}
           >

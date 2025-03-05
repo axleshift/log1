@@ -81,6 +81,9 @@ const TableFuelLogs = ({
     if (vehicle) {
       return `${vehicle.brand} ${vehicle.model} (${vehicle.regisNumber})`
     }
+    if (vehicle.deleted === true) {
+      return `${vehicle.brand} ${vehicle.model} (${vehicle.regisNumber}) [Deleted]`
+    }
   }
 
   // // Get driver details
@@ -262,7 +265,14 @@ const TableFuelLogs = ({
               <CTableDataCell>
                 {/* Use stored vehicle details if vehicle is deleted */}
                 {log.vehicleId ? (
-                  `${log.vehicleId.brand} ${log.vehicleId.model} (${log.vehicleId.regisNumber})`
+                  <>
+                    {`${log.vehicleId.brand} ${log.vehicleId.model} (${log.vehicleId.regisNumber})`}
+                    {log.vehicleId.deleted && (
+                      <CBadge color="danger" className="ms-2">
+                        Deleted
+                      </CBadge>
+                    )}
+                  </>
                 ) : (
                   <>
                     {`${log.vehicleDetails.brand} ${log.vehicleDetails.model} (${log.vehicleDetails.regisNumber}) `}
@@ -307,14 +317,16 @@ const TableFuelLogs = ({
                     >
                       <FontAwesomeIcon icon={faEye} /> View Receipt
                     </CButton>
-                    <CButton
-                      color="info"
-                      variant="ghost"
-                      className="m-2"
-                      onClick={() => onUpdateFuelLog(log)}
-                    >
-                      <FontAwesomeIcon icon={faEdit} /> Edit
-                    </CButton>
+                    {log.vehicleId.deleted !== true && (
+                      <CButton
+                        color="info"
+                        variant="ghost"
+                        className="m-2"
+                        onClick={() => onUpdateFuelLog(log)}
+                      >
+                        <FontAwesomeIcon icon={faEdit} /> Edit
+                      </CButton>
+                    )}
                     {adminRoles.includes(role) && (
                       <CButton
                         color="danger"

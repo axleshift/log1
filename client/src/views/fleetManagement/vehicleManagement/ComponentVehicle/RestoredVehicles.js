@@ -81,7 +81,7 @@ const RestoredVehicles = ({ restoredVehicle, onRestoreVehicle }) => {
   if (filteredVehicles.length === 0) {
     return (
       <CAlert color="danger" className="text-center justify-content-center">
-        No vehicles found
+        No vehicles found to restore
       </CAlert>
     )
   }
