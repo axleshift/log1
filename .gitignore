@@ -27,12 +27,5 @@ dist-ssr
 
 # .gitignore
 uploads/*
-!uploads/.gitkeep
-
-# Upload files
-server/uploads/profiles/*
-server/uploads/receipts/*
-
-# Keep .gitkeep files
-!server/uploads/profiles/.gitkeep
-!server/uploads/receipts/.gitkeep
+!uploads/profiles/
+!uploads/receipts/
