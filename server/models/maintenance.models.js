@@ -11,45 +11,47 @@ const maintenanceSchema = new mongoose.Schema(
     {
         vehicle: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Vehicle',
-            required: true
-          },
-          maintenanceType: {
+            ref: "Vehicle",
+            required: true,
+        },
+        maintenanceType: {
             type: String,
-            enum: ['PMS', 'Corrective', 'Emergency'],
-            required: true
-          },
-          startDate: {
+            enum: ["PMS", "Corrective", "Emergency"],
+            required: true,
+        },
+        startDate: {
             type: Date,
-            required: true
-          },
-          expectedEndDate: {
+            required: true,
+        },
+        expectedEndDate: {
             type: Date,
-            required: true
-          },
-          actualEndDate: {
-            type: Date
-          },
-          description: {
+            required: true,
+        },
+        actualEndDate: {
+            type: Date,
+        },
+        description: {
             type: String,
-            required: true
-          },
-          parts: [{
-            partName: String,
-            quantity: Number,
-            cost: Number
-          }],
-          status: {
+            required: true,
+        },
+        parts: [
+            {
+                partName: String,
+                quantity: Number,
+                cost: Number,
+            },
+        ],
+        status: {
             type: String,
-            enum: ['Scheduled', 'In Progress', 'Completed'],
-            default: 'Scheduled'
-          },
-          totalCost: {
+            enum: ["Scheduled", "In Progress", "Completed"],
+            default: "Scheduled",
+        },
+        totalCost: {
             type: Number,
-            default: 0
-          },
-          notes: String,
-          completedBy: String
+            default: 0,
+        },
+        notes: String,
+        completedBy: String,
 
         priority: {
             type: String,
@@ -93,8 +95,6 @@ const maintenanceSchema = new mongoose.Schema(
                 totalCost: Number,
             },
         ],
-
-        
     },
     {
         timestamps: true,
