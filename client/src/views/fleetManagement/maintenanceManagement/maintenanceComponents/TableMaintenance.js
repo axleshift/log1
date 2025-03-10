@@ -38,7 +38,7 @@ import {
 } from '@coreui/react'
 import api from '../../../../utils/api'
 import { useToast } from '../../../../components/Toast/Toast'
-import CompleteButtonMaintenance from './COmpleteButtonMaintenance'
+import CompleteButtonMaintenance from './CompleteButtonMaintenance'
 import UpdateMaintenance from './UpdateMaintenance'
 const TableMaintenance = ({
   onDeleteMaintenance,
