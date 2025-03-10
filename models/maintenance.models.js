@@ -34,22 +34,22 @@ const maintenanceSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        parts: [
-            {
-                partName: String,
-                quantity: Number,
-                cost: Number,
-            },
-        ],
+        // parts: [
+        //     {
+        //         partName: String,
+        //         quantity: Number,
+        //         cost: Number,
+        //     },
+        // ],
         status: {
             type: String,
-            enum: ["Scheduled", "In Progress", "Completed"],
+            enum: ["Scheduled", "In Progress", "Completed", "Cancelled"],
             default: "Scheduled",
         },
-        totalCost: {
-            type: Number,
-            default: 0,
-        },
+        // totalCost: {
+        //     type: Number,
+        //     default: 0,
+        // },
         notes: String,
         completedBy: String,
 
@@ -65,51 +65,52 @@ const maintenanceSchema = new mongoose.Schema(
             required: true,
         },
 
-        attachments: [
-            {
-                filename: String,
-                path: String,
-                uploadedAt: Date,
-                uploadedBy: String,
-            },
-        ],
+        // attachments: [
+        //     {
+        //         filename: String,
+        //         path: String,
+        //         uploadedAt: Date,
+        //         uploadedBy: String,
+        //     },
+        // ],
 
         checklist: [checklistItemSchema],
 
-        costs: {
-            laborCost: { type: Number, default: 0 },
-            partsCost: { type: Number, default: 0 },
-            additionalCosts: [
-                {
-                    description: String,
-                    amount: Number,
-                },
-            ],
-        },
+        // costs: {
+        //     laborCost: { type: Number, default: 0 },
+        //     partsCost: { type: Number, default: 0 },
+        //     additionalCosts: [
+        //         {
+        //             description: String,
+        //             amount: Number,
+        //         },
+        //     ],
+        // },
 
         parts: [
             {
-                part: { type: mongoose.Schema.Types.ObjectId, ref: "InventoryPart" },
+                partName: String,
                 quantity: Number,
-                unitCost: Number,
-                totalCost: Number,
+                // unitCost: Number,
+                // partTotalCost: Number,
             },
         ],
     },
+
     {
         timestamps: true,
     }
 );
 
 // Calculate total cost before saving
-maintenanceSchema.pre("save", function (next) {
-    let total = this.costs.laborCost;
-    total += this.costs.partsCost;
-    this.costs.additionalCosts.forEach((cost) => {
-        total += cost.amount;
-    });
-    this.totalCost = total;
-    next();
-});
+// maintenanceSchema.pre("save", function (next) {
+//     let total = this.costs.laborCost;
+//     total += this.costs.partsCost;
+//     this.costs.additionalCosts.forEach((cost) => {
+//         total += cost.amount;
+//     });
+//     this.totalCost = total;
+//     next();
+// });
 
 export default mongoose.model("Maintenance", maintenanceSchema);

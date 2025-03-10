@@ -246,6 +246,25 @@ export const getAvailableVehicles2 = async (req, res) => {
         });
     }
 };
+
+export const getAllVehiclesNotMaintenance = async (req, res) => {
+    try {
+        const vehicles = await Vehicle.find({ status: { $ne: "maintenance" } });
+        // $ne means "not equal to"
+
+        res.status(200).json({
+            success: true,
+            data: vehicles,
+            message: "Available vehicles fetched successfully",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
 // For Fuel Analytics Dashboard
 export const getVehicleAnalytics = async (req, res) => {
     try {
