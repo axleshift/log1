@@ -12,6 +12,8 @@ import {
   CHeader,
   CBadge,
   CButton,
+  CPagination,
+  CPaginationItem,
 } from '@coreui/react'
 import UpdateVehicle from './UpdateVehicle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -24,6 +26,12 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
   const adminRoles = ['manager', 'admin']
   const [locaLError, setLocaLError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filteredVehicles.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredVehicles.length / itemsPerPage)
 
   useEffect(() => {
     setFilteredVehicles(vehicle)
@@ -31,6 +39,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
 
   useEffect(() => {
     const handleSearch = () => {
+      setCurrentPage(1)
       if (searchQuery === '') {
         setFilteredVehicles(vehicle)
       } else {
@@ -112,11 +121,11 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
         </CInputGroup>
       </CContainer>
       <CAccordion className="m-2">
-        {filteredVehicles.map((vehicle, index) => (
+        {currentItems.map((vehicle, index) => (
           <CAccordionItem key={vehicle._id || index}>
             <CAccordionHeader className="d-flex justify-content-between">
               <CContainer>
-                <ul>
+                <ul className="list-unstyled">
                   <li>
                     Registration Number: <strong>{vehicle.regisNumber}</strong>
                   </li>
@@ -209,6 +218,41 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
           </CAccordionItem>
         ))}
       </CAccordion>
+
+      {filteredVehicles.length > 0 && (
+        <CContainer className="d-flex justify-content-between align-items-center">
+          <CContainer>
+            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredVehicles.length)}{' '}
+            of {filteredVehicles.length} entries
+          </CContainer>
+
+          <CPagination className="mt-3">
+            <CPaginationItem
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </CPaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <CPaginationItem
+                key={page}
+                active={page === currentPage}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </CPaginationItem>
+            ))}
+
+            <CPaginationItem
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              Next
+            </CPaginationItem>
+          </CPagination>
+        </CContainer>
+      )}
 
       {locaLError && (
         <CAlert color="danger" className="text-center justify-content-center">

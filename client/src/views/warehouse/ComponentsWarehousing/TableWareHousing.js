@@ -13,6 +13,8 @@ import {
   CInputGroupText,
   CPopover,
   CBadge,
+  CPagination,
+  CPaginationItem,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faCircle } from '@fortawesome/free-solid-svg-icons'
@@ -26,6 +28,12 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
   const [searchQuery, setSearchQuery] = useState('')
   const role = getRole()
   const adminRoles = ['manager', 'admin']
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filteredWarehousing.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredWarehousing.length / itemsPerPage)
 
   useEffect(() => {
     // Debounce the search to avoid too frequent updates
@@ -63,7 +71,6 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
         setFilteredWarehousing(filtered)
         setLocalError(filtered.length === 0 ? 'No items found' : null)
       } catch (error) {
-        console.error('Search error:', error)
         setLocalError('An error occurred while searching')
       }
     }, 300) // 300ms delay
@@ -118,15 +125,14 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
         </CAlert>
       )}
       <CAccordion className="m-2 ">
-        {filteredWarehousing.map((warehousing) => (
+        {currentItems.map((warehousing) => (
           <CAccordionItem key={warehousing._id}>
             <CAccordionHeader>
               <ul className="list-unstyled p-0 m-0 w-100">
                 <li>
-                  From:{' '}
+                  Location:{' '}
                   {warehousing.warehouse ? (
                     <div className="d-inline-flex align-items-center">
-                      {console.log('Warehouse data:', warehousing.warehouse)}
                       {warehousing.warehouse.warehouseName}
                       {warehousing.warehouse.deleted ? (
                         <CBadge color="danger" className="ms-2">
@@ -144,6 +150,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
               </ul>
             </CAccordionHeader>
             <CAccordionBody>
+              <CHeader>From: {warehousing.from}</CHeader>
               {warehousing.items.map((item, index) => (
                 <div key={index}>
                   <CHeader>{`Item name: ${item.itemName} Quantity: (${item.quantity})`}</CHeader>
@@ -167,6 +174,42 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
           </CAccordionItem>
         ))}
       </CAccordion>
+
+      {filteredWarehousing.length > 0 && (
+        <CContainer className="d-flex justify-content-between align-items-center">
+          <CContainer>
+            Showing {indexOfFirstItem + 1} to{' '}
+            {Math.min(indexOfLastItem, filteredWarehousing.length)} of {filteredWarehousing.length}{' '}
+            entries
+          </CContainer>
+
+          <CPagination className="mt-3">
+            <CPaginationItem
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </CPaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <CPaginationItem
+                key={page}
+                active={page === currentPage}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </CPaginationItem>
+            ))}
+
+            <CPaginationItem
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              Next
+            </CPaginationItem>
+          </CPagination>
+        </CContainer>
+      )}
     </>
   )
 }

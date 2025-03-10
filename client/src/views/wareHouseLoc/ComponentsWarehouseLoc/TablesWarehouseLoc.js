@@ -107,7 +107,7 @@ const TablesWarehouseLoc = ({
         <CHeader>Warehouse Location List</CHeader>
         <CCardBody className="md-3">
           <CTable bordered hover responsive className="mx-auto ">
-            <CTableHead className="text-center  ">
+            <CTableHead className="text-center">
               <CTableRow>
                 <CTableHeaderCell className="fixed-width bg-secondary">
                   Warehouse Name

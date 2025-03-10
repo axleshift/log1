@@ -69,3 +69,17 @@ export const getRole = () => {
   }
   return null
 }
+
+export const getUsername = () => {
+  const accessToken = sessionStorage.getItem('accessToken')
+  if (accessToken) {
+    try {
+      const decodedToken = jwtDecode(accessToken)
+      return decodedToken.username
+    } catch (error) {
+      console.error('Error decoding token:', error)
+      return null
+    }
+  }
+  return null
+}

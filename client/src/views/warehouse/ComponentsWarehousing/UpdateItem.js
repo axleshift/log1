@@ -170,10 +170,10 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
               floatingLabel="Warehouse"
               id="warehouse"
               onChange={handleChange}
-              value={formData.warehouse || ''} // Add optional chaining and default to empty string
+              value={formData.warehouse || ''}
               required
             >
-              <option value="">Select Warehouse</option> {/* Change null to empty string */}
+              <option value="">Select Warehouse</option>
               {warehouses.map((warehouse) => (
                 <option key={warehouse._id} value={warehouse._id}>
                   {warehouse.warehouseName || ''}
