@@ -26,6 +26,8 @@ jobs:
 
         run: |
           cd client
+          echo "VITE_APP_API_URL=${{secrets.VITE_APP_API_URL}}" >> .env
+
           npm i
           npm run lint
           npm run build
@@ -51,6 +53,13 @@ jobs:
         # Change the following commands if you have custom build
         run: |
           cd server
+          echo "NODE_ENV=${{vars.NODE_ENV}}" >> .env
+          echo "ORIGIN=${{vars.ORIGIN}}" >> .env
+          echo "PORT=${{vars.PORT}}" >> .env
+          echo "MONGO_URI=${{secrets.MONGO_URI}}" >> .env
+          echo "ACCESS_TOKEN_SECRET=${{secrets.ACCESS_TOKEN_SECRET}}" >> .env
+          echo "REFRESH_TOKEN_SECRET=${{secrets.REFRESH_TOKEN_SECRET}}" >> .env
+          echo "SESSION_SECRET=${{secrets.SESSION_SECRET}}" >> .env
           npm i
           npm run lint
           rm -rf node_modules
