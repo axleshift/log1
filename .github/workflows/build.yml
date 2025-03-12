@@ -53,7 +53,6 @@ jobs:
         # Change the following commands if you have custom build
         run: |
           cd server
-          echo "NODE_ENV=${{vars.NODE_ENV}}" >> .env
           echo "ORIGIN=${{vars.ORIGIN}}" >> .env
           echo "PORT=${{vars.PORT}}" >> .env
           echo "MONGO_URI=${{secrets.MONGO_URI}}" >> .env
