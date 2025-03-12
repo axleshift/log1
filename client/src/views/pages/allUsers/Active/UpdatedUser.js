@@ -50,7 +50,7 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
       if (user.photo) {
         const photoUrl = user.photo.startsWith('http')
           ? user.photo
-          : `${API_URL}/uploads/profiles/${user.photo}`
+          : `${API_URL}uploads/profiles/${user.photo}`
         setPreview(photoUrl)
       } else {
         setPreview(null) // Reset preview if no photo is available

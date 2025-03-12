@@ -106,7 +106,7 @@ const MyAccount = () => {
       if (user.photo) {
         const photoUrl = user.photo.startsWith('http')
           ? user.photo
-          : `${API_URL}/uploads/profiles/${user.photo}`
+          : `${API_URL}uploads/profiles/${user.photo}`
         setPreview(photoUrl)
       } else {
         setPreview(avarat1)

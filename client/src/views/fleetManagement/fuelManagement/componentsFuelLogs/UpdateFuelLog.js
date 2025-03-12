@@ -617,7 +617,7 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
 
   useEffect(() => {
     if (fuelLog?.receiptImage) {
-      setPreview(`${API_URL}/uploads/receipts/${fuelLog.receiptImage}`)
+      setPreview(`${API_URL}uploads/receipts/${fuelLog.receiptImage}`)
     }
   }, [fuelLog])
 

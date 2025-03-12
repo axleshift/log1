@@ -84,7 +84,7 @@ const FuelManagement = () => {
   const handleViewReceipt = (fuelLog) => {
     if (fuelLog.receiptImage) {
       // Construct the full URL for the image
-      const imageUrl = `${API_URL}/uploads/receipts/${fuelLog.receiptImage}`
+      const imageUrl = `${API_URL}uploads/receipts/${fuelLog.receiptImage}`
       setSelectedImage(imageUrl)
       setImageModal(true)
       showSuccess('Receipt image loaded successfully')
