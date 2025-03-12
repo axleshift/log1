@@ -11,7 +11,11 @@ const CompleteButtonMaintenance = ({ onCompleted, maintenance }) => {
   if (!maintenance || !maintenance.checklist) {
     return null // or return a loading state/placeholder
   }
-
+  const isBeforeStartDate = () => {
+    const currentDate = new Date()
+    const startDate = new Date(maintenance.startDate)
+    return currentDate < startDate
+  }
   const handleCompleteMaintenance = async (maintenanceId) => {
     try {
       const username = getUsername()
@@ -32,14 +36,27 @@ const CompleteButtonMaintenance = ({ onCompleted, maintenance }) => {
   return (
     <>
       {adminRoles.includes(role) && (
-        <CButton
-          color="success"
-          variant="outline"
-          onClick={() => handleCompleteMaintenance(maintenance._id)}
-          disabled={!maintenance.checklist?.every((item) => item.completed)}
-        >
-          Complete Maintenance
-        </CButton>
+        <>
+          <CButton
+            color="success"
+            variant="outline"
+            onClick={() => handleCompleteMaintenance(maintenance._id)}
+            disabled={
+              !maintenance.checklist?.every((item) => item.completed) || isBeforeStartDate()
+            }
+            title={
+              isBeforeStartDate() ? 'Maintenance cannot be completed before its start date' : ''
+            }
+          >
+            Complete Maintenance
+          </CButton>
+          {isBeforeStartDate() && (
+            <div className="text-danger mt-2">
+              This maintenance cannot be completed before{' '}
+              {new Date(maintenance.startDate).toLocaleDateString()}
+            </div>
+          )}
+        </>
       )}
     </>
   )
