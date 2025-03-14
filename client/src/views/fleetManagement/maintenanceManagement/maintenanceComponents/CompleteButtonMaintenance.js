@@ -19,7 +19,7 @@ const CompleteButtonMaintenance = ({ onCompleted, maintenance }) => {
   const handleCompleteMaintenance = async (maintenanceId) => {
     try {
       const username = getUsername()
-      const response = await api.patch(`/api/v1/maintenance/complete/${maintenanceId}`, {
+      const response = await api.patch(`api/v1/maintenance/complete/${maintenanceId}`, {
         completedBy: username,
       })
 

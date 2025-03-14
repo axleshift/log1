@@ -75,8 +75,8 @@ const AddFuelLog = ({ onAddFuelog }) => {
       try {
         setLoading(true)
         const [driversResponse, vehiclesResponse] = await Promise.all([
-          api.get('/api/v1/driver'),
-          api.get('/api/v1/vehicle/in-use'),
+          api.get('api/v1/driver'),
+          api.get('api/v1/vehicle/in-use'),
         ])
 
         setDrivers(driversResponse.data.data)
@@ -266,7 +266,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
         formDataToSend.append('receiptImage', formData.receiptImage)
       }
 
-      const response = await api.post('/api/v1/fuelLogs/fuel-logs', formDataToSend)
+      const response = await api.post('api/v1/fuelLogs/fuel-logs', formDataToSend)
       if (response.data.success) {
         onAddFuelog(response.data.data)
         showSuccess(response.data.message)

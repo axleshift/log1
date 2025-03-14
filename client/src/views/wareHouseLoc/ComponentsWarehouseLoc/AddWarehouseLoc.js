@@ -53,7 +53,7 @@ const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
       }
       setLoading(true)
       try {
-        const response = await api.post('/api/v1/warehouseLoc/add', {
+        const response = await api.post('api/v1/warehouseLoc/add', {
           ...formData,
           createdBy: email,
         })

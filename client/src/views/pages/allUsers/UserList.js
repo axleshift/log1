@@ -57,7 +57,7 @@ const UserList = ({ onUpdateUser }) => {
   const fetchUsers = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/api/v1/user/all-user')
+      const response = await api.get('api/v1/user/all-user')
       const userData = response.data.data
       setUsers(userData)
       setFilteredUsers(userData)
@@ -109,7 +109,7 @@ const UserList = ({ onUpdateUser }) => {
   const toggleUserStatus = async (userId) => {
     setLoading(true)
     try {
-      const response = await api.post(`/api/v1/user/in-active-user/${userId}`)
+      const response = await api.post(`api/v1/user/in-active-user/${userId}`)
 
       if (response.data.success) {
         const updatedUsers = users.map((user) => {

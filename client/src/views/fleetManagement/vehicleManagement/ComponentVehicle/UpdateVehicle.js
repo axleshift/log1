@@ -73,7 +73,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
     setValidated(true)
     setLoading(true)
     try {
-      const response = await api.put(`/api/v1/vehicle/${vehicle._id}`, editVehicle)
+      const response = await api.put(`api/v1/vehicle/${vehicle._id}`, editVehicle)
       if (response.data.success) {
         showSuccess(response.data.message)
         onUpdateVehicle(response.data.data)

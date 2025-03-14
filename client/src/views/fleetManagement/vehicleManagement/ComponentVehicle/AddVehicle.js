@@ -75,7 +75,7 @@ const AddVehicle = ({ onAddVehicle }) => {
     setValidated(true)
     setLoading(true)
     try {
-      const response = await api.post('/api/v1/vehicle', newVehicle)
+      const response = await api.post('api/v1/vehicle', newVehicle)
       if (response.data.success) {
         showSuccess(response.data.message)
         onAddVehicle(response.data.data)

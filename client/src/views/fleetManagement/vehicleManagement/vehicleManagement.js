@@ -39,8 +39,8 @@ const VehicleManagement = () => {
     setLoading(true)
     try {
       const [vehicle, restoredVehicle] = await Promise.all([
-        api.get('/api/v1/vehicle'),
-        api.get('/api/v1/vehicle/restored'),
+        api.get('api/v1/vehicle'),
+        api.get('api/v1/vehicle/restored'),
       ])
       setVehicles(vehicle.data.data)
       setRestoredVehicles(restoredVehicle.data.data)
@@ -63,7 +63,7 @@ const VehicleManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await api.patch(`/api/v1/vehicle/${selectedLogId}`)
+      await api.patch(`api/v1/vehicle/${selectedLogId}`)
       setVehicles((prev) => prev.filter((log) => log._id !== selectedLogId))
       showSuccess('Vehicle deleted successfully')
       setDeleteModal(false)
@@ -93,7 +93,13 @@ const VehicleManagement = () => {
       fetchData(),
     )
   }
-
+  if (loading) {
+    return (
+      <div className="text-center">
+        <CSpinner color="primary" />
+      </div>
+    )
+  }
   return (
     <>
       <CHeader className="text-center">Vehicle Management</CHeader>

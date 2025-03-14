@@ -22,7 +22,7 @@ const WareHouseLoc = () => {
   const fetchWarehouseLoc = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/api/v1/warehouseLoc/locations')
+      const response = await api.get('api/v1/warehouseLoc/locations')
       if (response.status === 200) {
         setWarehouseLoc(response.data.data)
       } else {

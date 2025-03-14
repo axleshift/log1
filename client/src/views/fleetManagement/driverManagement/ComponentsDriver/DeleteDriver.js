@@ -13,7 +13,7 @@ const DeleteDriver = ({ driver, onDeleteDriver }) => {
   const handleDelete = async () => {
     setLoading(true)
     try {
-      const response = await api.delete(`/api/v1/driver/${driver._id}`)
+      const response = await api.delete(`api/v1/driver/${driver._id}`)
       if (response.status === 200) {
         showSuccess(response.data.message)
         onDeleteDriver(driver._id)

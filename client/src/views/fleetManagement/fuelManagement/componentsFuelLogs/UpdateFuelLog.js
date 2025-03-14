@@ -626,8 +626,8 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
       try {
         setLoading(true)
         const [driversResponse, vehiclesResponse] = await Promise.all([
-          api.get('/api/v1/driver'),
-          api.get('/api/v1/vehicle/in-use'),
+          api.get('api/v1/driver'),
+          api.get('api/v1/vehicle/in-use'),
         ])
 
         setDriverOptions(driversResponse.data.data)
@@ -804,7 +804,7 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
         }
       })
 
-      const response = await api.put(`/api/v1/fuelLogs/fuel-logs/${fuelLog._id}`, formDataToSend)
+      const response = await api.put(`api/v1/fuelLogs/fuel-logs/${fuelLog._id}`, formDataToSend)
 
       if (response.data.success) {
         showSuccess(response.data.message)
@@ -871,13 +871,13 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
               required
               disabled
             >
-              {vehicleOptions.map((vehicle) => (
+              {/* {vehicleOptions.map((vehicle) => (
                 <option key={vehicle._id} value={vehicle._id}>
                   {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}
                 </option>
-              ))}
+              ))} */}
               <option value="">
-                {`${formData.vehicleDetails.brand} / ${formData.vehicleDetails.model} / ${formData.vehicleDetails.regisNumber} [DELETED]`}
+                {`${formData.vehicleDetails.brand} / ${formData.vehicleDetails.model} / ${formData.vehicleDetails.regisNumber} `}
               </option>
             </CFormSelect>
           </CInputGroup>

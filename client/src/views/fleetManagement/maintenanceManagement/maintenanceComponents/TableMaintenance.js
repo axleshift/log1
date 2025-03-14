@@ -48,6 +48,7 @@ const TableMaintenance = ({
   vehicles,
   loading,
   error,
+  selectedMaintenanceId,
 }) => {
   const role = getRole()
   const { showError, showSuccess } = useToast()
@@ -62,9 +63,24 @@ const TableMaintenance = ({
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filterdMaintenance.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filterdMaintenance.length / itemsPerPage)
-
+  const [activeItems, setActiveItems] = useState([])
   const [selectedMaintenance, setSelectedMaintenance] = useState({ checklist: [] })
   const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (selectedMaintenanceId) {
+      console.log('Selected Maintenance ID:', selectedMaintenanceId) // Debug log
+      setActiveItems([selectedMaintenanceId])
+
+      // Scroll to element after a short delay to ensure rendering
+      setTimeout(() => {
+        const element = document.getElementById(`maintenance-${selectedMaintenanceId}`)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+    }
+  }, [selectedMaintenanceId])
 
   useEffect(() => {
     setFilterdMaintenance(maintenance)
@@ -83,7 +99,7 @@ const TableMaintenance = ({
     try {
       const username = getUsername()
       const response = await api.patch(
-        `/api/v1/maintenance/${maintenanceId}/checklist/${itemIndex}`,
+        `api/v1/maintenance/${maintenanceId}/checklist/${itemIndex}`,
         { completedBy: username },
       )
       if (response.data.success) {
@@ -169,9 +185,13 @@ const TableMaintenance = ({
           </CInputGroupText>
         </CInputGroup>
       </CContainer>
-      <CAccordion className="m-2">
+      <CAccordion activeItems={activeItems} className="m-2">
         {currentItems.map((maintenance, index) => (
-          <CAccordionItem key={maintenance._id || index}>
+          <CAccordionItem
+            key={maintenance._id}
+            itemKey={maintenance._id}
+            id={`maintenance-${maintenance._id}`}
+          >
             <CAccordionHeader className="d-flex justify-content-between">
               <CContainer>
                 <ul className="list-unstyled">

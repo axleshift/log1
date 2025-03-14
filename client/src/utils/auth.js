@@ -26,7 +26,7 @@ export const refreshToken = async () => {
   const refreshToken = getRefreshToken()
   if (refreshToken) {
     try {
-      const response = await api.post('/api/v1/user/refresh-token', { refreshToken })
+      const response = await api.post('api/v1/user/refresh-token', { refreshToken })
       const newAccessToken = response.data.accessToken
       sessionStorage.setItem('accessToken', newAccessToken)
       return newAccessToken
@@ -42,7 +42,7 @@ export const refreshToken = async () => {
 
 export const logout = async () => {
   try {
-    await api.post('/api/v1/user/logout')
+    await api.post('api/v1/user/logout')
     sessionStorage.removeItem('accessToken')
     sessionStorage.removeItem('refreshToken')
     sessionStorage.removeItem('user')

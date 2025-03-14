@@ -53,7 +53,7 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
     }
     setLoading(true)
     try {
-      const response = await api.put(`/api/v1/warehouseLoc/update/${warehouseLoc._id}`, {
+      const response = await api.put(`api/v1/warehouseLoc/update/${warehouseLoc._id}`, {
         ...formData,
         createdBy: email,
       })

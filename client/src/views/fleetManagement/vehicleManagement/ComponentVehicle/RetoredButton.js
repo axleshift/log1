@@ -13,7 +13,7 @@ const RestoreButton = ({ restoredVehicle, onRestoreVehicle }) => {
   const handleRestore = async () => {
     setLoading(true)
     try {
-      const response = await api.patch(`/api/v1/vehicle/restore/${restoredVehicle}`)
+      const response = await api.patch(`api/v1/vehicle/restore/${restoredVehicle}`)
       if (response.data.success) {
         showSuccess(response.data.message)
 

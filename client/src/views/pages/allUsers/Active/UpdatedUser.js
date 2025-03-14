@@ -94,7 +94,7 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
       // if (form.role) formData.append('role', form.role)
       // if (form.photo) formData.append('photo', form.photo)
 
-      const response = await api.put(`/api/v1/user/update-user/${user._id}`, formData)
+      const response = await api.put(`api/v1/user/update-user/${user._id}`, formData)
 
       if (response.data.success) {
         setSuccess('User updated successfully')

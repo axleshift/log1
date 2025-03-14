@@ -29,7 +29,9 @@ const MaintenanceManagement = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const { showError, showSuccess } = useToast()
-  const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null)
+  const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(
+    location.state?.selectedMaintenanceId || null,
+  )
   const [deleteModal, setDeleteModal] = useState(false)
 
   const fetchMaintenance = async () => {
@@ -126,6 +128,7 @@ const MaintenanceManagement = () => {
                       onDeleteMaintenance={handleDeleteClick}
                       onUpdateMaintenance={handleUpdateMaintenance}
                       loading={loading}
+                      selectedMaintenanceId={selectedMaintenanceId}
                     />
                   </CCardBody>
                 </CTabPanel>

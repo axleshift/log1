@@ -11,6 +11,7 @@ import {
   CModalBody,
   CModalFooter,
   CButton,
+  CSpinner,
 } from '@coreui/react'
 import api from '../../../utils/api'
 import { useToast } from '../../../components/Toast/Toast'
@@ -25,7 +26,7 @@ const DriversManagement = () => {
   const fetchDrivers = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/api/v1/driver')
+      const response = await api.get('api/v1/driver')
       if (response.status === 200) {
         setDrivers(response.data.data)
         setLoading(false)
@@ -61,6 +62,14 @@ const DriversManagement = () => {
   const handleUpdateDriver = (updatedDriver) => {
     setDrivers((preDrivers) =>
       preDrivers.map((driver) => (driver._id === updatedDriver._id ? updatedDriver : driver)),
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="text-center  ">
+        <CSpinner color="primary" size="sm" />
+      </div>
     )
   }
   return (

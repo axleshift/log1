@@ -46,7 +46,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
   }
   const fetchAvailableVehicles = async () => {
     try {
-      const response = await api.get('/api/v1/vehicle/available')
+      const response = await api.get('api/v1/vehicle/available')
       setVehiclesOptions(response.data.data)
     } catch (error) {
       showError(error.message)

@@ -115,7 +115,7 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
   useEffect(() => {
     const fechData = async () => {
       try {
-        const response = await api.get('/api/v1/vehicle/all')
+        const response = await api.get('api/v1/vehicle/all')
         if (response.data.success) {
           setVehicles(response.data.data)
         }
@@ -227,7 +227,7 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
 
     setLoading(true)
     try {
-      const response = await api.put(`/api/v1/maintenance/update/${maintenance._id}`, formData)
+      const response = await api.put(`api/v1/maintenance/update/${maintenance._id}`, formData)
       if (response.data.success) {
         showSuccess(response.data.message)
         onUpdateMaintenance(response.data.data)

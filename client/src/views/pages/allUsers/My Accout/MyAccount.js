@@ -48,7 +48,7 @@ const MyAccount = () => {
       // Get the token from sessionStorage
       const token = sessionStorage.getItem('accessToken')
 
-      const response = await api.get('/api/v1/user/profile')
+      const response = await api.get('api/v1/user/profile')
 
       if (response.data.success) {
         setUser(response.data.data)

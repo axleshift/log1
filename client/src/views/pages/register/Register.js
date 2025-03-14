@@ -55,7 +55,7 @@ const Register = () => {
         setIsLoading(false)
         return
       }
-      const response = await api.post('/api/v1/user/register', form)
+      const response = await api.post('api/v1/user/register', form)
 
       if (response.data && response.data.success) {
         setSuccess('Registration successful')

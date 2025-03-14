@@ -1,0 +1,51 @@
+/* Add this to your CSS file */
+.carousel-inner {
+  padding: 1em;
+}
+
+.card {
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.carousel-indicators {
+  bottom: -10px;
+}
+
+.maintenance-card {
+  transition: all 0.3s ease;
+}
+
+.maintenance-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-inner {
+  padding: 1em;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.carousel-indicators {
+  bottom: -10px;
+}
+
+/* Add ripple effect on click */
+.maintenance-card:active {
+  transform: scale(0.98);
+}

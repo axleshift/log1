@@ -37,9 +37,9 @@ const FuelManagement = () => {
     setLoading(true)
     try {
       const [fuelLogsRes, vehiclesRes, driversRes] = await Promise.all([
-        api.get('/api/v1/fuelLogs/fuel-logs'),
-        api.get('/api/v1/vehicle/in-use'),
-        api.get('/api/v1/driver'),
+        api.get('api/v1/fuelLogs/fuel-logs'),
+        api.get('api/v1/vehicle/in-use'),
+        api.get('api/v1/driver'),
       ])
       setFuelLogs(fuelLogsRes.data.data)
       setVehicles(vehiclesRes.data.data)
@@ -59,7 +59,7 @@ const FuelManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await api.delete(`/api/v1/fuelLogs/fuel-logs/${selectedLogId}`)
+      await api.delete(`api/v1/fuelLogs/fuel-logs/${selectedLogId}`)
       setFuelLogs((prev) => prev.filter((log) => log._id !== selectedLogId))
       showSuccess('Fuel log deleted successfully')
       setDeleteModal(false)

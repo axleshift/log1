@@ -48,7 +48,7 @@ const AddDrivers = ({ onAddDriver }) => {
   }
   const fetchAvailableVehicles = async () => {
     try {
-      const response = await api.get('/api/v1/vehicle/available')
+      const response = await api.get('api/v1/vehicle/available')
       setVehiclesOptions(response.data.data)
     } catch (error) {
       console.error('Error fetching vehicles:', error)
@@ -76,7 +76,7 @@ const AddDrivers = ({ onAddDriver }) => {
 
     setLoading(true)
     try {
-      const response = await api.post('/api/v1/driver', newDriver)
+      const response = await api.post('api/v1/driver', newDriver)
       if (response.status === 201) {
         showSuccess(response.data.message)
         onAddDriver(response.data.data)

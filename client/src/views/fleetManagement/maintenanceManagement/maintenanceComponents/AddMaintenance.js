@@ -86,7 +86,7 @@ const AddMaintenance = ({ onAddMaintenance }) => {
   useEffect(() => {
     const fechData = async () => {
       try {
-        const response = await api.get('/api/v1/vehicle/all')
+        const response = await api.get('api/v1/vehicle/all')
         if (response.data.success) {
           setVehicles(response.data.data)
         }
@@ -193,7 +193,7 @@ const AddMaintenance = ({ onAddMaintenance }) => {
       e.preDefault()
     } else {
       try {
-        const response = await api.post('/api/v1/maintenance/create', formData)
+        const response = await api.post('api/v1/maintenance/create', formData)
         if (response.data.success) {
           showSuccess(response.data.message)
           onAddMaintenance(response.data.data)

@@ -49,7 +49,7 @@ const Login = () => {
     setIsLoading(true)
     setError('')
     try {
-      const response = await api.post('/api/v1/user/login', data)
+      const response = await api.post('api/v1/user/login', data)
       if (response.data.success) {
         const { accessToken, refreshToken, user } = response.data
 
@@ -63,6 +63,7 @@ const Login = () => {
         setSuccess(response.data.message)
         setTimeout(() => {
           navigate('/dashboard')
+          setSuccess(null)
         }, 2000)
       }
     } catch (error) {
@@ -70,7 +71,7 @@ const Login = () => {
       setError(error.response?.data?.message || error.message)
       setTimeout(() => {
         setError(null)
-      }, 2000)
+      }, 5000)
     } finally {
       setIsLoading(false)
     }
@@ -80,11 +81,14 @@ const Login = () => {
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={4} sm={2}>
+          {/* Adjust column sizes for different breakpoints */}
+          <CCol xs={12} sm={10} md={8} lg={6} xl={4}>
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
+                    <h1 className="text-center mb-3">Login</h1>
+                    <p className="text-body-secondary text-center mb-4">Sign In to your account</p>
                     {success && (
                       <CAlert color="success" className="text-success mb-3">
                         {success}
@@ -95,8 +99,6 @@ const Login = () => {
                         {error}
                       </CAlert>
                     )}
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
@@ -111,6 +113,7 @@ const Login = () => {
                         onChange={handleChange}
                       />
                     </CInputGroup>
+
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
@@ -125,11 +128,12 @@ const Login = () => {
                         onChange={handleChange}
                       />
                     </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
+
+                    <CRow className="justify-content-center">
+                      <CCol xs={12} sm={8} md={6}>
                         <CButton
                           color="primary"
-                          className="px-4"
+                          className="px-4 w-100"
                           type="submit"
                           disabled={isLoading}
                         >
