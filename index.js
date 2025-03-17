@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
-import userRouter from "./routes/v1/indexRoute.js";
+import router from "./routes/v1/indexRoute.js";
 import { handleUploadError } from "./middleware/upload.js";
+import { validateApiKey } from "./middleware/apiKeyAuth.js";
 import cors from "cors";
 import session from "express-session";
 import cookieParser from "cookie-parser";
@@ -48,35 +49,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads/profiles", ...createStaticFileMiddleware("profiles"));
 
 app.use("/uploads/receipts", ...createStaticFileMiddleware("receipts"));
-// Un commect this if the cors is not working
-// const corsOptions = {
-//     origin: process.env.DEV_URL || process.env.ORIGIN,
-//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-//     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
-//     credentials: true,
-//     preflightContinue: false,
-//     optionsSuccessStatus: 204,
-// };
-// const corsOptions = {
-//     origin: function (origin, callback) {
-//         const allowedOrigins = [process.env.DEV_URL, process.env.ORIGIN, "http://localhost:5000"];
-
-//         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error("Not allowed by CORS"));
-//         }
-//     },
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization"],
-//     exposedHeaders: ["Content-Range", "X-Content-Range"],
-// };
 
 app.use(
     cors({
-        origin: true, // Allow all origins
-        credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+        origin: true,
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     })
 );
 
@@ -95,7 +73,8 @@ app.use(
 );
 
 //Routes
-app.use("/api/v1/", userRouter);
+app.use("/api/v1/", validateApiKey);
+app.use("/api/v1/", router);
 app.use(handleUploadError);
 //Start server
 

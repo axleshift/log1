@@ -9,6 +9,7 @@ const updateVehicleStatusBasedOnExpiration = async (vehicle) => {
     const expirationDate = new Date(vehicle.regisExprationDate);
     expirationDate.setHours(0, 0, 0, 0);
 
+    // Check if the date has passed or is today
     if (expirationDate <= today && vehicle.status !== "forRegistration") {
         try {
             await Vehicle.findByIdAndUpdate(vehicle._id, { status: "forRegistration" });
@@ -18,12 +19,11 @@ const updateVehicleStatusBasedOnExpiration = async (vehicle) => {
             return false;
         }
     }
+
     if (expirationDate > today && vehicle.status === "forRegistration") {
         try {
-            // Get the latest vehicle data with populated assignedDriver
             const currentVehicle = await Vehicle.findById(vehicle._id).populate("assignedDriver");
 
-            // Determine status based on whether there's an assigned driver
             const updatedStatus = currentVehicle.assignedDriver ? "in_use" : "available";
 
             await Vehicle.findByIdAndUpdate(vehicle._id, {
@@ -35,7 +35,6 @@ const updateVehicleStatusBasedOnExpiration = async (vehicle) => {
             return false;
         }
     }
-
     return false;
 };
 
