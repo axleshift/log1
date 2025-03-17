@@ -10,6 +10,7 @@ jobs:
     runs-on: "ubuntu-latest"
     env:
       VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }} # Add this at job level
+      VITE_APP_API_KEY: ${{ secrets.VITE_APP_API_KEY }}
 
     steps:
       - name: Clone repository
@@ -60,6 +61,7 @@ jobs:
           echo "ACCESS_TOKEN_SECRET=${{secrets.ACCESS_TOKEN_SECRET}}" >> .env
           echo "REFRESH_TOKEN_SECRET=${{secrets.REFRESH_TOKEN_SECRET}}" >> .env
           echo "SESSION_SECRET=${{secrets.SESSION_SECRET}}" >> .env
+          echo "API_KEY=${{secrets.API_KEY}}" >> .env
           npm i
           npm run lint
           rm -rf node_modules
