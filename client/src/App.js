@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
@@ -39,7 +39,7 @@ const App = () => {
 
   return (
     <ToastProvider>
-      <HashRouter>
+      <BrowserRouter>
         <Suspense
           fallback={
             <div className="pt-3 text-center">
@@ -97,7 +97,7 @@ const App = () => {
             />
           </Routes>
         </Suspense>
-      </HashRouter>
+      </BrowserRouter>
     </ToastProvider>
   )
 }
