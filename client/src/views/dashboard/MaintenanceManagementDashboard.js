@@ -159,6 +159,7 @@ const MaintenanceManagementDashboard = () => {
                     <CFormInput
                       placeholder="Search maintenance..."
                       value={searchTerm}
+                      id="searchTerm"
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <CButton color="primary" variant="outline">

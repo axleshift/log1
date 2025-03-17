@@ -57,23 +57,28 @@ app.use("/uploads/receipts", ...createStaticFileMiddleware("receipts"));
 //     preflightContinue: false,
 //     optionsSuccessStatus: 204,
 // };
-const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [process.env.DEV_URL, process.env.ORIGIN, "http://localhost:5000"];
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         const allowedOrigins = [process.env.DEV_URL, process.env.ORIGIN, "http://localhost:5000"];
 
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ["Content-Range", "X-Content-Range"],
-};
+//         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error("Not allowed by CORS"));
+//         }
+//     },
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     exposedHeaders: ["Content-Range", "X-Content-Range"],
+// };
 
-app.use(cors(corsOptions));
+app.use(
+    cors({
+        origin: true, // Allow all origins
+        credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    })
+);
 
 app.use(
     session({

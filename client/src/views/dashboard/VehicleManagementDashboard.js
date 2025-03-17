@@ -184,6 +184,7 @@ const VehicleManagementDashboard = () => {
                     <CFormInput
                       placeholder="Search vehicles..."
                       value={searchTerm}
+                      id="searchTerm2"
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <CButton color="primary" variant="outline">
@@ -197,7 +198,7 @@ const VehicleManagementDashboard = () => {
               <CTable hover responsive>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell>Registration</CTableHeaderCell>
+                    <CTableHeaderCell>Plate Number</CTableHeaderCell>
                     <CTableHeaderCell>Brand</CTableHeaderCell>
                     <CTableHeaderCell>Model</CTableHeaderCell>
                     <CTableHeaderCell>Status</CTableHeaderCell>
