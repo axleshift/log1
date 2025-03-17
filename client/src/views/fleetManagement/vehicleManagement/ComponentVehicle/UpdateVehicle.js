@@ -73,6 +73,18 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
     setValidated(true)
     setLoading(true)
     try {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const newExpirationDate = new Date(editVehicle.regisExprationDate)
+      newExpirationDate.setHours(0, 0, 0, 0)
+
+      if (newExpirationDate <= today) {
+        setError('Registration date must be in the future')
+        setIsLoading(false)
+        return
+      }
+
       const response = await api.put(`api/v1/vehicle/${vehicle._id}`, editVehicle)
       if (response.data.success) {
         showSuccess(response.data.message)

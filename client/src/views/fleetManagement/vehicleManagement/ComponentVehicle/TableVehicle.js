@@ -103,6 +103,45 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
     )
   }
 
+  const getExpirationStatus = (expirationDate) => {
+    if (!expirationDate) return { text: 'No expiration date', badge: 'secondary' }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const expDate = new Date(expirationDate)
+    expDate.setHours(0, 0, 0, 0)
+
+    // Calculate the difference in days
+    const diffTime = expDate.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    // For expired vehicles (negative days or today)
+    if (diffDays < 0) {
+      const daysAgo = Math.abs(diffDays)
+      return {
+        text: `Expired ${daysAgo} ${daysAgo === 1 ? 'day' : 'days'} ago`,
+        badge: 'danger',
+      }
+    }
+
+    // For today
+    if (diffDays === 0) {
+      return { text: 'Expires Today', badge: 'danger' }
+    }
+
+    // For upcoming expiration
+    if (diffDays <= 14) {
+      return {
+        text: `Expires in ${diffDays} ${diffDays === 1 ? 'day' : 'days'}`,
+        badge: 'warning',
+      }
+    }
+
+    // For vehicles with more than 2 weeks until expiration
+    return { text: 'Registered', badge: 'success' }
+  }
+
   return (
     <>
       <CContainer className="mt-3">
@@ -142,27 +181,9 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
                     <strong>
                       {vehicle.regisExprationDate ? (
                         <>
-                          {new Date(vehicle.regisExprationDate).toISOString().split('T')[0]}{' '}
-                          <CBadge
-                            color={
-                              new Date(vehicle.regisExprationDate).toDateString() ===
-                              new Date().toDateString()
-                                ? 'danger'
-                                : new Date(vehicle.regisExprationDate) <=
-                                      new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000) &&
-                                    new Date(vehicle.regisExprationDate) > new Date()
-                                  ? 'warning'
-                                  : 'success'
-                            }
-                          >
-                            {new Date(vehicle.regisExprationDate).toDateString() ===
-                            new Date().toDateString()
-                              ? 'Expires Today'
-                              : new Date(vehicle.regisExprationDate) <=
-                                    new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000) &&
-                                  new Date(vehicle.regisExprationDate) > new Date()
-                                ? 'Expires in 2 weeks'
-                                : 'Registered'}
+                          {new Date(vehicle.regisExprationDate).toLocaleDateString()}{' '}
+                          <CBadge color={getExpirationStatus(vehicle.regisExprationDate).badge}>
+                            {getExpirationStatus(vehicle.regisExprationDate).text}
                           </CBadge>
                         </>
                       ) : (

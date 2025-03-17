@@ -40,7 +40,6 @@ export const addWarehouseItem = async (req, res) => {
 
 export const getWarehouseItems = async (req, res) => {
     try {
-        console.log("Fetching warehouse items...");
         const warehouseItems = await Warehouse.find({}).populate("warehouse", "warehouseName deleted");
         res.status(200).json({ success: true, data: warehouseItems });
     } catch (error) {

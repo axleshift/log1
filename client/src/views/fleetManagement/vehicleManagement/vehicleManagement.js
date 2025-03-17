@@ -56,6 +56,31 @@ const VehicleManagement = () => {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    const checkExpirations = () => {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) => {
+          const expDate = new Date(vehicle.regisExprationDate)
+          expDate.setHours(0, 0, 0, 0)
+
+          if (expDate <= today && vehicle.status !== 'forRegistration') {
+            return { ...vehicle, status: 'forRegistration' }
+          }
+          return vehicle
+        }),
+      )
+    }
+
+    // Check on component mount and every day at midnight
+    checkExpirations()
+    const interval = setInterval(checkExpirations, 24 * 60 * 60 * 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const handleDeleteClick = (id) => {
     setSelectedLogId(id)
     setDeleteModal(true)

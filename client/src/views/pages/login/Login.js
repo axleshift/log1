@@ -17,12 +17,13 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
+import api from '../../../utils/api'
 
 const API_URL = import.meta.env.VITE_APP_API_URL
 
-const api = axios.create({
-  baseURL: API_URL,
-})
+// const api = axios.create({
+//   baseURL: API_URL,
+// })
 
 const Login = () => {
   const initialState = {

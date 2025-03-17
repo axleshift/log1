@@ -14,16 +14,9 @@ import avatar1 from './../../assets/images/avatars/1.jpg'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../utils/auth'
 import axios from 'axios'
+import api from '../../utils/api'
 
 const AppHeaderDropdown = () => {
-  const API_URL = import.meta.env.VITE_APP_API_URL || 'XXXXXXXXXXXXXXXXXXXXX'
-  const api = axios.create({
-    baseURL: API_URL,
-    withCredentials: true,
-    headers: {
-      Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
-    },
-  })
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(false) // Add loading state
   const [error, setError] = useState(null) // Add error state
@@ -62,16 +55,30 @@ const AppHeaderDropdown = () => {
     fetchUserData() // Call fetchUserData when component mounts
   }, []) // Remove user from dependencies to avoid infinite loop
 
+  // useEffect(() => {
+  //   if (user?.photo) {
+  //     const photoUrl = user.photo.startsWith('http')
+  //       ? user.photo
+  //       : `${API_URL}uploads/profiles/${user.photo}`
+  //     setPreview(photoUrl)
+  //   } else {
+  //     setPreview(null)
+  //   }
+  // }, [user, API_URL])
+
   useEffect(() => {
     if (user?.photo) {
-      const photoUrl = user.photo.startsWith('http')
-        ? user.photo
-        : `${API_URL}uploads/profiles/${user.photo}`
-      setPreview(photoUrl)
+      if (user.photo.startsWith('http')) {
+        setPreview(user.photo)
+      } else {
+        // Using api instance to get the full URL
+        const photoUrl = `${api.defaults.baseURL}uploads/profiles/${user.photo}`
+        setPreview(photoUrl)
+      }
     } else {
       setPreview(null)
     }
-  }, [user, API_URL])
+  }, [user])
 
   const handleLogout = async () => {
     await logout()
