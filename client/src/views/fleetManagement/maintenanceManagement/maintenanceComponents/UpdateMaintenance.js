@@ -38,7 +38,7 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
   const [visible, setVisible] = useState(false)
   const [validated, setValidated] = useState(false)
   const initialState = {
-    vehicle: maintenance?.vehicle?._id || '',
+    vehicle: maintenance.vehicle || {},
     maintenanceType: maintenance?.maintenanceType || '',
     startDate: maintenance?.startDate ? maintenance.startDate.split('T')[0] : '',
     expectedEndDate: maintenance?.expectedEndDate ? maintenance.expectedEndDate.split('T')[0] : '',
@@ -60,11 +60,21 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
   const today = new Date().toISOString().split('T')[0]
   const handleChange = (e) => {
     const { id, value } = e.target
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }))
+    if (id === 'vehicle') {
+      // Find the selected vehicle object from the vehicles array
+      const selectedVehicle = vehicles.find((vehicle) => vehicle._id === value)
+      setFormData((prevData) => ({
+        ...prevData,
+        vehicle: selectedVehicle, // Store the entire vehicle object
+      }))
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [id]: value,
+      }))
+    }
   }
+
   const handlePartChange = (e) => {
     const { id, value } = e.target
     const field = id.split('.')[1]
@@ -92,25 +102,6 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
       quantity: '',
     })
   }
-
-  useEffect(() => {
-    if (maintenance) {
-      setFormData({
-        vehicle: maintenance?.vehicle?._id || '',
-        maintenanceType: maintenance?.maintenanceType || '',
-        startDate: maintenance?.startDate ? maintenance.startDate.split('T')[0] : '',
-        expectedEndDate: maintenance?.expectedEndDate
-          ? maintenance.expectedEndDate.split('T')[0]
-          : '',
-        description: maintenance?.description || '',
-        priority: maintenance?.priority || '',
-        category: maintenance?.category || '',
-        checklist: maintenance?.checklist || [],
-        parts: maintenance?.parts || [],
-        notes: maintenance?.notes || '',
-      })
-    }
-  }, [maintenance])
 
   useEffect(() => {
     const fechData = async () => {
@@ -263,22 +254,33 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
         <CModalBody>
           <CForm className="row g-3 needs-validation" noValidate validated={validated}>
             <CInputGroup>
+              {/* <CFormInput
+                id="vehicle"
+                type="text"
+                floatingLabel="Vehicle"
+                placeholder="Vehicle"
+                required
+                value={
+                  formData.vehicle
+                    ? `${formData.vehicle.brand} / ${formData.vehicle.model} / ${formData.vehicle.regisNumber}`
+                    : ''
+                }
+                onChange={handleChange}
+                feedbackInvalid="Please provide a valid vehicle."
+              /> */}
               <CFormSelect
                 id="vehicle"
-                value={formData.vehicle || ''}
-                onChange={handleChange}
                 floatingLabel="Vehicle"
                 placeholder="Select Vehicle"
                 required
+                value={formData.vehicle ? formData.vehicle._id : ''}
+                onChange={handleChange}
                 feedbackInvalid="Please provide a valid vehicle."
+                disabled
               >
-                <option value="">Select Vehicle</option>
-                {vehicles.map((vehicle) => (
-                  <option key={vehicle._id} value={vehicle._id}>
-                    {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}
-                  </option>
-                ))}
+                <option value="">{`${maintenance.vehicle.brand} / ${maintenance.vehicle.model} / ${maintenance.vehicle.regisNumber}`}</option>
               </CFormSelect>
+
               <CFormSelect
                 id="maintenanceType"
                 value={formData.maintenanceType || ''}

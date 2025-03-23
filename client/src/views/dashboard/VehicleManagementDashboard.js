@@ -18,6 +18,7 @@ import {
   CFormInput,
   CInputGroup,
   CButton,
+  CBadge,
 } from '@coreui/react'
 import api from '../../utils/api'
 import { cilSearch } from '@coreui/icons'
@@ -28,6 +29,7 @@ const VehicleManagementDashboard = () => {
   const [vehicles, setVehicles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [filteredVehicles, setFilteredVehicles] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState('')
@@ -36,6 +38,7 @@ const VehicleManagementDashboard = () => {
     available: 0,
     inUse: 0,
     maintenance: 0,
+    forRegistration: 0,
   })
 
   useEffect(() => {
@@ -59,12 +62,15 @@ const VehicleManagementDashboard = () => {
               case 'maintenance':
                 acc.maintenance++
                 break
+              case 'forRegistration':
+                acc.forRegistration++
+                break
               default:
                 break
             }
             return acc
           },
-          { total: 0, available: 0, inUse: 0, maintenance: 0 },
+          { total: 0, available: 0, inUse: 0, maintenance: 0, forRegistration: 0 },
         )
 
         setStats(vehicleStats)
@@ -80,15 +86,27 @@ const VehicleManagementDashboard = () => {
   }, [])
 
   // Search functionality
-  const filteredVehicles = vehicles.filter((vehicle) => {
-    const searchLower = searchTerm.toLowerCase()
-    return (
-      vehicle.regisNumber.toLowerCase().includes(searchLower) ||
-      vehicle.brand.toLowerCase().includes(searchLower) ||
-      vehicle.model.toLowerCase().includes(searchLower) ||
-      vehicle.status.toLowerCase().includes(searchLower)
-    )
-  })
+
+  useEffect(() => {
+    setCurrentPage(1)
+    if (searchTerm === '') {
+      setFilteredVehicles(vehicles)
+    } else {
+      const filteredVehicles = vehicles.filter((vehicle) => {
+        const searchLower = searchTerm.toLowerCase()
+        return (
+          vehicle.regisNumber.toLowerCase().includes(searchLower) ||
+          vehicle.brand.toLowerCase().includes(searchLower) ||
+          vehicle.model.toLowerCase().includes(searchLower) ||
+          options
+            .find((option) => option.value === vehicle.status)
+            ?.label.toLowerCase()
+            .includes(searchLower)
+        )
+      })
+      setFilteredVehicles(filteredVehicles)
+    }
+  }, [searchTerm, vehicles])
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage
@@ -100,28 +118,30 @@ const VehicleManagementDashboard = () => {
     setCurrentPage(pageNumber)
   }
 
-  // Reset to first page when search term changes
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm])
-
   // Status Badge Component
-  const StatusBadge = ({ status }) => {
-    const getBadgeColor = (status) => {
-      switch (status) {
-        case 'available':
-          return 'success'
-        case 'in_use':
-          return 'danger'
-        case 'maintenance':
-          return 'warning'
-        default:
-          return 'secondary'
-      }
-    }
 
-    return <span className={`badge bg-${getBadgeColor(status)}`}>{status}</span>
+  const getBadgeColor = (status) => {
+    switch (status) {
+      case 'available':
+        return 'success'
+      case 'in_use':
+        return 'danger'
+      case 'maintenance':
+        return 'warning'
+      case 'forRegistration':
+      default:
+        return 'secondary'
+    }
   }
+
+  const options = [
+    { value: 'available', label: 'Available' },
+    { value: 'in_use', label: 'In Use' },
+    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'inactive', label: 'Inactive' },
+    { value: 'inspection', label: 'Inspection' },
+    { value: 'forRegistration', label: 'For Registration' },
+  ]
 
   if (loading) {
     return <CSpinner color="primary">Loading vehicle data...</CSpinner>
@@ -140,26 +160,32 @@ const VehicleManagementDashboard = () => {
               <h4>Vehicle Overview</h4>
             </CCardHeader>
             <CCardBody>
-              <CRow>
-                <CCol md={3}>
+              <CRow className="d-flex align-items-center flex-wrap gap-5">
+                <CCol md={2}>
                   <div className="border-start border-start-4 border-start-success p-3">
                     <h6>Available Vehicles</h6>
                     <h4>{stats.available}</h4>
                   </div>
                 </CCol>
-                <CCol md={3}>
+                <CCol md={2}>
                   <div className="border-start border-start-4 border-start-danger p-3">
                     <h6>In Use</h6>
                     <h4>{stats.inUse}</h4>
                   </div>
                 </CCol>
-                <CCol md={3}>
+                <CCol md={2}>
                   <div className="border-start border-start-4 border-start-warning p-3">
                     <h6>Under Maintenance</h6>
                     <h4>{stats.maintenance}</h4>
                   </div>
                 </CCol>
-                <CCol md={3}>
+                <CCol md={2}>
+                  <div className="border-start border-start-4 border-start-secondary p-3">
+                    <h6>For Registration</h6>
+                    <h4>{stats.forRegistration}</h4>
+                  </div>
+                </CCol>
+                <CCol md={2}>
                   <div className="border-start border-start-4 border-start-info p-3">
                     <h6>Total Fleet</h6>
                     <h4>{stats.total}</h4>
@@ -211,7 +237,11 @@ const VehicleManagementDashboard = () => {
                       <CTableDataCell>{vehicle.brand}</CTableDataCell>
                       <CTableDataCell>{vehicle.model}</CTableDataCell>
                       <CTableDataCell>
-                        <StatusBadge status={vehicle.status} />
+                        <CBadge color={getBadgeColor(vehicle.status)}>
+                          {' '}
+                          {options.find((option) => option.value === vehicle.status)?.label ||
+                            vehicle.status}
+                        </CBadge>
                       </CTableDataCell>
                     </CTableRow>
                   ))}

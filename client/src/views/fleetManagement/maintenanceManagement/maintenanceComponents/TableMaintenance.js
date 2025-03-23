@@ -63,16 +63,13 @@ const TableMaintenance = ({
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filterdMaintenance.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filterdMaintenance.length / itemsPerPage)
-  const [activeItems, setActiveItems] = useState([])
+  const [activeItems, setActiveItems] = useState('')
   const [selectedMaintenance, setSelectedMaintenance] = useState({ checklist: [] })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (selectedMaintenanceId) {
-      console.log('Selected Maintenance ID:', selectedMaintenanceId) // Debug log
-      setActiveItems([selectedMaintenanceId])
-
-      // Scroll to element after a short delay to ensure rendering
+      setActiveItems(selectedMaintenanceId.toString())
       setTimeout(() => {
         const element = document.getElementById(`maintenance-${selectedMaintenanceId}`)
         if (element) {
@@ -185,11 +182,11 @@ const TableMaintenance = ({
           </CInputGroupText>
         </CInputGroup>
       </CContainer>
-      <CAccordion activeItems={activeItems} className="m-2">
+      <CAccordion activeItemKey={activeItems || undefined} className="m-2">
         {currentItems.map((maintenance, index) => (
           <CAccordionItem
             key={maintenance._id}
-            itemKey={maintenance._id}
+            itemKey={maintenance._id.toString()}
             id={`maintenance-${maintenance._id}`}
           >
             <CAccordionHeader className="d-flex justify-content-between">
@@ -350,7 +347,9 @@ const TableMaintenance = ({
                         id={`checkBoxList-${index}`}
                         checked={item.completed}
                         onChange={() => handleChecklistItemToggle(selectedMaintenance._id, index)}
-                        disabled={!adminRolse.includes(role)}
+                        disabled={
+                          !adminRolse.includes(role) || selectedMaintenance.status === 'Completed'
+                        }
                         className="me-2"
                       />{' '}
                       {item.task}
