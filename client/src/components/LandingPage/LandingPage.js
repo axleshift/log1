@@ -35,7 +35,7 @@ const LandingPage = () => {
             <h1 className="display-4 mb-4 ">Freight Management System Logistics 1</h1>
             <p className="lead mb-4">
               Effortlessly manage your freight operations with our refined Freight Management
-              System. Whether you're handling shipments, tracking deliveries, fuel, or vehicle parts
+              System. Whether youre handling shipments, tracking deliveries, fuel, or vehicle parts
               stock, our platform ensures efficiency and cost-effectiveness.
             </p>
 
