@@ -180,7 +180,7 @@ export const deleteVehicle = async (req, res) => {
 
 export const getAvailableVehicles = async (req, res) => {
     try {
-        const vehicles = await Vehicle.find({ assignedDriver: null, status: "available" });
+        const vehicles = await Vehicle.find({ assignedDriver: null, status: "available", deleted: false });
 
         res.status(200).json({
             success: true,

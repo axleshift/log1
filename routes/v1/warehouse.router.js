@@ -7,7 +7,7 @@ router.post("/addItem", addWarehouseItem);
 router.get("/items", getWarehouseItems);
 router.get("/items/all", getAllItems);
 router.delete("/delete/:id", deleteWarehouseItem);
-router.put("/update/:id", updateWarehouseItem);
+router.patch("/update/:id", updateWarehouseItem);
 router.get("/checkPoNumber/:poNumber", checkIfPoNumberExists);
 
 export default router;

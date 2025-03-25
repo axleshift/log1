@@ -30,7 +30,6 @@ const createUploadDirectories = () => {
 };
 
 createUploadDirectories();
-
 const createStaticFileMiddleware = (directory) => {
     return [
         (req, res, next) => {
@@ -41,15 +40,14 @@ const createStaticFileMiddleware = (directory) => {
         express.static(path.join(__dirname, "uploads", directory)),
     ];
 };
+
 //Middleware
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads/profiles", ...createStaticFileMiddleware("profiles"));
-
 app.use("/uploads/receipts", ...createStaticFileMiddleware("receipts"));
-
 app.use(
     cors({
         origin: true,
@@ -64,10 +62,10 @@ app.use(
         resave: false,
         saveUninitialized: true,
         cookie: {
-            secure: process.env.NODE_ENV === "production", // Use secure in production
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            sameSite: "strict", // Use "strict" mode for cookies to be sent only over HTTPS
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: "strict",
         },
     })
 );
@@ -76,6 +74,7 @@ app.use(
 app.use("/api/v1/", validateApiKey);
 app.use("/api/v1/", router);
 app.use(handleUploadError);
+
 //Start server
 
 // Error handling middleware
@@ -89,7 +88,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5057;
 app.listen(PORT, () => {
-    // connect to database
     connectDB();
     console.log("Server started at http://localhost:" + PORT);
 });
