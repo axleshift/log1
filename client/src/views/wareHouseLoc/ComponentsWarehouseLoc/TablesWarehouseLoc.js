@@ -18,6 +18,7 @@ import {
   CCardBody,
   CHeader,
   CTooltip,
+  CSpinner,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
@@ -86,6 +87,13 @@ const TablesWarehouseLoc = ({
   const currentItems = filteredWarehouseLoc.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filteredWarehouseLoc.length / itemsPerPage)
 
+  if (loading) {
+    return (
+      <CSpinner color="primary" className="text-center mt-5 w-75 mx-auto">
+        Loading Warehouse Location...
+      </CSpinner>
+    )
+  }
   return (
     <>
       <CContainer className="m-3">

@@ -16,20 +16,15 @@ const WareHousing = () => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const [itemsRes, warehouseRes] = await Promise.all([
-          api.get('/api/v1/warehouse/items/all'),
-          api.get('/api/v1/warehouse/items'),
-        ])
-
-        if (itemsRes.data.success) setItems(itemsRes.data.data)
-        if (warehouseRes.status === 200) setWarehousing(warehouseRes.data.data)
+        const response = await api.get('/api/v1/warehouse/items')
+        setWarehousing(response.data.data)
+        setItems(response.data.data)
       } catch (error) {
-        setError(error.response?.data?.message || error.message || 'Failed to fetch data')
+        setError(error.message)
       } finally {
         setLoading(false)
       }
     }
-
     fetchData()
   }, [refresh])
   const handleRefresh = () => {

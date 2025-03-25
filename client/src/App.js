@@ -10,6 +10,7 @@ import { ToastProvider } from './components/Toast/Toast'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
+const LandingPage = React.lazy(() => import('./components/LandingPage/LandingPage'))
 // Pages
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
@@ -18,7 +19,6 @@ const MyAccount = React.lazy(() => import('./views/pages/allUsers/My Accout/MyAc
 const Page401 = React.lazy(() => import('./views/pages/page401/Page401'))
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
-
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
@@ -36,7 +36,6 @@ const App = () => {
 
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <ToastProvider>
       <BrowserRouter>
@@ -48,6 +47,7 @@ const App = () => {
           }
         >
           <Routes>
+            <Route exact path="/" name="Landing Page" element={<LandingPage />} />
             <Route exact path="/login" name="Login Page" element={<Login />} />
             <Route
               exact
@@ -90,7 +90,6 @@ const App = () => {
               name="Home"
               element={
                 <ProtectedRoute>
-                  {' '}
                   <DefaultLayout />
                 </ProtectedRoute>
               }

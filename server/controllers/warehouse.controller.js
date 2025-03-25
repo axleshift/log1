@@ -1,47 +1,165 @@
 import Warehouse from "../models/warehouse.models.js";
 import mongoose from "mongoose";
 
+// export const addWarehouseItem = async (req, res) => {
+//     const { poNumber, orderDate, receiveDate, carrier, vendor, shipTo, details, procurementId, rfqId, vendorId, additionalNotes, byReceived, dateOfReceived, warehouse, warehouseLocDetails } = req.body;
+
+//     // Validate required fields
+//     if (!poNumber || !orderDate || !receiveDate || !carrier || !vendor || !details) {
+//         return res.status(400).json({
+//             success: false,
+//             message: "Required fields are missing",
+//         });
+//     }
+
+//     // Validate vendor information
+//     if (!vendor.businessName || !vendor.businessAddress || !vendor.contactNumber) {
+//         return res.status(400).json({
+//             success: false,
+//             message: "Complete vendor information is required",
+//         });
+//     }
+
+//     // Validate details array
+//     if (!Array.isArray(details) || details.length === 0) {
+//         return res.status(400).json({
+//             success: false,
+//             message: "Products details must be a non-empty array",
+//         });
+//     }
+
+//     // Validate each product detail
+//     const isValidDetails = details.every((detail) => detail.productId && detail.description && detail.quantity && detail.unitPrice && detail.subTotal);
+
+//     if (!isValidDetails) {
+//         return res.status(400).json({
+//             success: false,
+//             message: "Each product must have complete details",
+//         });
+//     }
+
+//     // Check if PO number already exists
+//     const existingPoNumber = await Warehouse.findOne({ poNumber });
+//     if (existingPoNumber) {
+//         return res.status(400).json({
+//             success: false,
+//             message: "PO number already exists",
+//         });
+//     }
+
+//     // Create new warehouse item
+//     const newWarehouseItem = new Warehouse({
+//         poNumber,
+//         orderDate,
+//         receiveDate,
+//         carrier,
+//         vendor: {
+//             businessName: vendor.businessName,
+//             businessAddress: vendor.businessAddress,
+//             contactNumber: vendor.contactNumber,
+//         },
+//         warehouse,
+//         warehouseLocDetails: {
+//             warehouseName: warehouseDetails.warehouseName,
+//             address: warehouseDetails.address,
+//         },
+//         details: details.map((detail) => ({
+//             productId: detail.productId,
+//             description: detail.description,
+//             quantity: detail.quantity,
+//             unitPrice: detail.unitPrice,
+//             subTotal: detail.subTotal,
+//         })),
+//         // procurementId,
+//         // rfqId,
+//         // vendorId,
+//         additionalNotes,
+//         byReceived,
+//         dateOfReceived,
+//     });
+
+//     try {
+//         const savedItem = await newWarehouseItem.save();
+//         return res.status(201).json({
+//             success: true,
+//             message: "Receiving item added successfully",
+//             data: savedItem,
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message,
+//         });
+//     }
+// };
+
 export const addWarehouseItem = async (req, res) => {
-    const { from, items, dateArrival, warehouse, warehouseLocDetails, byReceived, PoNumber } = req.body;
+    const { poNumber, orderDate, receiveDate, carrier, vendor, details, warehouse, additionalNotes, byReceived, dateOfReceived } = req.body;
 
-    if (!from || !items || !dateArrival || !warehouse) {
-        return res.status(400).json({ success: false, message: "All fields are required" });
+    // Validate required fields
+    if (!poNumber || !orderDate || !receiveDate || !carrier || !vendor || !details || !warehouse) {
+        return res.status(400).json({
+            success: false,
+            message: "Required fields are missing",
+        });
     }
-
-    if (!Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ success: false, message: "Items must be a non-empty array" });
-    }
-
-    if (!items.every((item) => item.quantity)) {
-        return res.status(400).json({ success: false, message: "Each item must have a quantity" });
-    }
-    const existingPoNumber = await Warehouse.findOne({ PoNumber });
-    if (existingPoNumber) {
-        return res.status(400).json({ success: false, message: "PO number already exists" });
-    }
-
-    const newWarehouseItem = new Warehouse({
-        from,
-        items: items.map((item) => ({ itemName: item.itemName, quantity: item.quantity })),
-        dateArrival,
-        warehouse,
-        warehouseLocDetails,
-        byReceived,
-        PoNumber,
-    });
 
     try {
-        await newWarehouseItem.save();
-        return res.status(201).json({ success: true, message: "Added successfully", data: newWarehouseItem });
+        // Find the warehouse details
+        const warehouseDetails = await mongoose.model("WarehouseLoc").findById(warehouse);
+
+        if (!warehouseDetails) {
+            return res.status(404).json({
+                success: false,
+                message: "Warehouse not found",
+            });
+        }
+
+        // Create new warehouse item with explicit warehouseLocDetails
+        const newWarehouseItem = new Warehouse({
+            poNumber,
+            orderDate,
+            receiveDate,
+            carrier,
+            vendor: {
+                businessName: vendor.businessName,
+                businessAddress: vendor.businessAddress,
+                contactNumber: vendor.contactNumber,
+            },
+            warehouse, // Reference to the warehouse
+            warehouseLocDetails: {
+                warehouseName: warehouseDetails.warehouseName,
+                address: warehouseDetails.address,
+            },
+            details: details.map((detail) => ({
+                productId: detail.productId,
+                description: detail.description,
+                quantity: detail.quantity,
+            })),
+            additionalNotes,
+            byReceived,
+            dateOfReceived,
+        });
+
+        const savedItem = await newWarehouseItem.save();
+        return res.status(201).json({
+            success: true,
+            message: "Receiving item added successfully",
+            data: savedItem,
+        });
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        console.error("Error in addWarehouseItem:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
 
 export const getWarehouseItems = async (req, res) => {
     try {
-        const warehouseItems = await Warehouse.find({}).populate("warehouse", "warehouseName deleted");
-        res.status(200).json({ success: true, data: warehouseItems });
+        const warehouseItems = await Warehouse.find().sort({ createdAt: -1 }).populate("warehouse");
+        return res.status(200).json({ success: true, data: warehouseItems });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
@@ -67,9 +185,7 @@ export const updateWarehouseItem = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({ success: false, message: "Invalid id" });
     }
-    if (!warehouse.from || !warehouse.dateArrival || !warehouse.warehouse || !warehouse.byReceived || !warehouse.items || !warehouse.items[0].itemName || !warehouse.items[0].quantity) {
-        return res.status(400).json({ success: false, message: "All fields are required" });
-    }
+
     try {
         const updatedWarehouseItem = await Warehouse.findByIdAndUpdate(id, warehouse, { new: true });
         return res.status(200).json({ success: true, data: updatedWarehouseItem, message: "Item updated successfully" });
@@ -78,10 +194,27 @@ export const updateWarehouseItem = async (req, res) => {
     }
 };
 
+// export const checkIfPoNumberExists = async (req, res) => {
+//     const poNumber = req.params.poNumber;
+//     const exists = await Warehouse.exists({ PoNumber: poNumber });
+//     res.json({ exists });
+// };
+
 export const checkIfPoNumberExists = async (req, res) => {
-    const poNumber = req.params.poNumber;
-    const exists = await Warehouse.exists({ PoNumber: poNumber });
-    res.json({ exists });
+    try {
+        const { poNumber } = req.params;
+        const existingPo = await Warehouse.findOne({ poNumber });
+
+        return res.status(200).json({
+            success: true,
+            exists: !!existingPo,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
 };
 
 export const getAllItems = async (req, res) => {

@@ -135,7 +135,7 @@ const AppHeaderDropdown = () => {
           </>
         )}
         <CDropdownItem className="d-flex justify-content-center">
-          <CButton variant="ghost" color="light" onClick={handleLogout}>
+          <CButton variant="outline" color="primary" onClick={handleLogout}>
             <CIcon icon={cilAccountLogout} className="me-2" />
             Logout
           </CButton>
