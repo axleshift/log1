@@ -16,7 +16,7 @@ router.use("/driver", authenticate, authenticateUser, driverRouter);
 router.use("/user", userRouter);
 router.use("/receiving", authenticate, authenticateUser, receivingRouter);
 router.use("/warehouse", authenticate, authenticateUser, warehouseRouter);
-router.use("/warehouseLoc", authenticate, authenticateUser, warehouseLocRouter);
+router.use("/warehouseLoc", authenticateUser, warehouseLocRouter);
 router.use("/fuelLogs", authenticate, authenticateUser, fuelLogRouter);
 router.use("/maintenance", authenticate, authenticateUser, maintenanceRouter);
 export default router;
