@@ -1,0 +1,1 @@
+import{j as s}from"./index-CBxfVCnW.js";const t=()=>s.jsx(s.Fragment,{children:s.jsx("p",{})}),r=()=>s.jsxs(s.Fragment,{children:[s.jsx("h1",{children:"Dispatching Items"}),s.jsx(t,{})]});export{r as default};
