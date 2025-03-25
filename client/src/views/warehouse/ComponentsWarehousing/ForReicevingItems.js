@@ -25,8 +25,6 @@ import React, { useState, useEffect } from 'react'
 import AddItem from './AddItem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import api from '../../../utils/api'
-import Receiving from './../../../../../server/models/receiving.models'
 const ForReicevingItems = ({ onAddItem }) => {
   const [reicevingItems, setReicevingItems] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
