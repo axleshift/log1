@@ -11,7 +11,7 @@ import { authenticate, authenticateUser } from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.use("/vehicle", authenticate, authenticateUser, vehicleRouter);
+router.use("/vehicle", vehicleRouter);
 router.use("/driver", authenticate, authenticateUser, driverRouter);
 router.use("/user", userRouter);
 router.use("/receiving", authenticate, authenticateUser, receivingRouter);

@@ -25,17 +25,19 @@ import React, { useState, useEffect } from 'react'
 import AddItem from './AddItem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { useToast } from '../../../components/Toast/Toast'
+import api from '../../../utils/api'
 import axios from 'axios'
 const ForReicevingItems = ({ onAddItem }) => {
+  const { showError, showSuccess } = useToast()
   const [reicevingItems, setReicevingItems] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [localError, setLocalError] = useState(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredItems, setFilteredItems] = useState([])
-  const [isPoExists, setIsPoExists] = useState(false)
+  const [warehouses, setWarehouses] = useState([])
   const itemsPerPage = 10
-  const [mockDataReiceving, setMockDataReiceving] = useState([])
   // const [mockDataReiceving, setMockDataReiceving] = useState([
   //   {
   //     _id: '605c72ef1532071b7f1a2c3d',
@@ -147,9 +149,12 @@ const ForReicevingItems = ({ onAddItem }) => {
   useEffect(() => {
     const fetchReicevingItems = async () => {
       try {
-        const response = await axios.get('https://log2_backend.chysev.com/api/v1/purchaseOrder')
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
+        )
+        console.log(response.data)
         if (response.status === 200) {
-          setMockDataReiceving(response.data.data)
+          setReicevingItems(response.data)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -159,19 +164,48 @@ const ForReicevingItems = ({ onAddItem }) => {
     fetchReicevingItems()
   }, [])
 
+  const handleUpdate = (poId) => {
+    const response = axios.put(
+      `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder/${poId}`,
+      {
+        received: true,
+      },
+    )
+    if (response.status === 200) {
+      fetchReicevingItems()
+    }
+  }
+
   useEffect(() => {
-    setReicevingItems(mockDataReiceving)
+    // Fetch warehouses
+    const fetchWarehouses = async () => {
+      try {
+        const response = await api.get('/api/v1/warehouseLoc/locations')
+        if (response.data.data) {
+          setWarehouses(response.data.data)
+          showSuccess(response.data.message)
+        }
+      } catch (error) {
+        setLocalError(error?.response?.data.message)
+        showError(error?.response?.data.message || 'Error fetching warehouses')
+      }
+    }
+    fetchWarehouses()
+  }, [])
+
+  useEffect(() => {
+    // setReicevingItems(mockDataReiceving)
     setLoading(false)
   }, [])
 
   useEffect(() => {
     if (searchQuery === '') {
-      setReicevingItems(mockDataReiceving)
+      setReicevingItems(reicevingItems)
       return
     }
 
     const query = searchQuery.toLowerCase().trim()
-    const filtered = mockDataReiceving.filter((item) => {
+    const filtered = reicevingItems.filter((item) => {
       try {
         return (
           // Basic info
@@ -208,8 +242,26 @@ const ForReicevingItems = ({ onAddItem }) => {
   const currentItems = reicevingItems.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(reicevingItems.length / itemsPerPage)
 
+  // const itemsPerPage = 10 // or whatever your page size is
+  // const filteredItems = reicevingItems.filter((item) => !item.status)
+  // const indexOfLastItem = currentPage * itemsPerPage
+  // const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  // const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem)
+  // const totalPages = Math.ceil(filteredItems.length / itemsPerPage)
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value)
+  }
+
+  const allItemsReceived =
+    reicevingItems.length > 0 && reicevingItems.every((item) => item.received === true)
+
+  if (allItemsReceived) {
+    return (
+      <CAlert color="success" className="text-center mt-3 w-75 mx-auto">
+        All items have been received.
+      </CAlert>
+    )
   }
 
   return (
@@ -236,52 +288,59 @@ const ForReicevingItems = ({ onAddItem }) => {
             <CTableHeaderCell>Order Date</CTableHeaderCell>
             <CTableHeaderCell>Date to Receive</CTableHeaderCell>
             <CTableHeaderCell>Carrier</CTableHeaderCell>
+            <CTableHeaderCell>Warehouse</CTableHeaderCell>
             <CTableHeaderCell>Vendor</CTableHeaderCell>
             <CTableHeaderCell>Products</CTableHeaderCell>
-            <CTableHeaderCell>Total Amount</CTableHeaderCell>
-            <CTableHeaderCell>Notes</CTableHeaderCell>
+            <CTableHeaderCell>Receive</CTableHeaderCell>
             <CTableHeaderCell>Actions</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
-          {currentItems.map((item) => {
-            // Calculate total amount for all products
-            const totalAmount = item.details.reduce((sum, detail) => sum + detail.subTotal, 0)
+          {currentItems
+            .filter((item) => !item.received)
+            .map((item) => {
+              return (
+                <CTableRow key={item._id}>
+                  <CTableDataCell>{item.poNumber}</CTableDataCell>
+                  <CTableDataCell>{new Date(item.orderDate).toLocaleDateString()}</CTableDataCell>
+                  <CTableDataCell>{new Date(item.receiveDate).toLocaleDateString()}</CTableDataCell>
+                  <CTableDataCell>{item.carrier}</CTableDataCell>
+                  <CTableDataCell>{item.warehouse_id}</CTableDataCell>
+                  <CTableDataCell>
+                    <div>{item.vendor.businessName}</div>
+                    <small className="text-medium-emphasis">{item.vendor.contactNumber}</small>
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    {item.details.map((detail) => (
+                      <div key={detail.productId}>
+                        {detail.description} ( pcs: {detail.quantity} x{' '}
+                        {detail.unitPrice.toFixed(2)} )
+                      </div>
+                    ))}
+                  </CTableDataCell>
+                  <CTableDataCell>{item.received ? 'Yes' : 'No'}</CTableDataCell>
+                  <CTableDataCell>
+                    <AddItem
+                      item={item}
+                      onAddItem={onAddItem}
+                      mockDataReiceving={mockDataReiceving}
+                    />
 
-            return (
-              <CTableRow key={item._id}>
-                <CTableDataCell>{item.poNumber}</CTableDataCell>
-                <CTableDataCell>{new Date(item.orderDate).toLocaleDateString()}</CTableDataCell>
-                <CTableDataCell>{new Date(item.receiveDate).toLocaleDateString()}</CTableDataCell>
-                <CTableDataCell>{item.carrier}</CTableDataCell>
-                <CTableDataCell>
-                  <div>{item.vendor.businessName}</div>
-                  <small className="text-medium-emphasis">{item.vendor.contactNumber}</small>
-                </CTableDataCell>
-                <CTableDataCell>
-                  {item.details.map((detail) => (
-                    <div key={detail.productId}>
-                      {detail.description} ( pcs: {detail.quantity} x {detail.unitPrice.toFixed(2)}{' '}
-                      )
-                    </div>
-                  ))}
-                </CTableDataCell>
-                <CTableDataCell>{totalAmount.toFixed(2)}</CTableDataCell>
-                <CTableDataCell>{item.additionalNotes}</CTableDataCell>
-                <CTableDataCell>
-                  <AddItem
-                    item={item}
-                    onAddItem={onAddItem}
-                    mockDataReiceving={mockDataReiceving}
-                  />
-                </CTableDataCell>
-              </CTableRow>
-            )
-          })}
+                    <CButton
+                      color="primary"
+                      className="mt-2"
+                      onClick={() => handleUpdate(item._id)}
+                    >
+                      Complete
+                    </CButton>
+                  </CTableDataCell>
+                </CTableRow>
+              )
+            })}
         </CTableBody>
       </CTable>
 
-      {reicevingItems.length > 0 && (
+      {reicevingItems.filter((item) => !item.received).length > 0 && (
         <CContainer className="d-flex justify-content-between align-items-center">
           <CContainer>
             Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, reicevingItems.length)} of{' '}
@@ -313,6 +372,60 @@ const ForReicevingItems = ({ onAddItem }) => {
           </CPagination>
         </CContainer>
       )}
+
+      {/* {reicevingItems.filter((item) => !item.received).length > 0 && (
+        <CContainer className="d-flex justify-content-between align-items-center">
+          <CContainer>
+            {(() => {
+              const filteredItems = reicevingItems.filter((item) => !item.status)
+              const filteredTotal = filteredItems.length
+              const filteredFirstItem = indexOfFirstItem + 1
+              const filteredLastItem = Math.min(indexOfLastItem, filteredTotal)
+
+              return `Showing ${filteredFirstItem} to ${filteredLastItem} of ${filteredTotal} entries`
+            })()}
+          </CContainer>
+
+          <CPagination className="mt-3">
+            <CPaginationItem
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </CPaginationItem>
+
+            {[
+              ...Array(
+                Math.ceil(reicevingItems.filter((item) => !item.status).length / itemsPerPage),
+              ).keys(),
+            ].map((page) => (
+              <CPaginationItem
+                key={page + 1}
+                active={page + 1 === currentPage}
+                onClick={() => setCurrentPage(page + 1)}
+              >
+                {page + 1}
+              </CPaginationItem>
+            ))}
+            <CPaginationItem
+              disabled={
+                currentPage ===
+                Math.ceil(reicevingItems.filter((item) => !item.status).length / itemsPerPage)
+              }
+              onClick={() =>
+                setCurrentPage((prev) =>
+                  Math.min(
+                    prev + 1,
+                    Math.ceil(reicevingItems.filter((item) => !item.status).length / itemsPerPage),
+                  ),
+                )
+              }
+            >
+              Next
+            </CPaginationItem>
+          </CPagination>
+        </CContainer>
+      )} */}
 
       {localError && (
         <CAlert color="danger" className="text-center mt-5 w-75 mx-auto justify-content-center">

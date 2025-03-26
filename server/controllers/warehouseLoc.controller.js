@@ -18,7 +18,7 @@ export const addWarehouseLoc = async (req, res) => {
 export const getWarehouseLoc = async (req, res) => {
     try {
         const warehouseLoc = await warehouseLocModels.find({ deleted: false });
-        res.status(200).json({ success: true, data: warehouseLoc });
+        res.status(200).json({ success: true, data: warehouseLoc, message: "Locations fetched successfully" });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }

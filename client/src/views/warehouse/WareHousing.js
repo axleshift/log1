@@ -73,7 +73,7 @@ const WareHousing = () => {
           </CTabPanel>
           <CTabPanel className="p-3" itemKey="For Reiceve">
             <CCard>
-              <CHeader>Item Reicevig</CHeader>
+              <CHeader>Item Reiceving</CHeader>
               <ForReicevingItems onAddItem={handleAddItem} />
             </CCard>
           </CTabPanel>
