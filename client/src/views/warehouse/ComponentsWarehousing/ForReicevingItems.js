@@ -152,7 +152,7 @@ const ForReicevingItems = ({ onAddItem }) => {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
         )
-        console.log(response.data)
+        // console.log(response.data)
         if (response.status === 200) {
           setReicevingItems(response.data)
         }
@@ -169,6 +169,7 @@ const ForReicevingItems = ({ onAddItem }) => {
       `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder/${poId}`,
       {
         received: true,
+        receiveDate: new Date().toISOString(),
       },
     )
     if (response.status === 200) {
@@ -320,11 +321,7 @@ const ForReicevingItems = ({ onAddItem }) => {
                   </CTableDataCell>
                   <CTableDataCell>{item.received ? 'Yes' : 'No'}</CTableDataCell>
                   <CTableDataCell>
-                    <AddItem
-                      item={item}
-                      onAddItem={onAddItem}
-                      mockDataReiceving={mockDataReiceving}
-                    />
+                    <AddItem item={item} onAddItem={onAddItem} mockDataReiceving={reicevingItems} />
 
                     <CButton
                       color="primary"

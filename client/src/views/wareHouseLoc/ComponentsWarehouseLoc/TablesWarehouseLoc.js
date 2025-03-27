@@ -22,7 +22,6 @@ import {
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import './TablesWarehouseLoc.css'
 import DeleteWarehouseLoc from './DeleteWarehouseLoc'
 import UpdateWarehouseLoc from './UpdateWarehouseLoc'
 import { getRole } from '../../../utils/auth'

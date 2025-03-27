@@ -37,7 +37,7 @@ const DeleteDriver = ({ driver, onDeleteDriver }) => {
         className="me-2"
         disabled={loading}
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />}
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />} Delete
       </CButton>
     </>
   )

@@ -63,9 +63,9 @@ const AddItem = ({ onAddItem, item = {} }) => {
     byReceived: '',
     dateOfReceived: '',
   })
-  useEffect(() => {
-    console.log('Current formData:', formData)
-  }, [formData])
+  // useEffect(() => {
+  //   console.log('Current formData:', formData)
+  // }, [formData])
 
   const handleWarehouseChange = (e) => {
     const selectedWarehouseId = e.target.value

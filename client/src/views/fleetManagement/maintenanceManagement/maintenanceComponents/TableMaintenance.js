@@ -35,6 +35,10 @@ import {
   CBadge,
   CPagination,
   CPaginationItem,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdown,
+  CDropdownItem,
 } from '@coreui/react'
 import api from '../../../../utils/api'
 import { useToast } from '../../../../components/Toast/Toast'
@@ -82,6 +86,8 @@ const TableMaintenance = ({
   useEffect(() => {
     setFilterdMaintenance(maintenance)
   }, [maintenance])
+
+  console.log(maintenance)
 
   const openChecklistModal = (maintenance) => {
     setSelectedMaintenance(maintenance)
@@ -198,6 +204,14 @@ const TableMaintenance = ({
                   <li>
                     Priority: <strong>{maintenance.priority || 'N/A'}</strong>
                   </li>
+                  <li>
+                    Purchase Status:{' '}
+                    {maintenance.purchased ? (
+                      <CBadge color="success">Complete</CBadge>
+                    ) : (
+                      <CBadge color="warning">Awaiting Purchase</CBadge>
+                    )}
+                  </li>
                 </ul>
               </CContainer>
               <CContainer className="d-flex justify-content-end">
@@ -229,6 +243,9 @@ const TableMaintenance = ({
               <CHeader>Category: {maintenance.category || 'N/A'}</CHeader>
               <CHeader>Notes: {maintenance.notes || 'N/A'}</CHeader>
               <CHeader>Completed By: {maintenance.completedBy || 'N/A'}</CHeader>
+              {/* <CHeader>
+                Request Status: {maintenance.requested ? 'Completed' : 'Awaiting Request'}
+              </CHeader> */}
 
               <CCard className="mt-3">
                 <CCardHeader>
@@ -259,32 +276,43 @@ const TableMaintenance = ({
                 </CCardBody>
               </CCard>
 
-              <CContainer className="d-flex justify-content-end mt-3">
-                {adminRolse.includes(role) && (
-                  <UpdateMaintenance
-                    maintenance={maintenance}
-                    onUpdateMaintenance={onUpdateMaintenance}
-                    vehicles={vehicles}
-                    disabled={maintenance.status === 'Completed'}
-                  />
-                )}
+              <CContainer className="d-flex align-center  mt-3">
+                <CDropdown>
+                  <CDropdownToggle color="secondary" variant="outline">
+                    Actions
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CContainer className="d-flex flex-column justify-content-center">
+                      {adminRolse.includes(role) && (
+                        <UpdateMaintenance
+                          maintenance={maintenance}
+                          onUpdateMaintenance={onUpdateMaintenance}
+                          vehicles={vehicles}
+                          disabled={maintenance.status === 'Completed'}
+                        />
+                      )}
 
-                <CButton
-                  color="primary"
-                  className="m-1"
-                  variant="outline"
-                  onClick={() => openChecklistModal(maintenance)}
-                >
-                  <FontAwesomeIcon icon={faListCheck} />
-                </CButton>
-                <CButton
-                  color="danger"
-                  className="m-1"
-                  variant="outline"
-                  onClick={() => onDeleteMaintenance(maintenance._id)}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </CButton>
+                      <CButton
+                        color="success"
+                        className="m-1"
+                        variant="outline"
+                        onClick={() => openChecklistModal(maintenance)}
+                        disabled={maintenance.purchased === false && maintenance.parts.length > 0}
+                      >
+                        <FontAwesomeIcon icon={faListCheck} /> Checklist
+                      </CButton>
+
+                      <CButton
+                        color="danger"
+                        className="m-1"
+                        variant="outline"
+                        onClick={() => onDeleteMaintenance(maintenance._id)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} /> Delete
+                      </CButton>
+                    </CContainer>
+                  </CDropdownMenu>
+                </CDropdown>
               </CContainer>
             </CAccordionBody>
           </CAccordionItem>

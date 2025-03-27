@@ -28,29 +28,13 @@ const VehicleManagement = () => {
   const role = getRole()
   const roles = 'admin'
   const { showSuccess, showError } = useToast()
+
   const [vehicle, setVehicles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedLogId, setSelectedLogId] = useState(null)
   const [deleteModal, setDeleteModal] = useState(false)
   const [restoredVehicle, setRestoredVehicles] = useState([])
-
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const [vehicle, restoredVehicle] = await Promise.all([
-        api.get('api/v1/vehicle'),
-        api.get('api/v1/vehicle/restored'),
-      ])
-      setVehicles(vehicle.data.data)
-      setRestoredVehicles(restoredVehicle.data.data)
-    } catch (error) {
-      showError(error.response?.data?.message || 'Error fetching data')
-      setError(error.message)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     fetchData()
@@ -80,6 +64,23 @@ const VehicleManagement = () => {
 
     return () => clearInterval(interval)
   }, [])
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [vehicle, restoredVehicle] = await Promise.all([
+        api.get('api/v1/vehicle'),
+        api.get('api/v1/vehicle/restored'),
+      ])
+      setVehicles(vehicle.data.data)
+      setRestoredVehicles(restoredVehicle.data.data)
+    } catch (error) {
+      showError(error.response?.data?.message || 'Error fetching data')
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDeleteClick = (id) => {
     setSelectedLogId(id)
@@ -125,6 +126,7 @@ const VehicleManagement = () => {
       </div>
     )
   }
+
   return (
     <>
       <CHeader className="text-center">Vehicle Management</CHeader>

@@ -121,7 +121,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
         onClick={() => setVisible(true)}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />}
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />} Update
       </CButton>
 
       <CModal visible={visible} onClose={() => setVisible(false)} size="lg">

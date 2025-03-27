@@ -33,10 +33,16 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
   const adminRoles = ['manager', 'admin']
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
+  // const indexOfLastItem = currentPage * itemsPerPage
+  // const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  // const currentItems = filteredWarehousing.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredWarehousing.length / itemsPerPage)
+  const receivedItems = filteredWarehousing.filter((item) => item.received === true)
+
+  // Calculate pagination for received items
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredWarehousing.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(filteredWarehousing.length / itemsPerPage)
+  const currentItems = receivedItems.slice(indexOfFirstItem, indexOfLastItem)
 
   useEffect(() => {
     try {
@@ -143,107 +149,115 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
             </CAlert>
           )}
           <CAccordion className="m-2">
-            {currentItems.map((item) => (
-              <CAccordionItem key={item._id}>
-                <CAccordionHeader>
-                  <div className="d-flex justify-content-between w-100 align-items-center">
-                    <div>
-                      <ul className="list-unstyled">
-                        <li>
-                          PO Number: <strong>{item.poNumber}</strong>
-                        </li>
-                        <li>
-                          Warehuse Location: <strong>{item.warehouse.warehouseName}</strong>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="text-medium-emphasis">
-                      Order Date: {new Date(item.orderDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                </CAccordionHeader>
-                <CAccordionBody>
-                  <div className="mb-3">
-                    <h6>Vendor Information</h6>
-                    <div className="ms-3">
+            {currentItems
+              .filter((item) => item.received)
+              .map((item) => (
+                <CAccordionItem key={item._id}>
+                  <CAccordionHeader>
+                    <div className="d-flex justify-content-between w-100 align-items-center">
                       <div>
-                        <strong>Name:</strong> {item.vendor.businessName}
+                        <ul className="list-unstyled">
+                          <li>
+                            PO Number: <strong>{item.poNumber}</strong>
+                          </li>
+                          <li>
+                            Warehuse Location: <strong>{item.warehouse_id}</strong>
+                          </li>
+                        </ul>
                       </div>
-                      <div>
-                        <strong>Address:</strong> {item.vendor.businessAddress}
-                      </div>
-                      <div>
-                        <strong>Contact:</strong> {item.vendor.contactNumber}
+                      <div className="text-medium-emphasis">
+                        Order Date: {new Date(item.orderDate).toLocaleDateString()}
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <h6>Shipping Details</h6>
-                    <div className="ms-3">
-                      <div>
-                        <strong>Carrier:</strong> {item.carrier}
-                      </div>
-                      <div>
-                        <strong>Receive Date:</strong>{' '}
-                        {new Date(item.receiveDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <h6>Products</h6>
-                    <CTable responsive small className="mt-2">
-                      <CTableHead>
-                        <CTableRow>
-                          <CTableHeaderCell>Description</CTableHeaderCell>
-                          <CTableHeaderCell>Quantity</CTableHeaderCell>
-                          <CTableHeaderCell>Received By</CTableHeaderCell>
-                          <CTableHeaderCell>Received Date</CTableHeaderCell>
-                        </CTableRow>
-                      </CTableHead>
-                      <CTableBody>
-                        {item.details.map((detail, index) => (
-                          <CTableRow key={index}>
-                            <CTableDataCell>{detail.description}</CTableDataCell>
-                            <CTableDataCell>{detail.quantity}</CTableDataCell>
-                            <CTableDataCell>{item.byReceived}</CTableDataCell>
-                            <CTableDataCell>
-                              {item.dateOfReceived
-                                ? new Date(item.dateOfReceived).toLocaleDateString()
-                                : 'N/A'}
-                            </CTableDataCell>
-                          </CTableRow>
-                        ))}
-                      </CTableBody>
-                    </CTable>
-                  </div>
-
-                  {item.additionalNotes && (
+                  </CAccordionHeader>
+                  <CAccordionBody>
                     <div className="mb-3">
-                      <h6>Additional Notes</h6>
-                      <div className="ms-3">{item.additionalNotes}</div>
+                      <h6>Vendor Information</h6>
+                      <div className="ms-3">
+                        <div>
+                          <strong>Name:</strong> {item.vendor.businessName}
+                        </div>
+                        <div>
+                          <strong>Address:</strong> {item.vendor.businessAddress}
+                        </div>
+                        <div>
+                          <strong>Contact:</strong> {item.vendor.contactNumber}
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                  <CContainer className="d-flex justify-content-end mt-3">
-                    <UpdateItem warehousing={item} onUpdateItem={onUpdateItem} />
-                    {adminRoles.includes(role) && (
-                      <DeleteItem warehousing={item} onDeleteItem={onDeleteItem} />
+                    <div className="mb-3">
+                      <h6>Shipping Details</h6>
+                      <div className="ms-3">
+                        <div>
+                          <strong>Carrier:</strong> {item.carrier}
+                        </div>
+                        <div>
+                          <strong>Receive Date:</strong>{' '}
+                          {new Date(item.receiveDate).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-3">
+                      <h6>Products</h6>
+                      <CTable responsive small className="mt-2">
+                        <CTableHead>
+                          <CTableRow>
+                            <CTableHeaderCell>Description</CTableHeaderCell>
+                            <CTableHeaderCell>Quantity</CTableHeaderCell>
+                            <CTableHeaderCell>Received By</CTableHeaderCell>
+                            <CTableHeaderCell>Received Date</CTableHeaderCell>
+                          </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                          {item.details.map((detail, index) => (
+                            <CTableRow key={index}>
+                              <CTableDataCell>{detail.description}</CTableDataCell>
+                              <CTableDataCell>{detail.quantity}</CTableDataCell>
+                              <CTableDataCell>{item.byReceived}</CTableDataCell>
+                              <CTableDataCell>
+                                {item.dateOfReceived
+                                  ? new Date(item.dateOfReceived).toLocaleDateString()
+                                  : 'N/A'}
+                              </CTableDataCell>
+                            </CTableRow>
+                          ))}
+                        </CTableBody>
+                      </CTable>
+                    </div>
+
+                    {item.additionalNotes && (
+                      <div className="mb-3">
+                        <h6>Additional Notes</h6>
+                        <div className="ms-3">{item.additionalNotes}</div>
+                      </div>
                     )}
-                  </CContainer>
-                </CAccordionBody>
-              </CAccordionItem>
-            ))}
+
+                    <CContainer className="d-flex justify-content-end mt-3">
+                      <UpdateItem warehousing={item} onUpdateItem={onUpdateItem} />
+                      {adminRoles.includes(role) && (
+                        <DeleteItem warehousing={item} onDeleteItem={onDeleteItem} />
+                      )}
+                    </CContainer>
+                  </CAccordionBody>
+                </CAccordionItem>
+              ))}
           </CAccordion>
 
           {/* Pagination */}
-          {filteredWarehousing.length > 0 && (
+          {currentItems.length > 0 && (
             <CContainer className="d-flex justify-content-between align-items-center">
-              <div>
+              {/* <div>
                 Showing {indexOfFirstItem + 1} to{' '}
                 {Math.min(indexOfLastItem, filteredWarehousing.length)} of{' '}
                 {filteredWarehousing.length} entries
+              </div> */}
+
+              <div>
+                Showing {receivedItems.length > 0 ? indexOfFirstItem + 1 : 0} to{' '}
+                {Math.min(indexOfLastItem, receivedItems.length)} of {receivedItems.length} received
+                entries
               </div>
 
               <CPagination className="mt-3">

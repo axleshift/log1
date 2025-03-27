@@ -4,6 +4,7 @@ import ForReicevingItems from './ComponentsWarehousing/ForReicevingItems'
 import ItemsTableWarehouse from './ComponentsWarehousing/ItemsTableWarehouse'
 import { CCard, CHeader, CTab, CTabList, CTabs, CTabContent, CTabPanel } from '@coreui/react'
 import api from '../../utils/api'
+import axios from 'axios'
 
 const WareHousing = () => {
   const [warehousing, setWarehousing] = useState([])
@@ -12,13 +13,33 @@ const WareHousing = () => {
   const [error, setError] = useState(null)
   const [refresh, setRefresh] = useState(0)
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true)
+  //     try {
+  //       const response = await api.get('/api/v1/warehouse/items')
+  //       setWarehousing(response.data.data)
+  //       setItems(response.data.data)
+  //     } catch (error) {
+  //       setError(error.message)
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
+  //   fetchData()
+  // }, [refresh])
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const response = await api.get('/api/v1/warehouse/items')
-        setWarehousing(response.data.data)
-        setItems(response.data.data)
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
+        )
+        console.log(response.data)
+        if (response.status === 200) {
+          setWarehousing(response.data)
+        }
       } catch (error) {
         setError(error.message)
       } finally {

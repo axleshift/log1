@@ -86,7 +86,7 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
         onClick={() => setVisible(true)}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faEdit} />}
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faEdit} />} Update
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader closeButton>

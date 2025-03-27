@@ -30,7 +30,13 @@ const RestoreButton = ({ restoredVehicle, onRestoreVehicle }) => {
   }
 
   return (
-    <CButton color="success" size="sm" onClick={handleRestore} disabled={loading} className="mx-1">
+    <CButton
+      color="success"
+      variant="outline"
+      onClick={handleRestore}
+      disabled={loading}
+      className="mx-1"
+    >
       {loading ? (
         <CSpinner size="sm" />
       ) : (

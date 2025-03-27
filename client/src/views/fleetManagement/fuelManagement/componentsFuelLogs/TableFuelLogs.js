@@ -304,41 +304,45 @@ const TableFuelLogs = ({
                 <CContainer>{log.mpg} MPG</CContainer>
               </CTableDataCell>
               <CTableDataCell>
-                <CDropdown variant="input-group">
-                  <CDropdownToggle color="secondary" variant="outline">
-                    Actions
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CButton
-                      color="primary"
-                      variant="ghost"
-                      className="m-2"
-                      onClick={() => onViewReceipt(log)}
-                    >
-                      <FontAwesomeIcon icon={faEye} /> View Receipt
-                    </CButton>
-                    {log.vehicleId.deleted !== true && (
-                      <CButton
-                        color="info"
-                        variant="ghost"
-                        className="m-2"
-                        onClick={() => onUpdateFuelLog(log)}
-                      >
-                        <FontAwesomeIcon icon={faEdit} /> Edit
-                      </CButton>
-                    )}
-                    {adminRoles.includes(role) && (
-                      <CButton
-                        color="danger"
-                        variant="ghost"
-                        className="m-2"
-                        onClick={() => onDeleteFuelLog(log._id)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} /> Delete
-                      </CButton>
-                    )}
-                  </CDropdownMenu>
-                </CDropdown>
+                <CContainer className="d-flex align-center  mt-3">
+                  <CDropdown variant="input-group">
+                    <CDropdownToggle color="secondary" variant="outline">
+                      Actions
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                      <CContainer className="d-flex flex-column justify-content-center">
+                        <CButton
+                          color="primary"
+                          variant="outline"
+                          className="m-2"
+                          onClick={() => onViewReceipt(log)}
+                        >
+                          <FontAwesomeIcon icon={faEye} /> View Receipt
+                        </CButton>
+                        {log.vehicleId.deleted !== true && (
+                          <CButton
+                            color="info"
+                            variant="outline"
+                            className="m-2"
+                            onClick={() => onUpdateFuelLog(log)}
+                          >
+                            <FontAwesomeIcon icon={faEdit} /> Edit
+                          </CButton>
+                        )}
+                        {adminRoles.includes(role) && (
+                          <CButton
+                            color="danger"
+                            variant="outline"
+                            className="m-2"
+                            onClick={() => onDeleteFuelLog(log._id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} /> Delete
+                          </CButton>
+                        )}
+                      </CContainer>
+                    </CDropdownMenu>
+                  </CDropdown>
+                </CContainer>
               </CTableDataCell>
             </CTableRow>
           ))}

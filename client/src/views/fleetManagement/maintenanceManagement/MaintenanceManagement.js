@@ -81,6 +81,7 @@ const MaintenanceManagement = () => {
     } finally {
       setDeleteModal(false)
     }
+    fetchMaintenance()
   }
 
   const handleAddMaintenance = (newMaintenance) => {

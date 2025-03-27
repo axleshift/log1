@@ -231,7 +231,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
                     variant="outline"
                     onClick={() => onDeleteVehicle(vehicle._id)}
                   >
-                    <FontAwesomeIcon icon={faTrash} />
+                    <FontAwesomeIcon icon={faTrash} /> Delete
                   </CButton>
                 )}
               </CContainer>

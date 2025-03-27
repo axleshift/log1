@@ -29,6 +29,7 @@ const FuelManagement = React.lazy(
 const MaintenanceManagement = React.lazy(
   () => import('./views/fleetManagement/maintenanceManagement/MaintenanceManagement'),
 )
+
 // const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 // const Cards = React.lazy(() => import('./views/base/cards/Cards'))
 // const Carousels = React.lazy(() => import('./views/base/carousels/Carousels'))
@@ -81,7 +82,9 @@ const routes = [
   // { path: '/theme', name: 'Theme', element: Colors, exact: true },
   // { path: '/theme/colors', name: 'Colors', element: Colors },
   // { path: '/theme/typography', name: 'Typography', element: Typography },
+
   { path: '/fleetManagement', name: 'Fleet Management', element: vehicleManagement, exact: true },
+
   // {
   //   path: '/fleetManagement/vehicleManagement',
   //   name: 'Vehicle Management',

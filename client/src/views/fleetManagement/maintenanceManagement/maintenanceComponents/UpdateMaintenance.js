@@ -29,6 +29,7 @@ import {
   CCard,
   CCardBody,
   CCardHeader,
+  CFormSwitch,
 } from '@coreui/react'
 
 const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
@@ -37,6 +38,7 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
   const [error, setError] = useState(null)
   const [visible, setVisible] = useState(false)
   const [validated, setValidated] = useState(false)
+  const [isAddingParts, setIsAddingParts] = useState(false)
   const initialState = {
     vehicle: maintenance.vehicle || {},
     maintenanceType: maintenance?.maintenanceType || '',
@@ -48,6 +50,8 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
     checklist: maintenance?.checklist || [],
     parts: maintenance?.parts || [],
     notes: maintenance?.notes || '',
+    requested: true,
+    purchased: false,
   }
 
   const [formData, setFormData] = useState(initialState)
@@ -208,6 +212,7 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    formData.parts.length === 0 ? (formData.purchased = true) : (formData.purchased = false)
     const form = e.currentTarget
     setValidated(true)
 
@@ -239,12 +244,13 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
     <>
       <CButton
         color="primary"
-        className="me-1 unset"
+        className="m-1"
         variant="outline"
         onClick={() => setVisible(true)}
         disabled={disabled}
       >
-        {disabled ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faPenToSquare} />}
+        {disabled ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faPenToSquare} />}{' '}
+        {disabled ? 'Complete' : 'Update'}
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)} size="lg">
         <CModalHeader closeButton>

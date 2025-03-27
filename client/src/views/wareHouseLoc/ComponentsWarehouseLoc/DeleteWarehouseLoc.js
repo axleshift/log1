@@ -45,7 +45,7 @@ const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
         onClick={deleteWarehouseLoc}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />}
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />} Delete
       </CButton>
     </>
   )

@@ -42,7 +42,9 @@ const CompleteButtonMaintenance = ({ onCompleted, maintenance }) => {
             variant="outline"
             onClick={() => handleCompleteMaintenance(maintenance._id)}
             disabled={
-              !maintenance.checklist?.every((item) => item.completed) || isBeforeStartDate()
+              !maintenance.checklist?.every((item) => item.completed) ||
+              isBeforeStartDate() ||
+              maintenance.status === 'Completed'
             }
             title={
               isBeforeStartDate() ? 'Maintenance cannot be completed before its start date' : ''

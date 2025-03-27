@@ -29,6 +29,7 @@ import {
   CCard,
   CCardBody,
   CCardHeader,
+  CFormSwitch,
 } from '@coreui/react'
 const AddMaintenance = ({ onAddMaintenance }) => {
   const { showError, showSuccess } = useToast()
@@ -36,6 +37,7 @@ const AddMaintenance = ({ onAddMaintenance }) => {
   const [error, setError] = useState(null)
   const [visible, setVisible] = useState(false)
   const [validated, setValidated] = useState(false)
+  const [isAddingParts, setIsAddingParts] = useState(false)
   const initialState = {
     vehicle: '',
     maintenanceType: '',
@@ -46,6 +48,8 @@ const AddMaintenance = ({ onAddMaintenance }) => {
     category: '',
     checklist: [{ task: '', completed: false }],
     parts: [],
+    requested: true,
+    purchased: false,
   }
   const [formData, setFormData] = useState(initialState)
   const [vehicles, setVehicles] = useState([])
@@ -61,6 +65,7 @@ const AddMaintenance = ({ onAddMaintenance }) => {
       [id]: value,
     }))
   }
+
   const handlePartChange = (e) => {
     const { id, value } = e.target
     setCurrentPart((prev) => ({
@@ -82,6 +87,15 @@ const AddMaintenance = ({ onAddMaintenance }) => {
       quantity: '',
     })
   }
+
+  // const handleAddPartsToggle = (value) => {
+  //   setIsAddingParts(value)
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     purchased: !value, // Set to true if not adding parts, false if adding parts
+  //     parts: value ? prev.parts : [],
+  //   }))
+  // }
 
   useEffect(() => {
     const fechData = async () => {
@@ -187,6 +201,8 @@ const AddMaintenance = ({ onAddMaintenance }) => {
   ]
 
   const handleSubmit = async (e) => {
+    e.preventDefault()
+    formData.parts.length === 0 ? (formData.purchased = true) : (formData.purchased = false)
     const form = e.currentTarget
     if (form.checkValidity() === false) {
       e.stopPropagation()
@@ -232,11 +248,15 @@ const AddMaintenance = ({ onAddMaintenance }) => {
                 feedbackInvalid="Please provide a valid vehicle."
               >
                 <option value="">Select Vehicle</option>
-                {vehicles.map((vehicle) => (
-                  <option key={vehicle._id} value={vehicle._id}>
-                    {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}
-                  </option>
-                ))}
+                {vehicles
+                  .filter(
+                    (vehicle) => vehicle.status === 'in_use' || vehicle.status === 'available',
+                  )
+                  .map((vehicle) => (
+                    <option key={vehicle._id} value={vehicle._id}>
+                      {vehicle.brand} / {vehicle.model} / {vehicle.regisNumber}
+                    </option>
+                  ))}
               </CFormSelect>
               <CFormSelect
                 id="maintenanceType"
@@ -326,6 +346,13 @@ const AddMaintenance = ({ onAddMaintenance }) => {
             <CCard className="mb-3">
               <CCardHeader>Add Parts</CCardHeader>
               <CCardBody>
+                {/* <CFormSwitch
+                  label="Add Parts"
+                  id="addParts"
+                  checked={isAddingParts}
+                  className="mb-3"
+                  onChange={(e) => handleAddPartsToggle(e.target.checked)}
+                /> */}
                 <CInputGroup className="mb-3">
                   <CFormInput
                     id="parts.partName"
@@ -334,6 +361,7 @@ const AddMaintenance = ({ onAddMaintenance }) => {
                     placeholder="Part Name"
                     value={currentPart.partName}
                     onChange={handlePartChange}
+                    required
                   />
                   <CFormInput
                     id="parts.quantity"
@@ -342,6 +370,7 @@ const AddMaintenance = ({ onAddMaintenance }) => {
                     placeholder="Quantity"
                     value={currentPart.quantity}
                     onChange={handlePartChange}
+                    required
                   />
 
                   <CButton color="primary" onClick={handleAddPart}>

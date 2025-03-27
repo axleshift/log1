@@ -347,7 +347,9 @@ const AddFuelLog = ({ onAddFuelog }) => {
                   </option>
                 ))}
               </CFormSelect>
-
+            </CInputGroup>
+            <CInputGroup>
+              {' '}
               {/* Display driver name but keep driverId in formData */}
               <CFormInput
                 className="mb-3"
@@ -358,7 +360,6 @@ const AddFuelLog = ({ onAddFuelog }) => {
                 onChange={handleChange}
                 disabled
               />
-
               <CFormSelect
                 className="mb-3"
                 floatingLabel="Fuel Type"
