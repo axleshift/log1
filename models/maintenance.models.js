@@ -34,22 +34,16 @@ const maintenanceSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        // parts: [
-        //     {
-        //         partName: String,
-        //         quantity: Number,
-        //         cost: Number,
-        //     },
-        // ],
         status: {
             type: String,
             enum: ["Scheduled", "In Progress", "Completed", "Cancelled"],
             default: "Scheduled",
         },
-        // totalCost: {
-        //     type: Number,
-        //     default: 0,
-        // },
+
+        purchased: { type: Boolean, default: false },
+
+        requested: { type: Boolean, default: false },
+
         notes: String,
         completedBy: String,
 
@@ -75,17 +69,6 @@ const maintenanceSchema = new mongoose.Schema(
         // ],
 
         checklist: [checklistItemSchema],
-
-        // costs: {
-        //     laborCost: { type: Number, default: 0 },
-        //     partsCost: { type: Number, default: 0 },
-        //     additionalCosts: [
-        //         {
-        //             description: String,
-        //             amount: Number,
-        //         },
-        //     ],
-        // },
 
         parts: [
             {
