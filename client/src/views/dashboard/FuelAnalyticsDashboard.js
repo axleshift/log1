@@ -886,7 +886,7 @@ const FuelAnalyticsDashboard = () => {
                   onClick={handlePrediction}
                   disabled={!predictionModel || isTraining}
                 >
-                  {isTraining ? 'Training Model...' : 'Generate Prediction Maintenance'}
+                  {isTraining ? 'Training Model...' : 'Generate Maintenance Forecast'}
                 </CButton>
 
                 {maintenanceRisk !== null && (
@@ -971,7 +971,7 @@ const FuelAnalyticsDashboard = () => {
                   onClick={handlePrediction2}
                   disabled={!predictionModel || isTraining}
                 >
-                  {isTraining ? 'Training Model...' : 'Generate Prediction Fuel'}
+                  {isTraining ? 'Training Model...' : 'Generate Fuel Consumption Forecast'}
                 </CButton>
 
                 {predictionModel !== null && (

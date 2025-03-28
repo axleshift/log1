@@ -90,6 +90,7 @@ const WareHousing = () => {
               error={error}
               onDeleteItem={handleDeleteItem}
               onUpdateItem={handleUpdateItem}
+              onRefresh={handleRefresh}
             />
           </CTabPanel>
           <CTabPanel className="p-3" itemKey="For Reiceve">

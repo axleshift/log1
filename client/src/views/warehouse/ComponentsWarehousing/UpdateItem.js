@@ -8,11 +8,9 @@ import {
   CModalHeader,
   CModalTitle,
   CForm,
-  CFormInput,
   CFormSelect,
   CAlert,
   CModalFooter,
-  CFormTextarea,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
@@ -20,115 +18,110 @@ import api from '../../../utils/api'
 import { useToast } from '../../../components/Toast/Toast'
 
 const UpdateItem = ({ warehousing, onUpdateItem }) => {
-  const { showSuccess, showErrors } = useToast()
+  // Changed from item to warehousing
+  const { showSuccess, showError } = useToast()
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(null)
   const [visible, setVisible] = useState(false)
   const [warehouses, setWarehouses] = useState([])
   const [formData, setFormData] = useState({
-    warehouse: warehousing.warehouse || '',
-    warehouseLocDetails: {
-      warehouseName: warehousing.warehouseName || '',
-      address: warehousing.address || '',
-    },
-    byReceived: '',
+    warehouse_id: '',
   })
 
   useEffect(() => {
-    // Fetch warehouses
     const fetchWarehouses = async () => {
       try {
+        setLoading(true)
         const response = await api.get('/api/v1/warehouseLoc/locations')
-        setWarehouses(response.data.data)
+        setWarehouses(response.data.data || [])
       } catch (error) {
-        setError(error.response.data.message)
-        showErrors(error.response.data.message)
+        setError(error.response?.data?.message || 'Failed to fetch warehouses')
+        showError(error.response?.data?.message || 'Failed to fetch warehouses')
+      } finally {
+        setLoading(false)
       }
     }
     fetchWarehouses()
   }, [])
 
-  const handleWarehouseChange = (e) => {
-    const selectedWarehouseId = e.target.value
-    const selectedWarehouse = warehouses.find((w) => w._id === selectedWarehouseId)
-
-    setFormData((prev) => ({
-      ...prev,
-      warehouse: selectedWarehouseId,
-      warehouseLocDetails: {
-        warehouseName: selectedWarehouse ? selectedWarehouse.warehouseName : '',
-        address: selectedWarehouse ? selectedWarehouse.address : '',
-      },
+  const handleChange = (e) => {
+    const { id, value } = e.target
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
     }))
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    const user = JSON.parse(sessionStorage.getItem('user'))
-    const email = user.email
-    if (!email) {
-      setError('User email not found. Please log in again.')
+  const handleUpdate = async () => {
+    if (!warehousing?._id) {
+      // Check if warehousing and _id exist
+      showError('Invalid item ID')
       return
     }
-    const warehouse = warehouses.find((w) => w._id === formData.warehouse)
-    if (!warehouse) {
-      setError('Warehouse not found.')
+
+    if (!formData.warehouse_id) {
+      showError('Please select a warehouse')
       return
     }
-    formData.warehouseLocDetails = {
-      warehouseName: warehouse.warehouseName,
-      address: warehouse.address,
-    }
-    setLoading(true)
+
     try {
-      const response = await api.patch(`/api/v1/warehouse/update/${warehousing._id}`, {
-        ...formData,
-        byReceived: email,
-      })
-      if (response.data.success) {
-        const updatedItem = response.data.data
-        const warehouse = warehouses.find((w) => w._id === updatedItem.warehouse)
-        updatedItem.warehouse = warehouse // Add warehouse details to the updated item
-        showSuccess(response.data.message)
-        onUpdateItem(response.data.data)
-        setTimeout(() => {
-          setSuccess(null)
-          setVisible(false)
-        }, 2000)
+      setLoading(true)
+      const response = await axios.put(
+        `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder/${warehousing._id}`, // Using warehousing instead of item
+        formData,
+      )
+
+      if (response.status === 200) {
+        showSuccess('Warehouse location updated successfully')
+        setVisible(false)
+        if (onUpdateItem) {
+          onUpdateItem(response.data.data)
+        }
       }
     } catch (error) {
-      setError(error.response.data.message)
-      showErrors(error.response.data.message)
-      setTimeout(() => {
-        setError(null)
-      }, 2000)
+      showError(error.response?.data?.message || 'Failed to update warehouse location')
+      console.error('Error updating warehouse location:', error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('Warehousing prop:', warehousing)
+  }, [warehousing])
 
   return (
     <>
-      <CButton color="primary" variant="outline" className="me-2" onClick={() => setVisible(true)}>
+      <CButton
+        color="primary"
+        variant="outline"
+        className="me-2"
+        onClick={() => setVisible(true)}
+        disabled={loading}
+      >
         {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faEdit} />}
       </CButton>
+
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
-          <CModalTitle>Recieved Items</CModalTitle>
+          <CModalTitle>Update Warehouse Location</CModalTitle>
         </CModalHeader>
-        {error && <CAlert color="danger">{error}</CAlert>}
-        {success && <CAlert color="success">{success}</CAlert>}
+
         <CModalBody>
+          {error && <CAlert color="danger">{error}</CAlert>}
+
           <CForm>
             <CFormSelect
-              id="warehouse"
-              floatingLabel="Warehouse"
+              id="warehouse_id"
+              floatingLabel="Select Warehouse"
               className="mb-3"
-              value={formData.warehouse}
-              onChange={handleWarehouseChange} // Use the new handler
+              value={formData.warehouse_id}
+              onChange={handleChange}
+              disabled={loading}
               required
             >
-              <option value="">Select Warehouse</option>
+              <option value="">Choose a warehouse...</option>
               {warehouses.map((warehouse) => (
                 <option key={warehouse._id} value={warehouse._id}>
                   {warehouse.warehouseName} - {warehouse.address}
@@ -137,12 +130,23 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
             </CFormSelect>
           </CForm>
         </CModalBody>
+
         <CModalFooter>
-          <CButton color="secondary" variant="outline" onClick={() => setVisible(false)}>
-            Close
+          <CButton
+            color="secondary"
+            variant="outline"
+            onClick={() => setVisible(false)}
+            disabled={loading}
+          >
+            Cancel
           </CButton>
-          <CButton color="primary" variant="outline" onClick={handleSubmit}>
-            Update Item
+          <CButton
+            color="primary"
+            variant="outline"
+            onClick={handleUpdate}
+            disabled={loading || !formData.warehouse_id}
+          >
+            {loading ? <CSpinner size="sm" /> : 'Update Location'}
           </CButton>
         </CModalFooter>
       </CModal>

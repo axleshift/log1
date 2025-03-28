@@ -1,9 +1,9 @@
 import express from "express";
-import { addReceivingSchedule, getVehiclesInUse } from "../../controllers/receiving.controller.js";
+import { createReceiving, getReceiving } from "../../controllers/receiving.controller.js";
 
 const router = express.Router();
 
-router.post("/add", addReceivingSchedule);
-router.get("/vehicles-in-use", getVehiclesInUse);
+router.post("/add", createReceiving);
+router.get("/all", getReceiving);
 
 export default router;

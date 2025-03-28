@@ -22,7 +22,7 @@ import {
   CFormSelect,
 } from '@coreui/react'
 import React, { useState, useEffect } from 'react'
-import AddItem from './AddItem'
+// import AddItem from './AddItem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useToast } from '../../../components/Toast/Toast'
@@ -164,16 +164,40 @@ const ForReicevingItems = ({ onAddItem }) => {
     fetchReicevingItems()
   }, [])
 
-  const handleUpdate = (poId) => {
-    const response = axios.put(
-      `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder/${poId}`,
-      {
-        received: true,
-        receiveDate: new Date().toISOString(),
-      },
-    )
-    if (response.status === 200) {
-      fetchReicevingItems()
+  // const handleUpdate = (poId) => {
+  //   const response = axios.put(
+  //     `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder/${poId}`,
+  //     {
+  //       received: true,
+  //       receiveDate: new Date().toISOString(),
+  //     },
+  //   )
+  //   if (response.status === 200) {
+  //     fetchReicevingItems()
+  //   }
+  // }
+
+  const handleUpdate = async (poId) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder/${poId}`,
+        {
+          received: true,
+          receiveDate: new Date().toISOString(), // This will set today's date
+        },
+      )
+
+      if (response.status === 200) {
+        // Refresh the data after successful update
+        const updatedResponse = await axios.get(
+          `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
+        )
+        setReicevingItems(updatedResponse.data)
+        showSuccess('Item received successfully') // Assuming you have showSuccess from useToast
+      }
+    } catch (error) {
+      console.error('Error updating purchase order:', error)
+      showError(error?.response?.data?.message || 'Error updating purchase order') // Assuming you have showError from useToast
     }
   }
 
@@ -193,6 +217,11 @@ const ForReicevingItems = ({ onAddItem }) => {
     }
     fetchWarehouses()
   }, [])
+  const getWarehouseName = (warehouseId) => {
+    if (!warehouses.length) return 'Loading...'
+    const warehouse = warehouses.find((w) => w._id === warehouseId)
+    return warehouse ? warehouse.warehouseName : 'Unknown Warehouse'
+  }
 
   useEffect(() => {
     // setReicevingItems(mockDataReiceving)
@@ -306,7 +335,8 @@ const ForReicevingItems = ({ onAddItem }) => {
                   <CTableDataCell>{new Date(item.orderDate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{new Date(item.receiveDate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{item.carrier}</CTableDataCell>
-                  <CTableDataCell>{item.warehouse_id}</CTableDataCell>
+                  <CTableDataCell>{getWarehouseName(item.warehouse_id)}</CTableDataCell>
+
                   <CTableDataCell>
                     <div>{item.vendor.businessName}</div>
                     <small className="text-medium-emphasis">{item.vendor.contactNumber}</small>
@@ -321,7 +351,7 @@ const ForReicevingItems = ({ onAddItem }) => {
                   </CTableDataCell>
                   <CTableDataCell>{item.received ? 'Yes' : 'No'}</CTableDataCell>
                   <CTableDataCell>
-                    <AddItem item={item} onAddItem={onAddItem} mockDataReiceving={reicevingItems} />
+                    {/* <AddItem item={item} onAddItem={onAddItem} mockDataReiceving={reicevingItems} /> */}
 
                     <CButton
                       color="primary"

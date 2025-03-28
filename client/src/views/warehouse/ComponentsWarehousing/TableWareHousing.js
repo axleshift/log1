@@ -21,9 +21,8 @@ import {
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons'
-import DeleteItem from './DeleteItem'
-import UpdateItem from './UpdateItem'
 import { getRole } from '../../../utils/auth'
+import api from '../../../utils/api'
 
 const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateItem }) => {
   const [filteredWarehousing, setFilteredWarehousing] = useState([])
@@ -33,6 +32,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
   const adminRoles = ['manager', 'admin']
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
+  const [warehouses, setWarehouses] = useState([])
   // const indexOfLastItem = currentPage * itemsPerPage
   // const indexOfFirstItem = indexOfLastItem - itemsPerPage
   // const currentItems = filteredWarehousing.slice(indexOfFirstItem, indexOfLastItem)
@@ -58,9 +58,6 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
           return (
             // Basic info
             item.poNumber?.toLowerCase().includes(query) ||
-            // Warehouse details
-            item.warehouseLocDetails?.warehouseName?.toLowerCase().includes(query) ||
-            item.warehouseLocDetails?.address?.toLowerCase().includes(query) ||
             // Vendor details
             item.vendor?.businessName?.toLowerCase().includes(query) ||
             item.vendor?.businessAddress?.toLowerCase().includes(query) ||
@@ -69,8 +66,8 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
             (item.orderDate && new Date(item.orderDate).toLocaleDateString().includes(query)) ||
             (item.dateOfReceived &&
               new Date(item.receiveDate).toLocaleDateString().includes(query)) ||
-            // Received by
-            (item.byReceived?.toString().toLowerCase()?.includes(query) ?? false) ||
+            // Warehouse details
+            getWarehouseName(item.warehouseId)?.toLowerCase().includes(query) ||
             // Details/Products
             item.details?.some(
               (detail) =>
@@ -99,6 +96,25 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
     }
   }, [searchQuery, warehousing])
 
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const response = await api.get('/api/v1/warehouseLoc/locations')
+        if (response.data.data) {
+          setWarehouses(response.data.data)
+        }
+      } catch (error) {
+        setLocalError(error?.response?.data.message)
+      }
+    }
+    fetchWarehouses()
+  }, [])
+
+  const getWarehouseName = (warehouseId) => {
+    if (!warehouses.length) return 'Loading...'
+    const warehouse = warehouses.find((w) => w._id === warehouseId)
+    return warehouse ? warehouse.warehouseName : 'Unknown Warehouse'
+  }
   // const formatDate = (dateString) => {
   //   return new Date(dateString).toLocaleDateString()
   // }
@@ -161,7 +177,8 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                             PO Number: <strong>{item.poNumber}</strong>
                           </li>
                           <li>
-                            Warehuse Location: <strong>{item.warehouse_id}</strong>
+                            Warehuse Location:{' '}
+                            <strong>{getWarehouseName(item.warehouse_id)}</strong>
                           </li>
                         </ul>
                       </div>
@@ -193,7 +210,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                           <strong>Carrier:</strong> {item.carrier}
                         </div>
                         <div>
-                          <strong>Receive Date:</strong>{' '}
+                          <strong>Expected Delivery Date:</strong>{' '}
                           {new Date(item.receiveDate).toLocaleDateString()}
                         </div>
                       </div>
@@ -206,7 +223,6 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                           <CTableRow>
                             <CTableHeaderCell>Description</CTableHeaderCell>
                             <CTableHeaderCell>Quantity</CTableHeaderCell>
-                            <CTableHeaderCell>Received By</CTableHeaderCell>
                             <CTableHeaderCell>Received Date</CTableHeaderCell>
                           </CTableRow>
                         </CTableHead>
@@ -215,10 +231,9 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                             <CTableRow key={index}>
                               <CTableDataCell>{detail.description}</CTableDataCell>
                               <CTableDataCell>{detail.quantity}</CTableDataCell>
-                              <CTableDataCell>{item.byReceived}</CTableDataCell>
                               <CTableDataCell>
-                                {item.dateOfReceived
-                                  ? new Date(item.dateOfReceived).toLocaleDateString()
+                                {item.receiveDate
+                                  ? new Date(item.receiveDate).toLocaleDateString()
                                   : 'N/A'}
                               </CTableDataCell>
                             </CTableRow>
@@ -233,13 +248,6 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                         <div className="ms-3">{item.additionalNotes}</div>
                       </div>
                     )}
-
-                    <CContainer className="d-flex justify-content-end mt-3">
-                      <UpdateItem warehousing={item} onUpdateItem={onUpdateItem} />
-                      {adminRoles.includes(role) && (
-                        <DeleteItem warehousing={item} onDeleteItem={onDeleteItem} />
-                      )}
-                    </CContainer>
                   </CAccordionBody>
                 </CAccordionItem>
               ))}
