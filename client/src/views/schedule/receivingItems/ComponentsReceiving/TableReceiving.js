@@ -29,7 +29,6 @@ import {
 } from '@coreui/react'
 import AddReceiving from './AddReceiving'
 import CompleteBtnReceiving from './CompleteBtnReceiving'
-import { get } from 'mongoose'
 
 const TableReceiving = () => {
   const { showError, showSuccess } = useToast()
