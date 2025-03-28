@@ -56,17 +56,34 @@ app.use(
     })
 );
 
+// app.use(
+//     session({
+//         secret: process.env.SESSION_SECRET,
+//         resave: false,
+//         saveUninitialized: true,
+//         cookie: {
+//             secure: process.env.NODE_ENV === "production",
+//             httpOnly: true,
+//             maxAge: 7 * 24 * 60 * 60 * 1000,
+//             sameSite: "strict",
+//         },
+//     })
+// );
+
+// Example of more secure session configuration in Express
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
+        name: "_sessionId", // Use a generic name instead of default 'connect.sid'
         cookie: {
-            secure: process.env.NODE_ENV === "production",
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            sameSite: "strict",
+            httpOnly: true, // Prevents client-side access to cookie
+            secure: true, // Only sends cookie over HTTPS
+            sameSite: "strict", // Protects against CSRF
+            maxAge: 3600000, // Session timeout
         },
+        rolling: true, // Resets session maxAge on every request
+        resave: false,
+        saveUninitialized: false,
     })
 );
 
