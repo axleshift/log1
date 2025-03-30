@@ -78,7 +78,7 @@ const WareHousing = () => {
       <CTabs activeItemKey="Warehouse Items Details">
         <CTabList variant="tabs">
           <CTab itemKey="Warehouse Items Details">Warehouse Items Details</CTab>
-          <CTab itemKey="For Reiceve">For Reiceve</CTab>
+          <CTab itemKey="For Receiving">For Receiving</CTab>
           <CTab itemKey="Items">Items</CTab>
         </CTabList>
         <CTabContent>
@@ -92,7 +92,7 @@ const WareHousing = () => {
               onRefresh={handleRefresh}
             />
           </CTabPanel>
-          <CTabPanel className="p-3" itemKey="For Reiceve">
+          <CTabPanel className="p-3" itemKey="For Receiving">
             <CCard>
               <CHeader>Item Reiceving</CHeader>
               <ForReicevingItems onAddItem={handleAddItem} />
