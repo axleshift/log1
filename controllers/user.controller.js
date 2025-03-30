@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.models.js";
 import path from "path";
 import fs from "fs/promises";
+import axios from "axios";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,9 +36,94 @@ export const refreshToken = async (req, res) => {
     }
 };
 
+// export const login = async (req, res) => {
+//     try {
+//         const { username, password } = req.body;
+
+//         const user = await User.findOne({ username });
+//         if (!user || !(await bcrypt.compare(password, user.password))) {
+//             return res.status(401).json({ message: "Invalid credentials" });
+//         }
+//         // Check if user is active
+//         if (!user.isActive) {
+//             return res.status(403).json({
+//                 message: "Your account has been deactivated. Please contact an administrator.",
+//             });
+//         }
+//         // Generate tokens
+//         const accessToken = generateAccessToken(user);
+//         res.cookie("accessToken", accessToken, {
+//             httpOnly: true,
+//             secure: process.env.NODE_ENV === "production",
+//             sameSite: "strict",
+//             maxAge: 60 * 1000, // 1 min
+//             // path: "http://localhost:5000",
+//         });
+//         // Set refresh token in HTTP-only cookie
+//         const refreshToken = jwt.sign({ userId: user._id, role: user.role, username: user.username, email: user.email }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+//         res.cookie("refreshToken", refreshToken, {
+//             httpOnly: true,
+//             secure: process.env.NODE_ENV === "production",
+//             sameSite: "strict",
+//             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//             // path: "http://localhost:5000",
+//         });
+//         // Save refresh token to user
+//         user.refreshToken = refreshToken;
+//         await user.save();
+
+//         // Send access token in response
+//         res.json({
+//             success: true,
+//             message: "Login successful",
+//             accessToken,
+//             refreshToken,
+//             user: {
+//                 username: user.username,
+//                 email: user.email,
+//                 role: user.role,
+//                 photo: user.photo,
+//             },
+//         });
+//     } catch (error) {
+//         return res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
+
 export const login = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, recaptchaToken } = req.body;
+        if (!username || !password || !recaptchaToken) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields",
+            });
+        }
+
+        // Verify reCAPTCHA token
+        const recaptchaVerification = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
+            params: {
+                secret: process.env.RECAPTCHA_SECRET_KEY,
+                response: recaptchaToken,
+            },
+        });
+
+        const { success, score } = recaptchaVerification.data;
+
+        if (!success) {
+            return res.status(400).json({
+                success: false,
+                message: "reCAPTCHA verification failed",
+            });
+        }
+
+        // Check the score (0.0 to 1.0)
+        if (score < 0.5) {
+            return res.status(400).json({
+                success: false,
+                message: "Security check failed",
+            });
+        }
 
         const user = await User.findOne({ username });
         if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -83,69 +169,12 @@ export const login = async (req, res) => {
                 role: user.role,
                 photo: user.photo,
             },
+            recaptchaScore: score,
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
-
-// export const register = async (req, res) => {
-//     try {
-//         const { username, email, password, role } = req.body;
-
-//         // Validate required fields
-//         if (!username || !email || !password) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Please provide all required fields",
-//             });
-//         }
-
-//         // Check if user already exists
-//         const existingUser = await User.findOne({ email });
-//         if (existingUser) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "User with this email already exists",
-//             });
-//         }
-
-//         // Hash password
-//         const hashedPassword = await bcrypt.hash(password, 10);
-
-//         // Create new user
-//         const user = new User({
-//             username,
-//             email,
-//             password: hashedPassword,
-//             role: role || "user",
-//             photo: req.file ? req.file.filename : null,
-//         });
-
-//         // Save user
-//         await user.save();
-
-//         res.status(201).json({
-//             success: true,
-//             message: "User registered successfully",
-//             user: {
-//                 id: user._id,
-//                 username: user.username,
-//                 email: user.email,
-//                 role: user.role,
-//                 photo: user.photo,
-//             },
-//         });
-//     } catch (error) {
-//         console.error("Registration error:", error);
-//         res.status(500).json({
-//             success: false,
-//             message: "Internal server error",
-//             error: error.message,
-//         });
-//     }
-// };
-
 export const register = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
@@ -241,25 +270,6 @@ export const register = async (req, res) => {
         });
     }
 };
-
-// export const logout = async (req, res) => {
-//     try {
-//         const refreshToken = req.cookies.refreshToken;
-
-//         if (refreshToken) {
-//             // Find user and remove refresh token
-//             await User.findOneAndUpdate({ refreshToken }, { $set: { refreshToken: null } });
-//         }
-
-//         // Clear refresh token cookie
-//         res.clearCookie("refreshToken");
-
-//         res.json({ success: true, message: "Logged out successfully" });
-//     } catch (error) {
-//         console.error("Logout error:", error);
-//         res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// };
 
 export const logout = async (req, res) => {
     try {
@@ -396,45 +406,6 @@ export const updateUser = async (req, res) => {
         });
     }
 };
-
-// controllers/user.controller.js
-
-// controllers/user.controller.js
-// export const updateUser = async (req, res) => {
-//     try {
-//         if (req.file) {
-//             // Save the correct path to the database
-//             req.body.photo = `/uploads/profiles/${req.file.filename}`;
-
-//             // If there's an existing photo, delete it
-//             const user = await User.findById(req.user._id);
-//             if (user.photo) {
-//                 const oldPhotoPath = path.join(__dirname, "..", "uploads", "profiles", path.basename(user.photo));
-//                 try {
-//                     await fs.access(oldPhotoPath);
-//                     await fs.unlink(oldPhotoPath);
-//                 } catch (error) {
-//                     console.log("No existing photo found or error deleting:", error);
-//                 }
-//             }
-//         }
-
-//         const updatedUser = await User.findByIdAndUpdate(req.user._id, { $set: req.body }, { new: true }).select("-password");
-
-//         res.status(200).json({
-//             success: true,
-//             message: "Profile updated successfully",
-//             user: updatedUser,
-//         });
-//     } catch (error) {
-//         console.error("Update error:", error);
-//         res.status(500).json({
-//             success: false,
-//             message: "Error updating user profile",
-//             error: error.message,
-//         });
-//     }
-// };
 
 export const getProfile = async (req, res) => {
     try {
