@@ -294,6 +294,21 @@ const ForReicevingItems = ({ onAddItem }) => {
     )
   }
 
+  if (currentItems.length === 0) {
+    return (
+      <CAlert color="danger" className="text-center mt-3 w-75 mx-auto">
+        No items to receive.
+      </CAlert>
+    )
+  }
+
+  if (localError) {
+    return (
+      <CAlert color="danger" className="text-center mt-3 w-75 mx-auto">
+        {localError}
+      </CAlert>
+    )
+  }
   return (
     <>
       <CContainer className="mt-3">

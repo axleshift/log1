@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 import ProtectedRoute from './components/ProtectedRoutes/ProtectedRoute'
+import LoginRoute from './components/ProtectedRoutes/LoginRoute'
 import { useTokenExpiration } from './hooks/useTokenExpiration'
 import { ToastProvider } from './components/Toast/Toast'
 
@@ -47,8 +48,25 @@ const App = () => {
           }
         >
           <Routes>
-            <Route exact path="/" name="Landing Page" element={<LandingPage />} />
-            <Route exact path="/login" name="Login Page" element={<Login />} />
+            <Route
+              exact
+              path="/"
+              name="Landing Page"
+              element={
+                <LoginRoute>
+                  <LandingPage />
+                </LoginRoute>
+              }
+            />
+            {/* <Route exact path="/login" name="Login Page" element={<Login />} /> */}
+            <Route
+              path="/login"
+              element={
+                <LoginRoute>
+                  <Login />
+                </LoginRoute>
+              }
+            />
             <Route
               exact
               path="/profile"

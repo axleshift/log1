@@ -981,11 +981,11 @@ const FuelAnalyticsDashboard = () => {
                       {predictionResults && (
                         <CCard className="mt-3">
                           <CCardBody>
-                            <h5>Predicted Values for Next Fuel Fill:</h5>
+                            <h5>Forecast Values for Next Fuel Fill:</h5>
                             <CRow>
                               <CCol md={4}>
                                 <div className="mb-2">
-                                  <strong>Predicted Fuel Quantity:</strong>
+                                  <strong>Forecast Fuel Quantity:</strong>
                                   <br />
                                   {predictionResults.fuelConsumption} L
                                 </div>
@@ -1006,8 +1006,8 @@ const FuelAnalyticsDashboard = () => {
                               </CCol>
                             </CRow>
                             <small className="text-muted">
-                              * Predictions are based on historical data patterns and may vary from
-                              actual values.
+                              * The forecast values are based on historical data patterns and may
+                              vary from actual values.
                             </small>
                           </CCardBody>
                         </CCard>

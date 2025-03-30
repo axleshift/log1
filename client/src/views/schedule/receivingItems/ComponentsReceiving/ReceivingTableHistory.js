@@ -339,9 +339,9 @@ const ReceivingTableHistory = () => {
         </div>
       </div>
 
-      <div className="card mb-4">
-        <div className="card-body">
-          <CAccordion flush>
+      <div>
+        <div>
+          <CAccordion>
             {currentItems.map((item, index) => (
               <CAccordionItem key={item._id || index}>
                 <CAccordionHeader>
@@ -350,9 +350,7 @@ const ReceivingTableHistory = () => {
                       <FontAwesomeIcon icon={faBox} className="me-2" />
                       Tracking ID: {item.shipment?.tracking_id}
                     </span>
-                    <span className="text-muted">
-                      Received: {new Date(item.receiveDate).toLocaleDateString()}
-                    </span>
+                    <span>Received: {new Date(item.receiveDate).toLocaleDateString()}</span>
                   </div>
                 </CAccordionHeader>
                 <CAccordionBody>

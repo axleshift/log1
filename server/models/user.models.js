@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        recaptchaScore: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,

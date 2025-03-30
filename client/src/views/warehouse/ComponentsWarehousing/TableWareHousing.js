@@ -133,6 +133,13 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
       </CAlert>
     )
   }
+  if (error) {
+    return (
+      <CAlert color="danger" className="text-center mt-5 w-75 mx-auto">
+        Error: {error.message}
+      </CAlert>
+    )
+  }
 
   return (
     <>

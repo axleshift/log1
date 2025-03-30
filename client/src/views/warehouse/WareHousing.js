@@ -36,7 +36,6 @@ const WareHousing = () => {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
         )
-        console.log(response.data)
         if (response.status === 200) {
           setWarehousing(response.data)
         }
