@@ -21,12 +21,19 @@ import {
   CPagination,
   CPaginationItem,
   CHeader,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalFooter,
+  CModalTitle,
+  CFormSelect,
 } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faHouse, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import UpdatedUser from './Active/UpdatedUser'
 import api from '../../../utils/api'
+import Login from './../login/Login'
 const UserList = ({ onUpdateUser }) => {
   const navigate = useNavigate()
   const [users, setUsers] = useState([])
@@ -37,6 +44,8 @@ const UserList = ({ onUpdateUser }) => {
   const [localError, setLocalError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [editModalVisible, setEditModalVisible] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [selectedUserId, setSelectedUserId] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
   const [statusFilter, setStatusFilter] = useState('all') // Add this state
   const itemsPerPage = 10
@@ -248,43 +257,50 @@ const UserList = ({ onUpdateUser }) => {
                     <CTableHeaderCell>Role</CTableHeaderCell>
                     <CTableHeaderCell>Created Date</CTableHeaderCell>
                     <CTableHeaderCell>Status</CTableHeaderCell>
+                    {/* <CTableHeaderCell>Online Status</CTableHeaderCell> */}
+                    <CTableHeaderCell>Date of Login</CTableHeaderCell>
                     <CTableHeaderCell>Actions</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {currentItems.map((item) => (
-                    <CTableRow key={item._id}>
-                      <CTableDataCell>{item.username}</CTableDataCell>
-                      <CTableDataCell>{item.email}</CTableDataCell>
-                      <CTableDataCell>{item.role}</CTableDataCell>
-                      <CTableDataCell>{item.createdAt.slice(0, 10)}</CTableDataCell>
-                      <CTableDataCell>
-                        <CBadge color={item.isActive ? 'success' : 'danger'}>
-                          {item.isActive ? 'Active' : 'Inactive'}
-                        </CBadge>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CContainer className=" d-flex justify-content-center align-items-center">
-                          <CButton
-                            variant="outline"
-                            className="me-2"
-                            color={item.isActive ? 'danger' : 'success'}
-                            onClick={() => toggleUserStatus(item._id)}
-                          >
-                            {item.isActive ? 'Deactivate' : 'Activate'}
-                          </CButton>
-                          <CButton
-                            variant="outline"
-                            className="me-2"
-                            color="primary"
-                            onClick={() => handleEditClick(item)}
-                          >
-                            <FontAwesomeIcon icon={faEdit} />
-                          </CButton>
-                        </CContainer>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
+                  {currentItems
+                    .filter((item) => item.role !== 'admin')
+                    .map((item) => (
+                      <CTableRow key={item._id}>
+                        <CTableDataCell>{item.username}</CTableDataCell>
+                        <CTableDataCell>{item.email}</CTableDataCell>
+                        <CTableDataCell>{item.role}</CTableDataCell>
+                        <CTableDataCell>{item.createdAt.slice(0, 10)}</CTableDataCell>
+                        <CTableDataCell>
+                          <CBadge color={item.isActive ? 'success' : 'danger'}>
+                            {item.isActive ? 'Active' : 'Deactivated'}
+                          </CBadge>
+                        </CTableDataCell>
+
+                        <CTableDataCell>{item.lastLoginTime || '-'}</CTableDataCell>
+                        <CTableDataCell>
+                          <CContainer className=" d-flex justify-content-center align-items-center">
+                            <CButton
+                              variant="outline"
+                              className="me-2"
+                              color={item.isActive ? 'danger' : 'success'}
+                              onClick={() => toggleUserStatus(item._id)}
+                            >
+                              {item.isActive ? 'Deactivate' : 'Activate'}
+                            </CButton>
+
+                            <CButton
+                              variant="outline"
+                              className="me-2"
+                              color="primary"
+                              onClick={() => handleEditClick(item)}
+                            >
+                              <FontAwesomeIcon icon={faEdit} />
+                            </CButton>
+                          </CContainer>
+                        </CTableDataCell>
+                      </CTableRow>
+                    ))}
                 </CTableBody>
               </CTable>
               {selectedUser && (

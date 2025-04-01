@@ -1,5 +1,6 @@
 import { jwtDecode } from 'jwt-decode'
 import api from './api'
+
 export const getAuthToken = () => {
   return sessionStorage.getItem('accessToken')
 }
@@ -42,12 +43,35 @@ export const refreshToken = async () => {
 
 export const logout = async () => {
   try {
-    await api.post('api/v1/user/logout')
+    const token = sessionStorage.getItem('accessToken')
+    if (!token) {
+      // If no token exists, just clear storage
+      sessionStorage.removeItem('accessToken')
+      sessionStorage.removeItem('refreshToken')
+      sessionStorage.removeItem('user')
+      return
+    }
+
+    await api.post(
+      'api/v1/user/logout',
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+
+    // Clear storage after successful logout
     sessionStorage.removeItem('accessToken')
     sessionStorage.removeItem('refreshToken')
     sessionStorage.removeItem('user')
   } catch (error) {
     console.error('Logout error:', error)
+    // Even if the server request fails, clear local storage
+    sessionStorage.removeItem('accessToken')
+    sessionStorage.removeItem('refreshToken')
+    sessionStorage.removeItem('user')
   }
 }
 
@@ -83,3 +107,18 @@ export const getUsername = () => {
   }
   return null
 }
+
+// export const handleUnexpectedDisconnection = async () => {
+//   try {
+//     const user = getUserInfo()
+//     if (user && user.userId) {
+//       await api.post('api/v1/user/logout')
+//     }
+//   } catch (error) {
+//     console.error('Error handling disconnection:', error)
+//   }
+// }
+
+// Add event listeners for unexpected closures
+// window.addEventListener('beforeunload', handleUnexpectedDisconnection)
+// window.addEventListener('unload', handleUnexpectedDisconnection)

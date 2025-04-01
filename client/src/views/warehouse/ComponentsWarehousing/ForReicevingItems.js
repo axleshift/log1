@@ -155,9 +155,12 @@ const ForReicevingItems = ({ onAddItem }) => {
         // console.log(response.data)
         if (response.status === 200) {
           setReicevingItems(response.data)
+        } else {
+          setLocalError(response.data.message || 'Error fetching data')
         }
       } catch (error) {
         console.error('Error fetching data:', error)
+        setLocalError(error?.response?.data.message || 'Error fetching data')
       }
     }
 
@@ -283,18 +286,10 @@ const ForReicevingItems = ({ onAddItem }) => {
     setSearchQuery(e.target.value)
   }
 
-  const allItemsReceived =
-    reicevingItems.length > 0 && reicevingItems.every((item) => item.received === true)
+  // const allItemsReceived =
+  //   reicevingItems.length > 0 && reicevingItems.every((item) => item.received === true)
 
-  if (allItemsReceived) {
-    return (
-      <CAlert color="success" className="text-center mt-3 w-75 mx-auto">
-        All items have been received.
-      </CAlert>
-    )
-  }
-
-  if (currentItems.length === 0) {
+  if (reicevingItems.filter((item) => !item.received).length === 0) {
     return (
       <CAlert color="danger" className="text-center mt-3 w-75 mx-auto">
         No items to receive.
@@ -302,13 +297,6 @@ const ForReicevingItems = ({ onAddItem }) => {
     )
   }
 
-  if (localError) {
-    return (
-      <CAlert color="danger" className="text-center mt-3 w-75 mx-auto">
-        {localError}
-      </CAlert>
-    )
-  }
   return (
     <>
       <CContainer className="mt-3">

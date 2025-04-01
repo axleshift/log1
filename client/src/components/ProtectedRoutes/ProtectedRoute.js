@@ -1,7 +1,10 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import { useToast } from '../Toast/Toast'
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
+  const { showError } = useToast()
   const token = sessionStorage.getItem('accessToken')
   const userRole = sessionStorage.getItem('user')
 

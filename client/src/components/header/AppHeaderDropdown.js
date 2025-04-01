@@ -15,11 +15,13 @@ import { useNavigate } from 'react-router-dom'
 import { logout } from '../../utils/auth'
 import axios from 'axios'
 import api from '../../utils/api'
+import { useToast } from '../Toast/Toast'
 
 const AppHeaderDropdown = () => {
+  const { showSuccess, showError } = useToast()
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(false) // Add loading state
-  const [error, setError] = useState(null) // Add error state
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
   const [preview, setPreview] = useState(null)
   const fetchUserData = async () => {
@@ -52,19 +54,8 @@ const AppHeaderDropdown = () => {
     }
   }
   useEffect(() => {
-    fetchUserData() // Call fetchUserData when component mounts
-  }, []) // Remove user from dependencies to avoid infinite loop
-
-  // useEffect(() => {
-  //   if (user?.photo) {
-  //     const photoUrl = user.photo.startsWith('http')
-  //       ? user.photo
-  //       : `${API_URL}uploads/profiles/${user.photo}`
-  //     setPreview(photoUrl)
-  //   } else {
-  //     setPreview(null)
-  //   }
-  // }, [user, API_URL])
+    fetchUserData()
+  }, [])
 
   useEffect(() => {
     if (user?.photo) {
@@ -82,6 +73,7 @@ const AppHeaderDropdown = () => {
 
   const handleLogout = async () => {
     await logout()
+    showSuccess('Logout successful')
     navigate('/login')
   }
 

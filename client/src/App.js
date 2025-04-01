@@ -37,6 +37,23 @@ const App = () => {
 
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // useEffect(() => {
+  //   const handleBeforeUnload = async () => {
+  //     try {
+  //       await api.post('api/v1/user/logout')
+  //     } catch (error) {
+  //       console.error('Error logging out:', error)
+  //     }
+  //   }
+
+  //   window.addEventListener('beforeunload', handleBeforeUnload)
+
+  //   return () => {
+  //     window.removeEventListener('beforeunload', handleBeforeUnload)
+  //   }
+  // }, [])
+
   return (
     <ToastProvider>
       <BrowserRouter>
