@@ -10,7 +10,6 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,21 +55,6 @@ app.use(
     })
 );
 
-// app.use(
-//     session({
-//         secret: process.env.SESSION_SECRET,
-//         resave: false,
-//         saveUninitialized: true,
-//         cookie: {
-//             secure: process.env.NODE_ENV === "production",
-//             httpOnly: true,
-//             maxAge: 7 * 24 * 60 * 60 * 1000,
-//             sameSite: "strict",
-//         },
-//     })
-// );
-
-// Example of more secure session configuration in Express
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
