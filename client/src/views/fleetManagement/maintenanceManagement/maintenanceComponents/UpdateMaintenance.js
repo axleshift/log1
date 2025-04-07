@@ -239,7 +239,18 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
       setLoading(false)
     }
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
 
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CButton
@@ -249,7 +260,7 @@ const UpdateMaintenance = ({ onUpdateMaintenance, maintenance, disabled }) => {
         onClick={() => setVisible(true)}
         disabled={disabled}
       >
-        {disabled ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faPenToSquare} />}{' '}
+        {disabled ? <NavIcon icon={faCheck} /> : <NavIcon icon={faPenToSquare} />}{' '}
         {disabled ? 'Complete' : 'Update'}
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)} size="lg">

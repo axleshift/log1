@@ -98,7 +98,18 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
     { value: 'on_duty', label: 'On Duty' },
     { value: 'off_duty', label: 'Off Duty' },
   ]
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
 
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CButton
@@ -108,7 +119,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
         onClick={() => setVisible(true)}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />} Update
+        {loading ? <CSpinner size="sm" /> : <NavIcon icon={faPenToSquare} />} Update
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>

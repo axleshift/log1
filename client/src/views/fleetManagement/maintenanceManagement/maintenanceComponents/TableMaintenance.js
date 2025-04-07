@@ -171,6 +171,18 @@ const TableMaintenance = ({
     { value: 'Scheduled', label: 'Scheduled' },
     { value: 'In Progress', label: 'In Progress' },
   ]
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
 
   return (
     <>
@@ -299,7 +311,7 @@ const TableMaintenance = ({
                         onClick={() => openChecklistModal(maintenance)}
                         disabled={maintenance.purchased === false && maintenance.parts.length > 0}
                       >
-                        <FontAwesomeIcon icon={faListCheck} /> Checklist
+                        <NavIcon icon={faListCheck} /> Checklist
                       </CButton>
 
                       <CButton
@@ -308,7 +320,7 @@ const TableMaintenance = ({
                         variant="outline"
                         onClick={() => onDeleteMaintenance(maintenance._id)}
                       >
-                        <FontAwesomeIcon icon={faTrash} /> Delete
+                        <NavIcon icon={faTrash} /> Delete
                       </CButton>
                     </CContainer>
                   </CDropdownMenu>

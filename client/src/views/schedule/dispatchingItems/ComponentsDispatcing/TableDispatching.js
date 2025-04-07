@@ -1,50 +1,64 @@
-import React, { useState, useEffect } from 'react'
-import api from './../../../../utils/api'
-import { useToast } from '../../../../components/Toast/Toast'
+import React, { useEffect, useState } from 'react'
+import api from '../../../../utils/api'
+import DIspatchingBtn from './DIspatchingBtn'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye, faPrint } from '@fortawesome/free-solid-svg-icons'
 import {
-  CTable,
-  CTableRow,
-  CTableDataCell,
-  CTableBody,
-  CTableHeaderCell,
-  CTableHead,
-  CBadge,
-  CSpinner,
-  CModal,
-  CModalHeader,
-  CModalBody,
-  CModalFooter,
   CFormInput,
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
   CPagination,
   CPaginationItem,
+  CBadge,
+  CAlert,
   CButton,
-  CContainer,
   CDropdown,
   CDropdownToggle,
   CDropdownMenu,
+  CContainer,
   CDropdownItem,
-  CRow,
-  CCol,
+  CModal,
+  CModalHeader,
+  CModalTitle,
+  CModalBody,
+  CModalFooter,
+  CForm,
+  CFormLabel,
+  CFormTextarea,
   CFormSelect,
-  CAlert,
+  CSpinner,
 } from '@coreui/react'
-import AddReceiving from './AddReceiving'
-import CompleteBtnReceiving from './CompleteBtnReceiving'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faTruck, faEye, faPrint } from '@fortawesome/free-solid-svg-icons'
+import { useToast } from '../../../../components/Toast/Toast'
+import CompleteBtnDispatching from './CompleteBtnDispatching'
 
-const TableReceiving = () => {
-  const { showError, showSuccess } = useToast()
+const TableDispatching = () => {
+  const [dispatching, setDispatching] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [receiving, setReceiving] = useState([])
+  const [vehicle, setVehicle] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [warehouses, setWarehouses] = useState([])
+  const { showError, showSuccess } = useToast()
   const [selectedShipment, setSelectedShipment] = useState(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [warehouses, setWarehouses] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
+  const [showDispatchModal, setShowDispatchModal] = useState(false)
+
+  const refreshShipments = async () => {
+    try {
+      fetchShipments()
+    } catch (error) {
+      console.error('Error refreshing shipments:', error)
+    }
+  }
   const fectchShipmment = async () => {
     setLoading(true)
     try {
@@ -53,7 +67,7 @@ const TableReceiving = () => {
 
       if (response.status === 200) {
         const shipmentData = response.data.shipments || []
-        setReceiving(shipmentData)
+        setDispatching(shipmentData)
         setError(null)
       }
     } catch (error) {
@@ -82,14 +96,16 @@ const TableReceiving = () => {
   const getWarehouseName = (warehouseId) => {
     if (!warehouses.length) return 'Loading...'
     const warehouse = warehouses.find((w) => w._id === warehouseId)
-    return warehouse ? (
-      <CBadge color="success">{warehouse.warehouseName}</CBadge>
-    ) : (
-      <CBadge color="danger">Not Yet Assigned</CBadge>
-    )
+    return warehouse ? warehouse.warehouseName : 'Not Yet Assigned'
   }
 
-  const filteredShipments = receiving.filter((shipment) => {
+  const getWarehouseAddress = (warehouseId) => {
+    if (!warehouses.length) return 'Loading...'
+    const warehouse = warehouses.find((w) => w._id === warehouseId)
+    return warehouse ? warehouse.address : 'Not Yet Assigned'
+  }
+
+  const filteredShipments = dispatching.filter((shipment) => {
     const searchTerm = searchQuery.toLowerCase()
     return (
       shipment.tracking_id?.toLowerCase().includes(searchTerm) ||
@@ -144,43 +160,16 @@ const TableReceiving = () => {
 
   const handleView = (trackingId) => {
     try {
-      const shipment = receiving.find((s) => s.tracking_id === trackingId)
+      const shipment = dispatching.find((s) => s.tracking_id === trackingId)
       setSelectedShipment(shipment)
       setShowViewModal(true)
     } catch (error) {
       showError('Error viewing shipment details')
     }
   }
-
-  // const handleEdit = (trackingId) => {
-  //   try {
-  //     const shipment = receiving.find((s) => s.tracking_id === trackingId)
-  //     setSelectedShipment(shipment)
-  //     setShowEditModal(true)
-  //   } catch (error) {
-  //     showError('Error editing shipment')
-  //   }
-  // }
-
   useEffect(() => {
     fectchShipmment()
   }, [])
-
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center p-4">
-        <CSpinner />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <CAlert color="danger" className="text-center p-4">
-        {error}
-      </CAlert>
-    )
-  }
   const generateReceivingCopy = (shipment) => {
     const currentDate = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
@@ -194,6 +183,69 @@ const TableReceiving = () => {
         currency: 'PHP',
       }).format(amount)
     }
+
+    const airFreightSection =
+      shipment.shipping?.shipping_type === 'air'
+        ? `
+    <div class="section">
+      <div class="section-title">AIR FREIGHT DETAILS</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Destination Airport:</span>
+          <span class="value">${shipment.shipping?.shipping_details?.destination_airport || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Flight Details:</span>
+          <span class="value">${shipment.shipping?.shipping_details?.flight_type || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Preferred Departure:</span>
+          <span class="value">${formatDate(shipment.shipping?.shipping_details?.preferred_departure_date) || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Preferred Arrival:</span>
+          <span class="value">${formatDate(shipment.shipping?.shipping_details?.preferred_arrival_date) || 'N/A'}</span>
+        </div>
+      </div>
+    </div>
+  `
+        : ''
+
+    // Sea Freight Section
+    const seaFreightSection =
+      shipment.shipping?.shipping_type === 'sea'
+        ? `
+    <div class="section">
+      <div class="section-title">SEA FREIGHT DETAILS</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Port of Loading:</span>
+          <span class="value">${shipment.shipping?.shipping_details?.loading_port || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Port of Discharge:</span>
+          <span class="value">${shipment.shipping?.shipping_details?.discharge_port || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Vessel Name:</span>
+          <span class="value">${shipment.shipping?.shipping_details?.destination_address || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Container Type:</span>
+          <span class="value">${shipment.shipping?.shipping_details?.cargo_type || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Estimated Departure:</span>
+          <span class="value">${formatDate(shipment.shipping?.shipping_details?.sailing_date) || 'N/A'}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Estimated Arrival:</span>
+          <span class="value">${formatDate(shipment.shipping?.shipping_details?.estimated_arrival_date) || 'N/A'}</span>
+        </div>
+      </div>
+    </div>
+  `
+        : ''
 
     return `
       <!DOCTYPE html>
@@ -282,11 +334,27 @@ const TableReceiving = () => {
       <body>
         <div class="header">
           <!-- Replace with your company logo -->
-          <div class="document-title">PICK UP DETAILS</div>
+          <div class="document-title">RECEIVING COPY</div>
           <div class="document-number">Tracking ID: ${shipment.tracking_id}</div>
           <div>Date: ${currentDate}</div>
         </div>
   
+        <div class="section">
+          <div class="section-title">Storage Details</div>
+          <div class="info-grid">    
+            <div class="info-item">
+              <span class="label">Warehouse:</span>
+              <span class="value">${getWarehouseName(shipment.warehouse_id)}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Warehouse Address:</span>
+              <span class="value">${getWarehouseAddress(shipment.warehouse_id)}</span>
+            </div>
+            
+          </div>
+        </div>
+
+        
         <div class="section">
           <div class="section-title">SHIPPER DETAILS</div>
           <div class="info-grid">
@@ -366,25 +434,29 @@ const TableReceiving = () => {
             </div>
           </div>
         </div>
-  
+
         <div class="section">
-          <div class="section-title">VEHICLE DETAILS</div>
+          <div class="section-title">VEHICLE INFORMATION</div>
           <div class="info-grid">
             <div class="info-item">
-              <span class="label">Vehicle Type:</span>
+              <span class="label">Vehicle:</span>
               <span class="value">${shipment.vehicle?.name || 'N/A'}</span>
             </div>
             <div class="info-item">
-              <span class="label">Driver Name:</span>
-              <span class="value">${shipment.vehicle?.driver_name || 'N/A'}</span>
-            </div>
-           
-            <div class="info-item">
-              <span class="label">Vehicle Plate No:</span>
+              <span class="label">Plate No:</span>
               <span class="value">${shipment.vehicle?.plate_no || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Driver:</span>
+              <span class="value">${shipment.vehicle?.driver_name || 'N/A'}</span>
             </div>
           </div>
         </div>
+
+              ${airFreightSection}
+              ${seaFreightSection}
+              
+
   
         <div class="signatures">
           <div>
@@ -416,21 +488,6 @@ const TableReceiving = () => {
     printWindow.document.close()
     printWindow.print()
   }
-
-  if (
-    receiving.filter((shipment) => !shipment.isInWarehouse && shipment.dispatch !== 'Completed')
-      .length === 0
-  ) {
-    return (
-      <div className="text-center d-flex justify-content-center align-items-center">
-        <CAlert color="warning" className="w-75">
-          {' '}
-          Receiving shipments is done
-        </CAlert>
-      </div>
-    )
-  }
-
   const NavIcon = ({ icon }) => {
     const [isHovering, setIsHovering] = useState(false)
 
@@ -443,7 +500,6 @@ const TableReceiving = () => {
       />
     )
   }
-
   return (
     <>
       <div className="mb-3">
@@ -462,72 +518,64 @@ const TableReceiving = () => {
             <div className="text-end">
               <span className="text-muted">
                 Total Records:{' '}
-                {
-                  filteredShipments.filter(
-                    (shipment) => !shipment.isInWarehouse && shipment.dispatch !== 'Completed',
-                  ).length
-                }
+                {filteredShipments.filter((shipment) => shipment.isInWarehouse).length}
               </span>
             </div>
           </div>
         </div>
       </div>
-      {Array.isArray(receiving) && receiving.length > 0 ? (
+      {Array.isArray(dispatching) && dispatching.length > 0 ? (
         <>
           <CTable hover responsive>
             <CTableHead className="text-center">
               <CTableRow>
                 <CTableHeaderCell>Tracking ID</CTableHeaderCell>
-                {/* <CTableHeaderCell>Type</CTableHeaderCell>
-                <CTableHeaderCell>Payment Status</CTableHeaderCell> */}
+                <CTableHeaderCell>Status</CTableHeaderCell>
+                {/* <CTableHeaderCell>Payment Status</CTableHeaderCell> */}
                 <CTableHeaderCell>Shipper</CTableHeaderCell>
-                <CTableHeaderCell>Shipper Address</CTableHeaderCell>
                 <CTableHeaderCell>Consignee</CTableHeaderCell>
+                <CTableHeaderCell>Consignee Address</CTableHeaderCell>
                 {/* <CTableHeaderCell>Shipping Type</CTableHeaderCell> */}
-                <CTableHeaderCell>
-                  <FontAwesomeIcon icon={faTruck} className="me-2" />
-                  Vehicle
-                </CTableHeaderCell>
-                <CTableHeaderCell>
-                  <FontAwesomeIcon icon={faUser} className="me-2" />
-                  Driver
-                </CTableHeaderCell>
+                <CTableHeaderCell>Vehicle</CTableHeaderCell>
+                <CTableHeaderCell>Driver</CTableHeaderCell>
                 <CTableHeaderCell>Storage Warehouse</CTableHeaderCell>
                 <CTableHeaderCell>Actions</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody className="text-center">
               {currentItems
-                .filter((shipment) => !shipment.isInWarehouse && shipment.dispatch !== 'Completed')
+                .filter((shipment) => shipment.isInWarehouse)
                 .map((shipment) => (
                   <CTableRow key={shipment.tracking_id}>
                     <CTableDataCell>{shipment.tracking_id}</CTableDataCell>
-                    {/* <CTableDataCell>
-                      <CBadge color="primary">{shipment.type || 'N/A'}</CBadge>
-                    </CTableDataCell> */}
-                    {/* <CTableDataCell>
+                    <CTableDataCell>
                       <CBadge color={getBadgeColor(shipment.dispatch)}>
                         {shipment.dispatch || 'N/A'}
                       </CBadge>
-                    </CTableDataCell> */}
+                    </CTableDataCell>
+                    {/* <CTableDataCell>
+                          <CBadge color={getBadgeColor(shipment.dispatch)}>
+                            {shipment.dispatch || 'N/A'}
+                          </CBadge>
+                        </CTableDataCell> */}
                     {/* <CTableDataCell>
                       <CBadge color={getBadgeColor(shipment.paid)}>{shipment.paid || 'N/A'}</CBadge>
                     </CTableDataCell> */}
-                    <CTableDataCell>
-                      {shipment.shipper?.shipper_company_address || 'N/A'}
-                    </CTableDataCell>
                     <CTableDataCell>
                       {shipment.shipper?.shipper_company_name || 'N/A'}
                     </CTableDataCell>
                     <CTableDataCell>
                       {shipment.consignee?.consignee_company_name || 'N/A'}
                     </CTableDataCell>
+                    <CTableDataCell>
+                      {shipment.consignee?.consignee_company_address || 'N/A'}
+                    </CTableDataCell>
                     {/* <CTableDataCell>
                       <CBadge color="info">{shipment.shipping?.shipping_type || 'N/A'}</CBadge>
                     </CTableDataCell> */}
                     {/* <CTableDataCell>
-                      {(shipment.vehicle.name && shipment.vehicle.plate_no) || 'N/A'}
-                    </CTableDataCell> */}
+                          {(shipment.vehicle.name && shipment.vehicle.plate_no) || 'N/A'}
+                        </CTableDataCell> */}
 
                     <CTableDataCell>
                       {shipment.vehicle?.name && shipment.vehicle?.plate_no ? (
@@ -546,7 +594,13 @@ const TableReceiving = () => {
                         <CBadge color="secondary">N/A</CBadge>
                       )}
                     </CTableDataCell>
-                    <CTableDataCell>{getWarehouseName(shipment.warehouse_id)}</CTableDataCell>
+                    <CTableDataCell>
+                      {shipment.warehouse_id ? (
+                        <CBadge color="success">{getWarehouseName(shipment.warehouse_id)}</CBadge>
+                      ) : (
+                        <CBadge color="secondary">N/A</CBadge>
+                      )}
+                    </CTableDataCell>
                     <CTableDataCell>
                       <CDropdown>
                         <CDropdownToggle color="secondary" size="sm">
@@ -562,19 +616,23 @@ const TableReceiving = () => {
                             >
                               <NavIcon icon={faEye} /> View
                             </CButton>
+
                             <CButton
                               color="secondary"
                               variant="outline"
                               className="mb-3"
                               onClick={() => printReceipt(shipment)}
-                              disabled={loading || !shipment.vehicle}
+                              disabled={loading || !shipment.vehicle.name}
                             >
                               <NavIcon icon={faPrint} /> Print
                             </CButton>
 
-                            <AddReceiving shipment={shipment} onSuccess={fectchShipmment} />
+                            <DIspatchingBtn shipment={shipment} onSuccess={fectchShipmment} />
 
-                            <CompleteBtnReceiving shipment={shipment} onSuccess={fectchShipmment} />
+                            <CompleteBtnDispatching
+                              shipment={shipment}
+                              onSuccess={fectchShipmment}
+                            />
                           </CContainer>
                         </CDropdownMenu>
                       </CDropdown>
@@ -591,17 +649,9 @@ const TableReceiving = () => {
                 Showing {indexOfFirstItem + 1} to{' '}
                 {Math.min(
                   indexOfLastItem,
-                  filteredShipments.filter(
-                    (shipment) => !shipment.isInWarehouse && shipment.dispatch !== 'Completed',
-                  ).length,
+                  filteredShipments.filter((shipment) => shipment.isInWarehouse).length,
                 )}{' '}
-                of{' '}
-                {
-                  filteredShipments.filter(
-                    (shipment) => !shipment.isInWarehouse && shipment.dispatch !== 'Completed',
-                  ).length
-                }{' '}
-                entries
+                of {filteredShipments.filter((shipment) => shipment.isInWarehouse).length} entries
               </span>
             </div>
             <CPagination aria-label="Page navigation">
@@ -639,7 +689,6 @@ const TableReceiving = () => {
         </CAlert>
       )}
 
-      {/* View Modal */}
       <CModal visible={showViewModal} onClose={() => setShowViewModal(false)} size="lg">
         <CModalHeader closeButton>
           <h5>Shipment Details</h5>
@@ -655,8 +704,8 @@ const TableReceiving = () => {
                   </p>
                   {/* <p>
                     <strong>Receive Date:</strong> {formatDate(selectedShipment.receiveDate)}
-                  </p>
-                  <p>
+                  </p> */}
+                  {/* <p>
                     <strong>Type:</strong> {selectedShipment.type}
                   </p> */}
                   <p>
@@ -667,11 +716,11 @@ const TableReceiving = () => {
                   </p> */}
                 </div>
                 <div className="col-md-6">
-                  <h6>Shipping Country</h6>
+                  <h6>Shipping Details</h6>
                   {/* <p>
                     <strong>Shipping Type:</strong> {selectedShipment.shipping?.shipping_type}
-                  </p>
-                  <p>
+                  </p> */}
+                  {/* <p>
                     <strong>Items:</strong> {selectedShipment.items}
                   </p>
                   <p>
@@ -762,33 +811,8 @@ const TableReceiving = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-
-      {/* Edit Modal */}
-      {/* <CModal visible={showEditModal} onClose={() => setShowEditModal(false)} size="lg">
-        <CModalHeader closeButton>
-          <h5>Edit Shipment</h5>
-        </CModalHeader>
-        <CModalBody>
-
-          <p>Edit form coming soon...</p>
-        </CModalBody>
-        <CModalFooter>
-          <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-
-              setShowEditModal(false)
-            }}
-          >
-            Save Changes
-          </button>
-        </CModalFooter>
-      </CModal> */}
     </>
   )
 }
 
-export default TableReceiving
+export default TableDispatching

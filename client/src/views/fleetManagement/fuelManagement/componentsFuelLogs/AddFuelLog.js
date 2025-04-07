@@ -288,7 +288,18 @@ const AddFuelLog = ({ onAddFuelog }) => {
       setLoading(false)
     }
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
 
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CButton
@@ -297,7 +308,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
         disabled={loading}
         onClick={() => setVisible(true)}
       >
-        {loading ? <CSpinner color="primary" size="sm" /> : <FontAwesomeIcon icon={faPlus} />}
+        {loading ? <CSpinner color="primary" size="sm" /> : <NavIcon icon={faPlus} />}
         Add Fuel Log
       </CButton>
 

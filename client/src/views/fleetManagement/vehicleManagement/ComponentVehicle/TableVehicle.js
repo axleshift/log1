@@ -141,7 +141,18 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
     // For vehicles with more than 2 weeks until expiration
     return { text: 'Registered', badge: 'success' }
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
 
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CContainer className="mt-3">
@@ -231,7 +242,7 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
                     variant="outline"
                     onClick={() => onDeleteVehicle(vehicle._id)}
                   >
-                    <FontAwesomeIcon icon={faTrash} /> Delete
+                    <NavIcon icon={faTrash} /> Delete
                   </CButton>
                 )}
               </CContainer>

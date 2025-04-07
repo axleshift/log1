@@ -98,6 +98,19 @@ const AddVehicle = ({ onAddVehicle }) => {
   const currentYear = new Date().getFullYear()
   const MIN_YEAR = 1990
   const today = new Date().toISOString().split('T')[0]
+
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       {loading ? (
@@ -105,7 +118,7 @@ const AddVehicle = ({ onAddVehicle }) => {
       ) : (
         <>
           <CButton color="primary" variant="outline" onClick={() => setVisible(true)}>
-            <FontAwesomeIcon icon={faPlus} /> Add Vehicle
+            <NavIcon icon={faPlus} /> Add Vehicle
           </CButton>
           <CModal visible={visible} onClose={() => setVisible(false)} size="lg">
             <CModalHeader closeButton>

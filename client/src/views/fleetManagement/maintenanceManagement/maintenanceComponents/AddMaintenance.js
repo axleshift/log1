@@ -225,10 +225,23 @@ const AddMaintenance = ({ onAddMaintenance }) => {
     }
     setValidated(true)
   }
+
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CButton color="primary" className="mb-3" variant="outline" onClick={() => setVisible(true)}>
-        <FontAwesomeIcon icon={faPlus} /> Add Maintenance
+        <NavIcon icon={faPlus} /> Add Maintenance
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)} size="lg">
         <CModalHeader closeButton>

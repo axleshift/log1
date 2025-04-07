@@ -79,6 +79,19 @@ const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
     }
   }
 
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
+
   return (
     <>
       {loading ? (
@@ -91,8 +104,8 @@ const AddWarehouseLoc = ({ onAddWarehouseLoc }) => {
             disabled={loading}
             onClick={() => setVisible(true)}
           >
-            {loading ? <CSpinner color="secondary" size="sm" /> : <FontAwesomeIcon icon={faPlus} />}{' '}
-            Add Warehouse Location
+            {loading ? <CSpinner color="secondary" size="sm" /> : <NavIcon icon={faPlus} />} Add
+            Warehouse Location
           </CButton>
           <CModal visible={visible} onClose={() => setVisible(false)}>
             <CModalHeader closeButton>

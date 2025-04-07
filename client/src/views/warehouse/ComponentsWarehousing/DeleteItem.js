@@ -33,7 +33,7 @@ const DeleteItem = ({ warehousing, onDeleteItem }) => {
   return (
     <>
       <CButton color="danger" variant="outline" onClick={handleDelete} className="me-2">
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />}
+        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} bounce />}
       </CButton>
     </>
   )

@@ -327,6 +327,18 @@ const AddReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       setLoading(false)
     }
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
 
   return (
     <>
@@ -337,7 +349,7 @@ const AddReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
         onClick={handleOpenModal}
         disabled={shipment?.isInWarehouse}
       >
-        <FontAwesomeIcon icon={faWarehouse} /> Warehouse
+        <NavIcon icon={faWarehouse} /> Warehouse
       </CButton>
 
       <CModal visible={showModal} onClose={handleCloseModal} backdrop="static">
@@ -401,7 +413,7 @@ const AddReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
                 ))}
             </CFormSelect>
 
-            <CFormInput
+            {/* <CFormInput
               type="number"
               id="items"
               label="Number of Items"
@@ -411,7 +423,7 @@ const AddReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
               value={form.items}
               onChange={handleFormChange}
               min="0"
-            />
+            /> */}
 
             {/* <label className="form-label">Amount</label>
             <input
@@ -435,6 +447,7 @@ const AddReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
           >
             Cancel
           </CButton>
+
           <CButton
             color="primary"
             variant="outline"

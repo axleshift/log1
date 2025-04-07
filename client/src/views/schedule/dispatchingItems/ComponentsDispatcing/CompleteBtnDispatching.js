@@ -193,7 +193,7 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import api from './../../../../utils/api'
 import { getUsername } from '../../../../utils/auth'
 
-const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
+const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
   const { showError, showSuccess } = useToast()
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -255,7 +255,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
         const response = await api.get('/api/v1/warehouseLoc/locations')
         if (response.data.data) {
           setWarehouses(response.data.data)
-          showSuccess(response.data.message)
         }
       } catch (error) {
         setLocalError(error?.response?.data.message)
@@ -264,11 +263,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
     }
     fetchWarehouses()
   }, [])
-  const getWarehouseName = (warehouseId) => {
-    if (!warehouses.length) return 'Loading...'
-    const warehouse = warehouses.find((w) => w._id === warehouseId)
-    return warehouse ? warehouse.warehouseName : 'Not Yet Assigned'
-  }
 
   const handleComplete = async () => {
     if (!shipment?._id) {
@@ -297,6 +291,11 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       if (selectedFile) {
         formData.append('photo', selectedFile)
       }
+      // Add this check before creating the dispatch
+      if (!completeShipmentData.shipping?.shipping_type) {
+        showError('Shipping type is required')
+        return
+      }
 
       // Prepare the data for receiving
       const receivingData = {
@@ -323,7 +322,7 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
             height: completeShipmentData.shipment.shipment_dimension_height,
           },
           tracking_id: completeShipmentData.tracking_id,
-          isInWarehouse: true,
+          isInWarehouse: false,
           // paid: 'Paid',
           // amount: parseFloat(amount),
         },
@@ -333,18 +332,39 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
           driver_name: completeShipmentData.vehicle.driver_name,
         },
         warehouse_id: completeShipmentData.warehouse_id,
+        // In CompleteBtnDispatching.js, modify the shipping section of receivingData:
         shipping: {
-          type: completeShipmentData.shipping.shipping_type,
+          shipping_type: completeShipmentData.shipping.shipping_type,
+          shipping_details: {
+            destination_address: completeShipmentData.shipping.shipping_details.destination_address,
+            pickup_date: completeShipmentData.shipping.shipping_details.pickup_date,
+            delivery_date: completeShipmentData.shipping.shipping_details.delivery_date,
+            vehicle_type: completeShipmentData.shipping.shipping_details.vehicle_type,
+            destination_airport: completeShipmentData.shipping.shipping_details.destination_airport,
+            preferred_departure_date:
+              completeShipmentData.shipping.shipping_details.preferred_departure_date,
+            preferred_arrival_date:
+              completeShipmentData.shipping.shipping_details.preferred_arrival_date,
+            flight_type: completeShipmentData.shipping.shipping_details.flight_type,
+            loading_port: completeShipmentData.shipping.shipping_details.loading_port,
+            discharge_port: completeShipmentData.shipping.shipping_details.discharge_port,
+            sailing_date: completeShipmentData.shipping.shipping_details.sailing_date,
+            estimated_arrival_date:
+              completeShipmentData.shipping.shipping_details.estimated_arrival_date,
+            cargo_type: completeShipmentData.shipping.shipping_details.cargo_type,
+          },
         },
+
         tracking_id: completeShipmentData.tracking_id,
         receiveDate: new Date().toISOString(),
         receiveBy: username,
       }
 
       formData.append('data', JSON.stringify(receivingData))
+      console.log('Shipping data being sent:', receivingData.shipping)
 
       // Create new record in receiving collection
-      const createReceivingResponse = await api.post(`api/v1/receiving/add`, formData, {
+      const createReceivingResponse = await api.post(`api/v1/dispatch/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -356,14 +376,10 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       const updateShipmentResponse = await api.put(
         `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/shipment/${shipment._id}`,
         {
-          isInWarehouse: true,
+          isInWarehouse: false,
           // paid: 'Paid',
           // amount: parseFloat(amount),
-          vehicle: {
-            name: null,
-            plate_no: null,
-            driver_name: null,
-          },
+          dispatch: 'Completed',
         },
       )
 
@@ -384,6 +400,7 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
   if (shipment?.paid === 'Paid') {
     return null
   }
+
   const NavIcon = ({ icon }) => {
     const [isHovering, setIsHovering] = useState(false)
 
@@ -406,7 +423,7 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
         onClick={handleOpenModal}
         disabled={loading || !shipment?.vehicle?.name}
       >
-        <NavIcon icon={faCheckCircle} className="me-1" /> Complete
+        <NavIcon icon={faCheckCircle} /> Complete
       </CButton>
 
       <CModal visible={showModal} onClose={handleCloseModal} backdrop="static">
@@ -467,9 +484,7 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
                 <strong>Note:</strong> This action will:
                 <ul className="mb-0">
                   {/* <li>Mark the shipment as &ldquo;Paid&ldquo;</li> */}
-                  <li>
-                    Store to warehouse &ldquo;{getWarehouseName(shipment?.warehouse_id)}&ldquo;
-                  </li>
+                  <li> Complete the Dispatching</li>
                   {/* <li>Set the final amount to {amount}</li> */}
                 </ul>
               </small>
@@ -508,4 +523,4 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
   )
 }
 
-export default CompleteBtnReceiving
+export default CompleteBtnDispatching

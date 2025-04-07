@@ -27,6 +27,18 @@ const DeleteDriver = ({ driver, onDeleteDriver }) => {
       setLoading(false)
     }
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
 
   return (
     <>
@@ -37,7 +49,7 @@ const DeleteDriver = ({ driver, onDeleteDriver }) => {
         className="me-2"
         disabled={loading}
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />} Delete
+        {loading ? <CSpinner size="sm" /> : <NavIcon icon={faTrash} />} Delete
       </CButton>
     </>
   )

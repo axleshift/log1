@@ -573,6 +573,8 @@ import {
 } from '@coreui/react'
 import api from '../../../../utils/api'
 import { useToast } from '../../../../components/Toast/Toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCar } from '@fortawesome/free-solid-svg-icons'
 
 const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers }) => {
   const { showSuccess, showError } = useToast()
@@ -831,6 +833,19 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
     }
   }
 
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
+
   return (
     <CModal visible={visible} onClose={onClose} size="lg" backdrop="static">
       <CModalHeader>
@@ -1074,10 +1089,10 @@ const UpdateFuelLog = ({ fuelLog, visible, onClose, onUpdate, vehicles, drivers 
         </CForm>
       </CModalBody>
       <CModalFooter>
-        <CButton color="secondary" onClick={onClose}>
+        <CButton color="secondary" variant="outline" onClick={onClose}>
           Close
         </CButton>
-        <CButton color="primary" onClick={handleSubmit} disabled={loading}>
+        <CButton color="primary" variant="outline" onClick={handleSubmit} disabled={loading}>
           {loading ? <CSpinner color="primary" size="sm" /> : 'Update'}
         </CButton>
       </CModalFooter>

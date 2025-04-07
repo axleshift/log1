@@ -112,6 +112,19 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
   const MIN_YEAR = 1990
   const today = new Date().toISOString().split('T')[0]
 
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
+
   return (
     <>
       <CButton
@@ -121,7 +134,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
         onClick={() => setVisible(true)}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faPenToSquare} />} Update
+        {loading ? <CSpinner size="sm" /> : <NavIcon icon={faPenToSquare} />} Update
       </CButton>
 
       <CModal visible={visible} onClose={() => setVisible(false)} size="lg">

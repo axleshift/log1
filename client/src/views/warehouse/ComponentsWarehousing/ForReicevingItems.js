@@ -24,7 +24,7 @@ import {
 import React, { useState, useEffect } from 'react'
 // import AddItem from './AddItem'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { useToast } from '../../../components/Toast/Toast'
 import api from '../../../utils/api'
 import axios from 'axios'
@@ -152,7 +152,7 @@ const ForReicevingItems = ({ onAddItem }) => {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
         )
-        // console.log(response.data)
+        console.log(response.data)
         if (response.status === 200) {
           setReicevingItems(response.data)
         } else {
@@ -195,6 +195,7 @@ const ForReicevingItems = ({ onAddItem }) => {
         const updatedResponse = await axios.get(
           `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
         )
+
         setReicevingItems(updatedResponse.data)
         showSuccess('Item received successfully') // Assuming you have showSuccess from useToast
       }
@@ -297,6 +298,19 @@ const ForReicevingItems = ({ onAddItem }) => {
     )
   }
 
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
+
   return (
     <>
       <CContainer className="mt-3">
@@ -361,7 +375,7 @@ const ForReicevingItems = ({ onAddItem }) => {
                       className="mt-2"
                       onClick={() => handleUpdate(item._id)}
                     >
-                      Complete
+                      <NavIcon icon={faCheck} /> Complete
                     </CButton>
                   </CTableDataCell>
                 </CTableRow>

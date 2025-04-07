@@ -250,7 +250,7 @@ import {
 import api from '../../../../utils/api'
 import { useToast } from '../../../../components/Toast/Toast'
 
-const ReceivingTableHistory = () => {
+const DispatchingTableHistory = () => {
   const { showSuccess, showError } = useToast()
   const [receivingData, setReceivingData] = useState([])
   const [warehouses, setWarehouses] = useState([])
@@ -269,10 +269,9 @@ const ReceivingTableHistory = () => {
   const handleViewReceipt = (shipment) => {
     if (shipment.photo) {
       // Construct the full URL for the image
-      const imageUrl = `${API_URL}uploads/pickupReceipts/${shipment.photo}`
+      const imageUrl = `${API_URL}uploads/dispatchReceipts/${shipment.photo}`
       setSelectedImage(imageUrl)
       setImageModal(true)
-      showSuccess('Receipt image loaded successfully')
     } else {
       showError('No receipt image available')
     }
@@ -294,7 +293,7 @@ const ReceivingTableHistory = () => {
   const fetchReceivingData = async () => {
     try {
       setLoading(true)
-      const response = await api.get('/api/v1/receiving/all')
+      const response = await api.get('/api/v1/dispatch/all')
       setReceivingData(response.data.data)
     } catch (error) {
       console.error('Error fetching receiving data:', error)
@@ -396,13 +395,144 @@ const ReceivingTableHistory = () => {
                       <FontAwesomeIcon icon={faBox} className="me-2" />
                       Tracking ID: {item.shipment?.tracking_id}
                     </span>
-                    <span>Received: {new Date(item.receiveDate).toLocaleDateString()}</span>
+                    <span>Dispatch Date {new Date(item.receiveDate).toLocaleDateString()}</span>
                   </div>
                 </CAccordionHeader>
                 <CAccordionBody>
-                  <div className="row g-3">
+                  <div className="row g-3 mb-3  justify-content-between">
+                    {/* shiping Details */}
+
+                    <div className="col-md-3">
+                      <CContainer>
+                        <CContainer className="me-2 mb-3">
+                          <FontAwesomeIcon icon={faShippingFast} className="me-2" />
+                          <strong>Shipping Details</strong>
+                        </CContainer>
+                        <CContainer className="card-body">
+                          <p>
+                            <strong>Shipping Type:</strong> {item.shipping?.shipping_type}
+                          </p>
+                          <p>
+                            {item.shipping?.shipping_details?.destination_address != null &&
+                              item.shipping?.shipping_details?.destination_address !== '' && (
+                                <>
+                                  <strong>Destination Address:</strong>{' '}
+                                  {item.shipping?.shipping_details?.destination_address}
+                                </>
+                              )}
+                          </p>
+
+                          <p>
+                            {item.shipping?.shipping_details?.loading_port != null &&
+                              item.shipping?.shipping_details?.loading_port !== '' && (
+                                <>
+                                  <strong>Loading Port:</strong>{' '}
+                                  {item.shipping?.shipping_details?.loading_port}
+                                </>
+                              )}
+                          </p>
+
+                          <p>
+                            {item.shipping?.shipping_details?.discharge_port != null &&
+                              item.shipping?.shipping_details?.discharge_port !== '' && (
+                                <>
+                                  <strong>Discharge Port:</strong>{' '}
+                                  {item.shipping?.shipping_details?.discharge_port}
+                                </>
+                              )}
+                          </p>
+                          <p>
+                            {item.shipping?.shipping_details?.sailing_date != null &&
+                              item.shipping?.shipping_details?.sailing_date !== '' && (
+                                <>
+                                  <strong>Sailing Date:</strong>{' '}
+                                  {new Date(
+                                    item.shipping?.shipping_details?.sailing_date,
+                                  ).toLocaleDateString()}
+                                </>
+                              )}
+                          </p>
+
+                          <p>
+                            {item.shipping?.shipping_details?.estimated_arrival_date != null &&
+                              item.shipping?.shipping_details?.estimated_arrival_date !== '' && (
+                                <>
+                                  <strong>Estimated Arrival Date:</strong>{' '}
+                                  {new Date(
+                                    item.shipping?.shipping_details?.estimated_arrival_date,
+                                  ).toLocaleDateString()}
+                                </>
+                              )}
+                          </p>
+
+                          <p>
+                            {item.shipping?.shipping_details?.cargo_type != null &&
+                              item.shipping?.shipping_details?.cargo_type !== '' && (
+                                <>
+                                  <strong>Cargo Type:</strong>{' '}
+                                  {item.shipping?.shipping_details?.cargo_type}
+                                </>
+                              )}
+                          </p>
+
+                          <p>
+                            {item.shipping?.shipping_details?.destination_airport != null &&
+                              item.shipping?.shipping_details?.destination_airport !== '' && (
+                                <>
+                                  <strong>Destination airport:</strong>{' '}
+                                  {item.shipping?.shipping_details?.destination_airport}
+                                </>
+                              )}
+                          </p>
+                          <p>
+                            {item.shipping?.shipping_details?.delivery_date != null &&
+                              item.shipping?.shipping_details?.delivery_date !== '' && (
+                                <>
+                                  <strong>Delivery Date:</strong>{' '}
+                                  {new Date(
+                                    item.shipping?.shipping_details?.delivery_date,
+                                  ).toLocaleDateString()}
+                                </>
+                              )}
+                          </p>
+
+                          <p>
+                            {item.shipping?.shipping_details?.flight_type != null &&
+                              item.shipping?.shipping_details?.flight_type !== '' && (
+                                <>
+                                  <strong>Flight Details:</strong>{' '}
+                                  {item.shipping?.shipping_details?.flight_type}
+                                </>
+                              )}
+                          </p>
+                          <p>
+                            {item.shipping?.shipping_details?.preferred_arrival_date != null &&
+                              item.shipping?.shipping_details?.preferred_arrival_date !== '' && (
+                                <>
+                                  <strong>Arrival Date:</strong>{' '}
+                                  {new Date(
+                                    item.shipping?.shipping_details?.preferred_arrival_date,
+                                  ).toLocaleDateString()}
+                                </>
+                              )}
+                          </p>
+                          <p>
+                            {item.shipping?.shipping_details?.preferred_departure_date != null &&
+                              item.shipping?.shipping_details?.flight_type !== '' && (
+                                <>
+                                  <strong>Departure Date:</strong>{' '}
+                                  {new Date(
+                                    item.shipping?.shipping_details?.preferred_departure_date,
+                                  ).toLocaleDateString()}
+                                </>
+                              )}
+                          </p>
+                        </CContainer>
+                      </CContainer>
+                    </div>
+
                     {/* Shipper Information */}
-                    <div className="col-md-6">
+                    <div className="col-md-3">
                       <CContainer>
                         <CContainer className=" mb-3">
                           <FontAwesomeIcon icon={faBuilding} className="me-2" />
@@ -429,7 +559,7 @@ const ReceivingTableHistory = () => {
                     </div>
 
                     {/* Consignee Information */}
-                    <div className="col-md-6">
+                    <div className="col-md-3">
                       <CContainer>
                         <CContainer className="me-2 mb-3">
                           <FontAwesomeIcon icon={faUser} className="me-2" />
@@ -504,11 +634,9 @@ const ReceivingTableHistory = () => {
                           <p>
                             <strong>Driver:</strong> {item.vehicle?.driver_name}
                           </p>
+
                           <p>
-                            <strong>Shipping Type:</strong> {item.shipping?.type}
-                          </p>
-                          <p>
-                            <strong>Received By:</strong> {item.receiveBy}
+                            <strong>Dispatch By:</strong> {item.receiveBy}
                           </p>
                         </CCardBody>
                       </CCard>
@@ -518,8 +646,8 @@ const ReceivingTableHistory = () => {
                   <div className="text-center mt-3">
                     <CButton
                       color="primary"
-                      variant="outline"
                       className="me-2"
+                      variant="outline"
                       onClick={() => handleViewReceipt(item)}
                     >
                       <NavIcon icon={faImage} className="me-2" />
@@ -622,4 +750,4 @@ const ReceivingTableHistory = () => {
   )
 }
 
-export default ReceivingTableHistory
+export default DispatchingTableHistory

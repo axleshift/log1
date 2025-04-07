@@ -76,7 +76,18 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
     }
     setLoading(false)
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
 
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CButton
@@ -86,7 +97,7 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
         onClick={() => setVisible(true)}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faEdit} />} Update
+        {loading ? <CSpinner size="sm" /> : <NavIcon icon={faEdit} />} Update
       </CButton>
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader closeButton>

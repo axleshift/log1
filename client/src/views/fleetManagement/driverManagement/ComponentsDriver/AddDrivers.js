@@ -98,6 +98,19 @@ const AddDrivers = ({ onAddDriver }) => {
       setLoading(false)
     }
   }
+
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
+
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       {loading ? (
@@ -110,8 +123,8 @@ const AddDrivers = ({ onAddDriver }) => {
             variant="outline"
             onClick={() => setVisible(true)}
           >
-            {loading ? <CSpinner color="primary" size="sm" /> : <FontAwesomeIcon icon={faPlus} />}{' '}
-            Add Driver
+            {loading ? <CSpinner color="primary" size="sm" /> : <NavIcon icon={faPlus} />} Add
+            Driver
           </CButton>
           <CModal visible={visible} onClose={() => setVisible(false)}>
             <CModalHeader>

@@ -35,7 +35,18 @@ const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
       </CAlert>
     )
   }
+  const NavIcon = ({ icon }) => {
+    const [isHovering, setIsHovering] = useState(false)
 
+    return (
+      <FontAwesomeIcon
+        icon={icon}
+        bounce={isHovering}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      />
+    )
+  }
   return (
     <>
       <CButton
@@ -45,7 +56,7 @@ const DeleteWarehouseLoc = ({ warehouseLoc, onDeleteWarehouseLoc }) => {
         onClick={deleteWarehouseLoc}
         className="me-2"
       >
-        {loading ? <CSpinner size="sm" /> : <FontAwesomeIcon icon={faTrash} />} Delete
+        {loading ? <CSpinner size="sm" /> : <NavIcon icon={faTrash} />} Delete
       </CButton>
     </>
   )
