@@ -18,9 +18,10 @@ const createUploadDirectories = () => {
     const uploadsDir = path.join(__dirname, "uploads");
     const profilesDir = path.join(__dirname, "uploads/profiles");
     const receiptsDir = path.join(__dirname, "uploads/receipts");
-
+    const pickUpReceiptDir = path.join(__dirname, "uploads/pickupReceipts");
+    const dispatchReceiptDir = path.join(__dirname, "uploads/dispatchReceipts");
     // Create directories if they don't exist
-    [uploadsDir, profilesDir, receiptsDir].forEach((dir) => {
+    [uploadsDir, profilesDir, receiptsDir, pickUpReceiptDir].forEach((dir) => {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
             console.log(`Created directory: ${dir}`);
@@ -47,6 +48,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads/profiles", ...createStaticFileMiddleware("profiles"));
 app.use("/uploads/receipts", ...createStaticFileMiddleware("receipts"));
+app.use("/uploads/pickupReceipts", ...createStaticFileMiddleware("pickupReceipts"));
+app.use("/uploads/dispatchReceipts", ...createStaticFileMiddleware("dispatchReceipts"));
 app.use(
     cors({
         origin: true,

@@ -123,8 +123,9 @@ const ShipmentSchema = new mongoose.Schema(
             },
             tracking_id: { type: String, required: true },
             isInWarehouse: { type: Boolean, default: true },
-            paid: { type: String, default: "Paid" },
-            amount: { type: Number, required: true },
+
+            // paid: { type: String, default: "Paid" },
+            // amount: { type: Number, required: true },
         },
         vehicle: {
             name: { type: String, required: true },
@@ -138,6 +139,10 @@ const ShipmentSchema = new mongoose.Schema(
         tracking_id: { type: String, required: true },
         receiveDate: { type: Date, default: Date.now },
         receiveBy: { type: String, required: true },
+        photo: {
+            type: String, // This will store the file path
+            required: true,
+        },
     },
     { timestamps: true }
 );
