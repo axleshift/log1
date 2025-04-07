@@ -29,5 +29,5 @@ dist-ssr
 uploads/*
 !uploads/profiles/
 !uploads/receipts/
-!uploads/picUpReceipts/
+!uploads/pickUpReceipts/
 !uploads/dispatchReceipts/
