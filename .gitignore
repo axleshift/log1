@@ -30,4 +30,4 @@ uploads/*
 !uploads/profiles/
 !uploads/receipts/
 !uploads/picUpReceipts/
-!upload/dispatchReceipts/
+!uploads/dispatchReceipts/
