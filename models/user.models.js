@@ -1,3 +1,65 @@
+// import mongoose from "mongoose";
+// import bcrypt from "bcryptjs";
+
+// const userSchema = new mongoose.Schema(
+//     {
+//         username: {
+//             type: String,
+//             required: true,
+//         },
+//         email: {
+//             type: String,
+//             required: true,
+//             unique: true,
+//         },
+//         password: {
+//             type: String,
+//             required: true,
+//         },
+//         role: {
+//             type: String,
+//             enum: ["user", "admin", "manager", "inspector", "driver", "chief mechanic"],
+//             default: "user",
+//             required: true,
+//         },
+//         createdAt: {
+//             type: Date,
+//             default: Date.now,
+//         },
+//         photo: { type: String }, // Add this line
+//         isActive: {
+//             type: Boolean,
+//             default: true,
+//         },
+//         recaptchaScore: {
+//             type: Number,
+//             default: 0,
+//         },
+//         isLoggedIn: {
+//             type: Boolean,
+//             default: false,
+//         },
+
+//         lastLoginTime: {
+//             type: Date,
+//             default: null,
+//         },
+//         loginAttempts: {
+//             type: Number,
+//             default: 0,
+//         },
+//         lockUntil: {
+//             type: Date,
+//         },
+//     },
+//     {
+//         timestamps: true,
+//     }
+// );
+
+// const User = mongoose.model("User", userSchema);
+// export default User;
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -6,6 +68,7 @@ const userSchema = new mongoose.Schema(
         username: {
             type: String,
             required: true,
+            unique: true,
         },
         email: {
             type: String,
@@ -18,31 +81,27 @@ const userSchema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ["user", "admin", "manager", "inspector", "driver", "chief mechanic"],
+            enum: ["super admin", "admin", "manager", "fuel manager", "fleet coordinator", "maintenance supervisor", "chief mechanic", "scheduler", "dispatcher", "receiving clerk"],
             default: "user",
-            required: true,
         },
-        createdAt: {
-            type: Date,
-            default: Date.now,
-        },
-        photo: { type: String }, // Add this line
         isActive: {
             type: Boolean,
             default: true,
         },
-        recaptchaScore: {
-            type: Number,
-            default: 0,
+        photo: {
+            type: String,
         },
-        isLoggedIn: {
-            type: Boolean,
-            default: false,
+        verificationCode: {
+            type: String,
+            default: null,
         },
-
-        lastLoginTime: {
+        verificationCodeExpires: {
             type: Date,
             default: null,
+        },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
         },
         loginAttempts: {
             type: Number,
@@ -51,11 +110,30 @@ const userSchema = new mongoose.Schema(
         lockUntil: {
             type: Date,
         },
+        lastLoginTime: {
+            type: Date,
+        },
+        refreshToken: {
+            type: String,
+        },
+        recaptchaScore: {
+            type: Number,
+            default: 0,
+        },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
+
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 const User = mongoose.model("User", userSchema);
 export default User;
