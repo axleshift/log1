@@ -28,6 +28,10 @@ import {
   faArrowRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons'
 import { icon } from '@fortawesome/fontawesome-svg-core'
+import { getRole } from './utils/auth'
+const role = getRole()
+const adminRoles = ['manager', 'admin', 'super admin']
+
 const NavIcon = ({ icon }) => {
   const [isHovering, setIsHovering] = useState(false)
 

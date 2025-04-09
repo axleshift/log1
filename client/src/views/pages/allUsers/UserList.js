@@ -187,9 +187,9 @@ const UserList = ({ onUpdateUser }) => {
             {loading ? 'Loading...' : <FontAwesomeIcon icon={faHouse} />}
           </CButton>
 
-          <CButton color="primary" className="m-3" onClick={() => navigate('/register')}>
+          {/* <CButton color="primary" className="m-3" onClick={() => navigate('/register')}>
             Add User
-          </CButton>
+          </CButton> */}
         </CContainer>
         <CContainer className="m-3">
           {localError && (

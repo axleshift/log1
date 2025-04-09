@@ -4,9 +4,60 @@ import User from "../models/user.models.js";
 import path from "path";
 import fs from "fs/promises";
 import axios from "axios";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const generateVerificationCode = () => {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    return code;
+};
+
+const sendVerificationEmail = async (userEmail, code) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false, // true for 465, false for 587
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASSWORD, // Use the App Password here
+            },
+            logger: true, // Enable logging
+            debug: true, // Include debug info in logs
+        });
+
+        // Verify connection
+        await transporter.verify();
+
+        const mailOptions = {
+            from: `"Axleshift" <${process.env.SMTP_FROM}>`,
+            to: userEmail,
+            subject: "Login Verification Code",
+            text: `Your verification code is: ${code}`,
+            html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>Login Verification Code</h2>
+            <p>Your verification code is:</p>
+            <h1 style="color: #4CAF50; font-size: 32px;">${code}</h1>
+            <p>This code will expire in 10 minutes.</p>
+            <p>If you didn't request this code, please ignore this email.</p>
+          </div>
+        `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+
+        return true;
+    } catch (error) {
+        throw new Error("Failed to send verification email");
+    }
+};
 
 const generateAccessToken = (user) => {
     const payload = {
@@ -36,9 +87,152 @@ export const refreshToken = async (req, res) => {
     }
 };
 
+// export const login = async (req, res) => {
+//     try {
+//         const { username, password, recaptchaToken, verificationCode } = req.body;
+
+//         // Validate required fields
+//         if (!username || !password || !recaptchaToken) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Missing required fields",
+//             });
+//         }
+
+//         // Verify reCAPTCHA
+//         const recaptchaVerification = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
+//             params: {
+//                 secret: process.env.RECAPTCHA_SECRET_KEY,
+//                 response: recaptchaToken,
+//             },
+//         });
+
+//         const { success: recaptchaSuccess, score } = recaptchaVerification.data;
+
+//         if (!recaptchaSuccess || score < 0.5) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Security check failed",
+//             });
+//         }
+
+//         // Find user
+//         const user = await User.findOne({ username });
+
+//         // Check account lock status
+//         if (user?.lockUntil && user.lockUntil > new Date()) {
+//             const timeLeft = Math.ceil((user.lockUntil - new Date()) / 1000 / 60);
+//             return res.status(403).json({
+//                 success: false,
+//                 message: `Account is temporarily locked. Try again in ${timeLeft} minutes`,
+//                 isLocked: true,
+//                 lockUntil: user.lockUntil,
+//             });
+//         }
+
+//         // Validate credentials
+//         if (!user || !(await bcrypt.compare(password, user.password))) {
+//             if (user) {
+//                 user.loginAttempts = (user.loginAttempts || 0) + 1;
+//                 if (user.loginAttempts === 5) {
+//                     user.lockUntil = new Date(Date.now() + 2 * 60 * 1000);
+//                 }
+//                 if (user.loginAttempts >= 10) {
+//                     user.isActive = false;
+//                 }
+//                 await user.save();
+//             }
+//             return res.status(401).json({
+//                 success: false,
+//                 message: "Invalid credentials",
+//                 attemptsLeft: user ? 5 - (user.loginAttempts % 5) : 5,
+//             });
+//         }
+
+//         // If verification code is provided, verify it
+//         if (verificationCode) {
+//             if (user.verificationCode !== verificationCode || user.verificationCodeExpires < new Date()) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: "Invalid or expired verification code",
+//                     requiresVerification: true,
+//                 });
+//             }
+
+//             // Clear verification code after successful verification
+//             user.verificationCode = null;
+//             user.verificationCodeExpires = null;
+//             user.loginAttempts = 0;
+//             user.lockUntil = null;
+//             user.lastLoginTime = new Date();
+//             await user.save();
+
+//             // Generate tokens
+//             const accessToken = generateAccessToken(user);
+//             const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+
+//             // Set cookies
+//             res.cookie("accessToken", accessToken, {
+//                 httpOnly: true,
+//                 secure: process.env.NODE_ENV === "production",
+//                 sameSite: "strict",
+//                 maxAge: 60 * 1000,
+//             });
+
+//             res.cookie("refreshToken", refreshToken, {
+//                 httpOnly: true,
+//                 secure: process.env.NODE_ENV === "production",
+//                 sameSite: "strict",
+//                 maxAge: 7 * 24 * 60 * 60 * 1000,
+//             });
+
+//             return res.json({
+//                 success: true,
+//                 message: "Login successful",
+//                 accessToken,
+//                 refreshToken,
+//                 user: {
+//                     username: user.username,
+//                     email: user.email,
+//                     role: user.role,
+//                     photo: user.photo,
+//                 },
+//                 recaptchaScore: score,
+//             });
+//         } else {
+//             // Generate and save new verification code
+//             const code = generateVerificationCode();
+//             user.verificationCode = code;
+//             user.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+//             await user.save();
+
+//             try {
+//                 await sendVerificationEmail(user.email, code);
+//                 return res.status(200).json({
+//                     success: true,
+//                     message: `Verification code sent to ${user.email.replace(/(?<=.{3}).(?=.*@)/g, "*")}`,
+//                     requiresVerification: true,
+//                 });
+//             } catch (emailError) {
+//                 user.verificationCode = null;
+//                 user.verificationCodeExpires = null;
+//                 await user.save();
+//                 throw new Error("Failed to send verification code");
+//             }
+//         }
+//     } catch (error) {
+//         console.error("Login error:", error);
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message || "An error occurred during login",
+//         });
+//     }
+// };
+
 export const login = async (req, res) => {
     try {
-        const { username, password, recaptchaToken } = req.body;
+        const { username, password, verificationCode, recaptchaToken } = req.body;
+
         if (!username || !password || !recaptchaToken) {
             return res.status(400).json({
                 success: false,
@@ -53,100 +247,143 @@ export const login = async (req, res) => {
             },
         });
 
-        const { success, score } = recaptchaVerification.data;
+        const { success: recaptchaSuccess, score } = recaptchaVerification.data;
 
-        if (!success) {
-            return res.status(400).json({
-                success: false,
-                message: "reCAPTCHA verification failed",
-            });
-        }
-
-        if (score < 0.5) {
+        if (!recaptchaSuccess || score < 0.5) {
             return res.status(400).json({
                 success: false,
                 message: "Security check failed",
             });
         }
 
+        // Find user
         const user = await User.findOne({ username });
 
-        if (user && user.lockUntil && user.lockUntil > new Date()) {
-            const timeLeft = Math.ceil((user.lockUntil - new Date()) / 1000 / 60);
+        // Check if account is deactivated
+        if (user?.isActive === false) {
             return res.status(403).json({
                 success: false,
-                message: `Account is temporarily locked. Try again in ${timeLeft} minutes`,
-                isLocked: true,
-                lockUntil: user.lockUntil,
-            });
-        }
-
-        if (user && !user.isActive && user.loginAttempts >= 5) {
-            return res.status(403).json({
-                success: false,
-                message: "Account has been deactivated due to too many failed attempts. Please contact an administrator.",
+                message: "Account has been deactivated due to too many failed attempts. Please contact support.",
                 isDeactivated: true,
             });
         }
 
+        // Check if account is currently locked
+        if (user?.lockUntil && user.lockUntil > new Date()) {
+            const timeLeft = Math.ceil((user.lockUntil - new Date()) / 1000);
+            return res.status(423).json({
+                success: false,
+                message: "Account is temporarily locked",
+                isLocked: true,
+                lockUntil: user.lockUntil,
+                timeLeft,
+                attemptsLeft: 10 - user.loginAttempts, // Show remaining attempts before deactivation
+            });
+        }
+
+        // Check if user exists and verify password
         if (!user || !(await bcrypt.compare(password, user.password))) {
             if (user) {
+                // Increment login attempts
                 user.loginAttempts = (user.loginAttempts || 0) + 1;
 
-                if (user.loginAttempts === 5) {
-                    user.lockUntil = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
-                }
-
+                // Deactivate account if 10 or more failed attempts
                 if (user.loginAttempts >= 10) {
                     user.isActive = false;
+                    await user.save();
+
+                    return res.status(403).json({
+                        success: false,
+                        message: "Account has been deactivated due to too many failed attempts. Please contact support.",
+                        isDeactivated: true,
+                    });
+                }
+
+                // Lock account if 5 attempts reached (but less than 10)
+                if (user.loginAttempts >= 5 && user.loginAttempts < 10) {
+                    user.lockUntil = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes lock
+                    await user.save();
+
+                    return res.status(423).json({
+                        success: false,
+                        message: "Maximum login attempts exceeded. Account locked for 2 minutes.",
+                        isLocked: true,
+                        lockUntil: user.lockUntil,
+                        timeLeft: 120,
+                        attemptsLeft: 10 - user.loginAttempts, // Remaining attempts before deactivation
+                    });
                 }
 
                 await user.save();
+
+                return res.status(401).json({
+                    success: false,
+                    message: `Invalid credentials. ${user.loginAttempts >= 5 ? `Account will be deactivated after ${10 - user.loginAttempts} more failed attempts.` : `Account will be locked after ${5 - user.loginAttempts} more failed attempts.`}`,
+                    attemptsLeft: user.loginAttempts >= 5 ? 10 - user.loginAttempts : 5 - user.loginAttempts,
+                    totalAttemptsLeft: 10 - user.loginAttempts,
+                });
             }
+
+            // Generic error for non-existent user
             return res.status(401).json({
                 success: false,
                 message: "Invalid credentials",
-                attemptsLeft: user ? 5 - (user.loginAttempts % 5) : 5,
+                attemptsLeft: 5,
+                totalAttemptsLeft: 10,
             });
         }
 
-        user.lastLoginTime = new Date();
-        user.loginAttempts = 0;
-        user.lockUntil = null;
+        // If verification code is provided, verify it
+        if (verificationCode) {
+            if (!user.verificationCode || user.verificationCode !== verificationCode || user.verificationCodeExpires < new Date()) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid or expired verification code",
+                    requiresVerification: true,
+                });
+            }
 
-        await user.save();
-        // Check if user is active
-        if (!user.isActive) {
-            return res.status(403).json({
-                message: "Your account has been deactivated. Please contact an administrator.",
-            });
+            // Clear verification code after successful verification
+            user.verificationCode = null;
+            user.verificationCodeExpires = null;
+            user.loginAttempts = 0; // Reset attempts on successful verification
+            user.lockUntil = null;
+            await user.save();
+        } else {
+            // Generate and send new verification code
+            const code = generateVerificationCode();
+            user.verificationCode = code;
+            user.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+
+            try {
+                await sendVerificationEmail(user.email, code);
+                await user.save();
+
+                return res.status(200).json({
+                    success: true,
+                    message: "Verification code sent",
+                    requiresVerification: true,
+                });
+            } catch (emailError) {
+                console.error("Email error:", emailError);
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to send verification code",
+                });
+            }
         }
+
         // Generate tokens
         const accessToken = generateAccessToken(user);
-        res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 60 * 1000,
-        });
+        const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
-        const refreshToken = jwt.sign({ userId: user._id, role: user.role, username: user.username, email: user.email }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-
-        user.refreshToken = refreshToken;
-        await user.save();
-
-        res.json({
+        return res.status(200).json({
             success: true,
             message: "Login successful",
             accessToken,
             refreshToken,
             user: {
+                id: user._id,
                 username: user.username,
                 email: user.email,
                 role: user.role,
@@ -155,9 +392,76 @@ export const login = async (req, res) => {
             recaptchaScore: score,
         });
     } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Login error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred during login",
+        });
     }
 };
+
+export const resendVerificationCode = async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        const code = generateVerificationCode();
+        user.verificationCode = code;
+        user.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+        await user.save();
+
+        await sendVerificationEmail(user.email, code);
+
+        return res.status(200).json({
+            success: true,
+            message: "New verification code sent",
+        });
+    } catch (error) {
+        console.error("Resend verification error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to resend verification code",
+        });
+    }
+};
+
+// export const resendVerificationCode = async (req, res) => {
+//     try {
+//         const { username } = req.body;
+//         const user = await User.findOne({ username });
+
+//         if (!user) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "User not found",
+//             });
+//         }
+
+//         const code = generateVerificationCode();
+//         user.verificationCode = code;
+//         user.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+//         await user.save();
+
+//         await sendVerificationEmail(user.email, code);
+
+//         return res.status(200).json({
+//             success: true,
+//             message: `New verification code sent to ${user.email.replace(/(?<=.{3}).(?=.*@)/g, "*")}`,
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: "Failed to resend verification code",
+//         });
+//     }
+// };
 
 export const register = async (req, res) => {
     try {

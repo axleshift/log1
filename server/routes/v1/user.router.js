@@ -1,11 +1,12 @@
 import express from "express";
-import { login, register, logout, refreshToken, getUser, inActiveUser, updateUser, getProfile, updateProfile } from "../../controllers/user.controller.js";
+import { login, register, logout, refreshToken, getUser, inActiveUser, updateUser, getProfile, updateProfile, resendVerificationCode } from "../../controllers/user.controller.js";
 import { authenticate, authenticateAdmin } from "../../middleware/auth.js";
 import { uploadProfile } from "../../middleware/upload.js";
 const router = express.Router();
 
 router.post("/register", authenticate, authenticateAdmin, uploadProfile.single("photo"), register);
 router.post("/login", login);
+router.post("/resend-verification", resendVerificationCode);
 router.post("/logout", authenticate, logout);
 router.post("/refresh-token", refreshToken);
 router.get("/all-user", authenticate, getUser);

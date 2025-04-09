@@ -454,7 +454,7 @@ const TableFuelLogs = ({
   const [itemsPerPage] = useState(10) // You can make this adjustable if needed
   const [localError, setLocalError] = useState(null)
   const role = getRole()
-  const adminRoles = ['manager', 'admin']
+  const adminRoles = ['manager', 'admin', 'super admin']
 
   // Sorting function
   const handleSort = (field) => {

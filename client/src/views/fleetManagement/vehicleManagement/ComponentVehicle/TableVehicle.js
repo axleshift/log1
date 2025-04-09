@@ -23,7 +23,7 @@ import { getRole } from '../../../../utils/auth'
 const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicle }) => {
   const [filteredVehicles, setFilteredVehicles] = useState([])
   const userRole = getRole()
-  const adminRoles = ['manager', 'admin']
+  const adminRoles = ['manager', 'admin', 'super admin']
   const [locaLError, setLocaLError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
