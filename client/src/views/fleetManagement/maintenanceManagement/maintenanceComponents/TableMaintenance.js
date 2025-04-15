@@ -87,8 +87,6 @@ const TableMaintenance = ({
     setFilterdMaintenance(maintenance)
   }, [maintenance])
 
-  console.log(maintenance)
-
   const openChecklistModal = (maintenance) => {
     setSelectedMaintenance(maintenance)
     setChecklistModal(true)

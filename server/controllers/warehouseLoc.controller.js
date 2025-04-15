@@ -24,19 +24,6 @@ export const getWarehouseLoc = async (req, res) => {
     }
 };
 
-// export const deleteWarehouseLoc = async (req, res) => {
-//     const { id } = req.params;
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//         return res.status(404).json({ success: false, message: "Invalid id" });
-//     }
-//     try {
-//         await warehouseLocModels.findByIdAndUpdate(id);
-//         return res.status(200).json({ success: true, message: "Item deleted successfully" });
-//     } catch (error) {
-//         return res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// };
-
 export const deleteWarehouseLoc = async (req, res) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {

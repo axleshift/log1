@@ -34,7 +34,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faTruck, faEye, faPrint } from '@fortawesome/free-solid-svg-icons'
 
 const TableReceiving = () => {
-  const { showError, showSuccess } = useToast()
+  const { showError } = useToast()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [receiving, setReceiving] = useState([])
@@ -49,7 +49,6 @@ const TableReceiving = () => {
     setLoading(true)
     try {
       const response = await api.get(`${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/shipment`)
-      console.log(response.data)
 
       if (response.status === 200) {
         const shipmentData = response.data.shipments || []
@@ -110,37 +109,6 @@ const TableReceiving = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filteredShipments.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filteredShipments.length / itemsPerPage)
-  // Add formatDate function
-  const formatDate = (date) => {
-    if (!date) return 'N/A'
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
-
-  // Add getBadgeColor function
-  const getBadgeColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending':
-        return 'warning'
-      case 'dispatching':
-        return 'info'
-      case 'completed':
-        return 'success'
-      case 'unpaid':
-        return 'danger'
-      case 'paid':
-        return 'success'
-      case 'void':
-        return 'secondary'
-      default:
-        return 'primary'
-    }
-  }
 
   const handleView = (trackingId) => {
     try {
@@ -151,16 +119,6 @@ const TableReceiving = () => {
       showError('Error viewing shipment details')
     }
   }
-
-  // const handleEdit = (trackingId) => {
-  //   try {
-  //     const shipment = receiving.find((s) => s.tracking_id === trackingId)
-  //     setSelectedShipment(shipment)
-  //     setShowEditModal(true)
-  //   } catch (error) {
-  //     showError('Error editing shipment')
-  //   }
-  // }
 
   useEffect(() => {
     fectchShipmment()
@@ -452,7 +410,7 @@ const TableReceiving = () => {
             <CFormInput
               type="text"
               className="mb-2"
-              id="searchInput"
+              id="searchInput2"
               placeholder="Search shipments..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -480,8 +438,8 @@ const TableReceiving = () => {
                 <CTableHeaderCell>Tracking ID</CTableHeaderCell>
                 {/* <CTableHeaderCell>Type</CTableHeaderCell>
                 <CTableHeaderCell>Payment Status</CTableHeaderCell> */}
-                <CTableHeaderCell>Shipper</CTableHeaderCell>
                 <CTableHeaderCell>Shipper Address</CTableHeaderCell>
+                <CTableHeaderCell>Shipper</CTableHeaderCell>
                 <CTableHeaderCell>Consignee</CTableHeaderCell>
                 {/* <CTableHeaderCell>Shipping Type</CTableHeaderCell> */}
                 <CTableHeaderCell>

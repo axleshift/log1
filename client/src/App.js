@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useCallback } from 'react'
 import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
@@ -36,23 +36,7 @@ const App = () => {
     }
 
     setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // useEffect(() => {
-  //   const handleBeforeUnload = async () => {
-  //     try {
-  //       await api.post('api/v1/user/logout')
-  //     } catch (error) {
-  //       console.error('Error logging out:', error)
-  //     }
-  //   }
-
-  //   window.addEventListener('beforeunload', handleBeforeUnload)
-
-  //   return () => {
-  //     window.removeEventListener('beforeunload', handleBeforeUnload)
-  //   }
-  // }, [])
+  }, [])
 
   return (
     <ToastProvider>

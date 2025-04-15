@@ -38,113 +38,6 @@ const ForReicevingItems = ({ onAddItem }) => {
   const [filteredItems, setFilteredItems] = useState([])
   const [warehouses, setWarehouses] = useState([])
   const itemsPerPage = 10
-  // const [mockDataReiceving, setMockDataReiceving] = useState([
-  //   {
-  //     _id: '605c72ef1532071b7f1a2c3d',
-  //     poNumber: 'PO12345',
-  //     orderDate: '2025-03-01T00:00:00.000Z',
-  //     receiveDate: '2025-03-05T00:00:00.000Z',
-  //     carrier: 'UPS',
-  //     vendor: {
-  //       businessName: 'Vendor ABC',
-  //       businessAddress: '123 Vendor St, Vendor City, VC',
-  //       contactNumber: '123-456-7890',
-  //     },
-  //     shipTo: '605c72ef1532071b7f1a2c3e',
-  //     details: [
-  //       {
-  //         productId: '605c72ef1532071b7f1a2c3f',
-  //         description: 'Product 1',
-  //         quantity: 10,
-  //         unitPrice: 50.0,
-  //         subTotal: 500.0,
-  //       },
-  //       {
-  //         productId: '605c72ef1532071b7f1a2c40',
-  //         description: 'Product 2',
-  //         quantity: 5,
-  //         unitPrice: 25.0,
-  //         subTotal: 125.0,
-  //       },
-  //     ],
-  //     procurementId: '605c72ef1532071b7f1a2c41',
-  //     rfqId: null,
-  //     vendorId: '605c72ef1532071b7f1a2c42',
-  //     additionalNotes: 'Urgent delivery needed.',
-  //     createdAt: '2025-03-01T00:00:00.000Z',
-  //     updatedAt: '2025-03-01T00:00:00.000Z',
-  //   },
-  //   {
-  //     _id: '605c72ef1532071b7f1a2c44',
-  //     poNumber: 'PO12346',
-  //     orderDate: '2025-03-02T00:00:00.000Z',
-  //     receiveDate: '2025-03-06T00:00:00.000Z',
-  //     carrier: 'FedEx',
-  //     vendor: {
-  //       businessName: 'Vendor XYZ',
-  //       businessAddress: '456 Vendor Rd, Vendor Town, VT',
-  //       contactNumber: '987-654-3210',
-  //     },
-  //     shipTo: '605c72ef1532071b7f1a2c45',
-  //     details: [
-  //       {
-  //         productId: '605c72ef1532071b7f1a2c46',
-  //         description: 'Product 3',
-  //         quantity: 20,
-  //         unitPrice: 30.0,
-  //         subTotal: 600.0,
-  //       },
-  //       {
-  //         productId: '605c72ef1532071b7f1a2c47',
-  //         description: 'Product 4',
-  //         quantity: 15,
-  //         unitPrice: 40.0,
-  //         subTotal: 600.0,
-  //       },
-  //     ],
-  //     procurementId: '605c72ef1532071b7f1a2c48',
-  //     rfqId: '605c72ef1532071b7f1a2c49',
-  //     vendorId: '605c72ef1532071b7f1a2c4a',
-  //     additionalNotes: 'Handle with care.',
-  //     createdAt: '2025-03-02T00:00:00.000Z',
-  //     updatedAt: '2025-03-02T00:00:00.000Z',
-  //   },
-  //   {
-  //     _id: '605c72ef1532071b7f1a2c4b',
-  //     poNumber: 'PO12347',
-  //     orderDate: '2025-03-03T00:00:00.000Z',
-  //     receiveDate: '2025-03-07T00:00:00.000Z',
-  //     carrier: 'DHL',
-  //     vendor: {
-  //       businessName: 'Vendor LMN',
-  //       businessAddress: '789 Vendor Blvd, Vendorville, VV',
-  //       contactNumber: '555-123-4567',
-  //     },
-  //     shipTo: '605c72ef1532071b7f1a2c4c',
-  //     details: [
-  //       {
-  //         productId: '605c72ef1532071b7f1a2c4d',
-  //         description: 'Product 5',
-  //         quantity: 25,
-  //         unitPrice: 10.0,
-  //         subTotal: 250.0,
-  //       },
-  //       {
-  //         productId: '605c72ef1532071b7f1a2c4e',
-  //         description: 'Product 6',
-  //         quantity: 10,
-  //         unitPrice: 15.0,
-  //         subTotal: 150.0,
-  //       },
-  //     ],
-  //     procurementId: '605c72ef1532071b7f1a2c4f',
-  //     rfqId: '605c72ef1532071b7f1a2c50',
-  //     vendorId: '605c72ef1532071b7f1a2c51',
-  //     additionalNotes: 'Includes free shipping.',
-  //     createdAt: '2025-03-03T00:00:00.000Z',
-  //     updatedAt: '2025-03-03T00:00:00.000Z',
-  //   },
-  // ])
 
   useEffect(() => {
     const fetchReicevingItems = async () => {
@@ -152,7 +45,7 @@ const ForReicevingItems = ({ onAddItem }) => {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/purchaseOrder`,
         )
-        console.log(response.data)
+
         if (response.status === 200) {
           setReicevingItems(response.data)
         } else {
@@ -345,9 +238,9 @@ const ForReicevingItems = ({ onAddItem }) => {
         <CTableBody>
           {currentItems
             .filter((item) => !item.received)
-            .map((item) => {
+            .map((item, index) => {
               return (
-                <CTableRow key={item._id}>
+                <CTableRow key={item._id || index}>
                   <CTableDataCell>{item.poNumber}</CTableDataCell>
                   <CTableDataCell>{new Date(item.orderDate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{new Date(item.receiveDate).toLocaleDateString()}</CTableDataCell>

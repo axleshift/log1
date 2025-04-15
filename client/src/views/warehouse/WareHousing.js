@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TableWareHousing from './ComponentsWarehousing/TableWareHousing'
 import ForReicevingItems from './ComponentsWarehousing/ForReicevingItems'
 import ItemsTableWarehouse from './ComponentsWarehousing/ItemsTableWarehouse'
+import ShipmentItemWarehouse from './ComponentsWarehousing/ShipmentItemWarehouse'
 import { CCard, CHeader, CTab, CTabList, CTabs, CTabContent, CTabPanel } from '@coreui/react'
 import api from '../../utils/api'
 import axios from 'axios'
@@ -79,7 +80,8 @@ const WareHousing = () => {
         <CTabList variant="tabs">
           <CTab itemKey="Warehouse Items Details">Warehouse Items Details</CTab>
           <CTab itemKey="For Receiving">For Receiving</CTab>
-          <CTab itemKey="Items">Items</CTab>
+          {/* <CTab itemKey="Items">Items</CTab> */}
+          <CTab itemKey="Shipment">Warehouse Shipment Items</CTab>
         </CTabList>
         <CTabContent>
           <CTabPanel className="p-3" itemKey="Warehouse Items Details">
@@ -92,16 +94,22 @@ const WareHousing = () => {
               onRefresh={handleRefresh}
             />
           </CTabPanel>
-          <CTabPanel className="p-3" itemKey="For Receiving">
+          {/* <CTabPanel className="p-3" itemKey="For Receiving">
             <CCard>
               <CHeader>Item Reiceving</CHeader>
               <ForReicevingItems onAddItem={handleAddItem} />
             </CCard>
-          </CTabPanel>
+          </CTabPanel> */}
           <CTabPanel className="p-3" itemKey="Items">
             <CCard>
               <CHeader>Items</CHeader>
               <ItemsTableWarehouse items={items} loading={loading} error={error} />
+            </CCard>
+          </CTabPanel>
+          <CTabPanel className="p-3" itemKey="Shipment">
+            <CCard>
+              <CHeader>Shipment</CHeader>
+              <ShipmentItemWarehouse />
             </CCard>
           </CTabPanel>
         </CTabContent>

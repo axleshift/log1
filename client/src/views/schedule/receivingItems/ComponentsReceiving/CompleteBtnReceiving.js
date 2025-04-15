@@ -197,7 +197,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
   const { showError, showSuccess } = useToast()
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
-  // const [amount, setAmount] = useState(0)
   const [warehouses, setWarehouses] = useState([])
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
@@ -205,18 +204,15 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
 
   const handleOpenModal = () => {
     setShowModal(true)
-    // setAmount(shipment?.amount || 0)
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
-    // setAmount(0)
   }
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      // Check file type
       if (!file.type.match('image.*')) {
         showError('Please select an image file')
         return
@@ -231,23 +227,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       reader.readAsDataURL(file)
     }
   }
-
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0]
-  //   if (file) {
-  //     setSelectedFile(file)
-  //     // Create preview URL
-  //     const fileUrl = URL.createObjectURL(file)
-  //     setPreviewUrl(fileUrl)
-  //   }
-  // }
-
-  // const handleAmountChange = (e) => {
-  //   const value = e.target.value
-  //   if (value >= 0) {
-  //     setAmount(value)
-  //   }
-  // }
   useEffect(() => {
     // Fetch warehouses
     const fetchWarehouses = async () => {
@@ -255,7 +234,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
         const response = await api.get('/api/v1/warehouseLoc/locations')
         if (response.data.data) {
           setWarehouses(response.data.data)
-          showSuccess(response.data.message)
         }
       } catch (error) {
         setLocalError(error?.response?.data.message)
@@ -276,11 +254,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       return
     }
 
-    // if (amount <= 0) {
-    //   showError('Please enter a valid amount')
-    //   return
-    // }
-
     setLoading(true)
     try {
       // First, get the complete shipment data
@@ -290,7 +263,6 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       )
 
       const completeShipmentData = getShipmentResponse.data.shipment
-      console.log('Complete Shipment Data:', completeShipmentData)
       const formData = new FormData()
 
       // Add the photo if selected
@@ -342,23 +314,17 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       }
 
       formData.append('data', JSON.stringify(receivingData))
-
-      // Create new record in receiving collection
       const createReceivingResponse = await api.post(`api/v1/receiving/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
 
-      console.log('createReceivingResponse', createReceivingResponse)
-
       // Update original shipment
       const updateShipmentResponse = await api.put(
         `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/shipment/${shipment._id}`,
         {
           isInWarehouse: true,
-          // paid: 'Paid',
-          // amount: parseFloat(amount),
           vehicle: {
             name: null,
             plate_no: null,

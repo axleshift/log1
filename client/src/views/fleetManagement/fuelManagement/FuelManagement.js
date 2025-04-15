@@ -42,7 +42,6 @@ const FuelManagement = () => {
         api.get('api/v1/driver'),
       ])
       setFuelLogs(fuelLogsRes.data.data)
-      console.log('Fuel Logs:', fuelLogsRes.data.data)
       setVehicles(vehiclesRes.data.data)
       setDrivers(driversRes.data.data)
       showSuccess('Data fetched successfully')

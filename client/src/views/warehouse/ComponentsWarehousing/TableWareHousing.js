@@ -230,7 +230,7 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                           <CTableRow>
                             <CTableHeaderCell>Description</CTableHeaderCell>
                             <CTableHeaderCell>Quantity</CTableHeaderCell>
-                            <CTableHeaderCell>Received Date</CTableHeaderCell>
+                            {/* <CTableHeaderCell>Received Date</CTableHeaderCell> */}
                           </CTableRow>
                         </CTableHead>
                         <CTableBody>
@@ -238,11 +238,11 @@ const TableWareHousing = ({ warehousing, loading, error, onDeleteItem, onUpdateI
                             <CTableRow key={index}>
                               <CTableDataCell>{detail.description}</CTableDataCell>
                               <CTableDataCell>{detail.quantity}</CTableDataCell>
-                              <CTableDataCell>
+                              {/* <CTableDataCell>
                                 {item.receiveDate
                                   ? new Date(item.receiveDate).toLocaleDateString()
                                   : 'N/A'}
-                              </CTableDataCell>
+                              </CTableDataCell> */}
                             </CTableRow>
                           ))}
                         </CTableBody>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import TableReceiving from './ComponentsReceiving/TableReceiving'
 import ReceivingTableHistory from './ComponentsReceiving/ReceivingTableHistory'
-import { CTabContent, CTabPane, CTabs, CTabList, CTab, CTabPanel } from '@coreui/react'
+import { CTabContent, CTabs, CTabList, CTab, CTabPanel } from '@coreui/react'
 
 const ReceivingItems = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -22,7 +22,7 @@ const ReceivingItems = () => {
             <TableReceiving onSuccess={handleReceivingSuccess} />
           </CTabPanel>
           <CTabPanel className="p-3" itemKey="Receiving History">
-            <ReceivingTableHistory key={refreshTrigger} />
+            <ReceivingTableHistory onSuccess={handleReceivingSuccess} />
           </CTabPanel>
         </CTabContent>
       </CTabs>

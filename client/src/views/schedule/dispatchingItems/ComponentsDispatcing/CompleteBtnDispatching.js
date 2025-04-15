@@ -1,179 +1,3 @@
-// // CompleteBtnReceiving.js
-// import React, { useState } from 'react'
-// import { useToast } from '../../../../components/Toast/Toast'
-// import {
-//   CModal,
-//   CModalHeader,
-//   CModalBody,
-//   CModalFooter,
-//   CSpinner,
-//   CFormInput,
-//   CButton,
-// } from '@coreui/react'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
-// import api from './../../../../utils/api'
-// import PropTypes from 'prop-types'
-
-// const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
-//   const { showError, showSuccess } = useToast()
-//   const [showModal, setShowModal] = useState(false)
-//   const [loading, setLoading] = useState(false)
-//   const [amount, setAmount] = useState(0) // Add amount state
-
-//   const handleOpenModal = () => {
-//     setShowModal(true)
-//     setAmount(shipment?.amount || 0) // Initialize with existing amount or 0
-//   }
-
-//   const handleCloseModal = () => {
-//     setShowModal(false)
-//     setAmount(0) // Reset amount on close
-//   }
-
-//   const handleAmountChange = (e) => {
-//     const value = e.target.value
-//     // Ensure amount is not negative and is a valid number
-//     if (value >= 0) {
-//       setAmount(value)
-//     }
-//   }
-
-//   const handleComplete = async () => {
-//     if (!shipment?._id) {
-//       showError('Invalid shipment data')
-//       return
-//     }
-
-//     if (amount <= 0) {
-//       showError('Please enter a valid amount')
-//       return
-//     }
-
-//     setLoading(true)
-//     try {
-//       const updateData = {
-//         isInWarehouse: true,
-//         paid: 'Paid',
-//         amount: parseFloat(amount),
-//       }
-
-//       const response = await api.put(
-//         `https://log2_backend.chysev.cloud/api/v1/shipment/${shipment._id}`,
-//         updateData,
-//       )
-
-//       if (response.status === 200) {
-//         showSuccess('Shipment completed successfully')
-//         handleCloseModal()
-//         if (onSuccess) onSuccess()
-//       }
-//     } catch (error) {
-//       showError(error?.response?.data?.message || 'Error completing shipment')
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-
-//   // Don't show the button if already paid
-//   if (shipment?.paid === 'Paid') {
-//     return null
-//   }
-
-//   return (
-//     <>
-//       <CButton
-//         color="success"
-//         variant="outline"
-//         className="mb-3"
-//         onClick={handleOpenModal}
-//         disabled={loading}
-//       >
-//         <FontAwesomeIcon icon={faCheckCircle} />
-//         Complete
-//       </CButton>
-
-//       <CModal visible={showModal} onClose={handleCloseModal} backdrop="static">
-//         <CModalHeader closeButton>
-//           <h5>Complete Shipment</h5>
-//         </CModalHeader>
-//         <CModalBody>
-//           <div className="mb-3">
-//             <h6>Shipment Details</h6>
-//             <p>
-//               <strong>Tracking ID:</strong> {shipment?.tracking_id}
-//             </p>
-//             <p>
-//               <strong>Current Status:</strong> {shipment?.paid}
-//             </p>
-
-//             {/* Amount Input Field */}
-//             <div className="mb-3">
-//               <label htmlFor="amount" className="form-label">
-//                 <strong>Amount</strong>
-//               </label>
-
-//               <CFormInput
-//                 type="number"
-//                 className="mb-3"
-//                 floatingLabel="Amount"
-//                 id="amount"
-//                 value={amount}
-//                 onChange={handleAmountChange}
-//                 min="0"
-//                 step="0.01"
-//                 placeholder="Enter amount"
-//                 required
-//               />
-
-//               <small className="text-muted">Please enter the final amount for this shipment</small>
-//             </div>
-
-//             <div className="alert alert-info mt-3">
-//               <small>
-//                 <strong>Note:</strong> This action will:
-//                 <ul className="mb-0">
-//                   <li>Mark the shipment as "Paid"</li>
-//                   <li>Update warehouse status to "In Warehouse"</li>
-//                   <li>Set the final amount to {amount}</li>
-//                 </ul>
-//               </small>
-//             </div>
-//           </div>
-//         </CModalBody>
-//         <CModalFooter>
-//           <CButton
-//             color="secondary"
-//             variant="outline"
-//             onClick={handleCloseModal}
-//             disabled={loading}
-//           >
-//             Cancel
-//           </CButton>
-//           <CButton
-//             color="primary"
-//             variant="outline"
-//             onClick={handleComplete}
-//             disabled={loading || amount <= 0} // Disable if amount is 0 or negative
-//           >
-//             {loading ? (
-//               <>
-//                 <CSpinner size="sm" className="me-2" />
-//                 Completing...
-//               </>
-//             ) : (
-//               'Complete Shipment'
-//             )}
-//           </CButton>
-//         </CModalFooter>
-//       </CModal>
-//     </>
-//   )
-// }
-
-// export default CompleteBtnReceiving
-
-// CompleteBtnReceiving.js
 import React, { useState, useEffect } from 'react'
 import { useToast } from '../../../../components/Toast/Toast'
 import {
@@ -284,7 +108,7 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
       )
 
       const completeShipmentData = getShipmentResponse.data.shipment
-      console.log('Complete Shipment Data:', completeShipmentData)
+
       const formData = new FormData()
 
       // Add the photo if selected
@@ -361,7 +185,6 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
       }
 
       formData.append('data', JSON.stringify(receivingData))
-      console.log('Shipping data being sent:', receivingData.shipping)
 
       // Create new record in receiving collection
       const createReceivingResponse = await api.post(`api/v1/dispatch/add`, formData, {
@@ -369,8 +192,6 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
           'Content-Type': 'multipart/form-data',
         },
       })
-
-      console.log('createReceivingResponse', createReceivingResponse)
 
       // Update original shipment
       const updateShipmentResponse = await api.put(
@@ -389,7 +210,6 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
         if (onSuccess) onSuccess()
       }
     } catch (error) {
-      console.error('Error details:', error.response?.data)
       showError(error?.response?.data?.message || 'Error completing shipment')
     } finally {
       setLoading(false)

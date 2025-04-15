@@ -52,18 +52,10 @@ const TableDispatching = () => {
   const [itemsPerPage] = useState(10)
   const [showDispatchModal, setShowDispatchModal] = useState(false)
 
-  const refreshShipments = async () => {
-    try {
-      fetchShipments()
-    } catch (error) {
-      console.error('Error refreshing shipments:', error)
-    }
-  }
   const fectchShipmment = async () => {
     setLoading(true)
     try {
       const response = await api.get(`${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/shipment`)
-      console.log(response.data)
 
       if (response.status === 200) {
         const shipmentData = response.data.shipments || []

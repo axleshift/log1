@@ -552,9 +552,9 @@ const Login = () => {
       if (response.data.success) {
         const { accessToken, refreshToken, user } = response.data
         resetStates()
-        sessionStorage.setItem('accessToken', accessToken)
-        sessionStorage.setItem('refreshToken', refreshToken)
-        sessionStorage.setItem('user', JSON.stringify(user))
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
+        localStorage.setItem('user', JSON.stringify(user))
         showSuccess(response.data.message)
         setData(initialState)
         setTimeout(() => {

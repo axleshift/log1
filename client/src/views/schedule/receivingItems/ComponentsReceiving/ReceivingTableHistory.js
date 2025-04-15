@@ -1,220 +1,3 @@
-// import React, { useState, useEffect } from 'react'
-// import {
-//   CAccordion,
-//   CAccordionItem,
-//   CAccordionHeader,
-//   CAccordionBody,
-//   CCard,
-//   CCardHeader,
-//   CCardBody,
-//   CContainer,
-//   CAlert,
-// } from '@coreui/react'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import {
-//   faBox,
-//   faTruck,
-//   faUser,
-//   faBuilding,
-//   faShippingFast,
-// } from '@fortawesome/free-solid-svg-icons'
-// import api from '../../../../utils/api'
-// import { useToast } from '../../../../components/Toast/Toast'
-
-// const ReceivingTableHistory = () => {
-//   const { showSuccess, showError } = useToast()
-//   const [receivingData, setReceivingData] = useState([])
-//   const [warehouses, setWarehouses] = useState([])
-//   const [loading, setLoading] = useState(true)
-//   const [localError, setLocalError] = useState(null)
-//   useEffect(() => {
-//     fetchReceivingData()
-//   }, [])
-
-//   const fetchReceivingData = async () => {
-//     try {
-//       const response = await api.get('/api/v1/receiving/all')
-//       setReceivingData(response.data.data)
-//     } catch (error) {
-//       console.error('Error fetching receiving data:', error)
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-
-//   useEffect(() => {
-//     // Fetch warehouses
-//     const fetchWarehouses = async () => {
-//       try {
-//         const response = await api.get('/api/v1/warehouseLoc/locations')
-//         if (response.data.data) {
-//           setWarehouses(response.data.data)
-//           showSuccess(response.data.message)
-//         }
-//       } catch (error) {
-//         setLocalError(error?.response?.data.message)
-//         showError(error?.response?.data.message || 'Error fetching warehouses')
-//       }
-//     }
-//     fetchWarehouses()
-//   }, [])
-//   const getWarehouseName = (warehouseId) => {
-//     if (!warehouses.length) return 'Loading...'
-//     const warehouse = warehouses.find((w) => w._id === warehouseId)
-//     return warehouse ? warehouse.warehouseName : 'N/A'
-//   }
-
-//   if (loading) {
-//     return <div className="text-center py-5">Loading...</div>
-//   }
-
-//   return (
-//     <div className="container-fluid px-4">
-//       <h1 className="mt-4">Receiving History</h1>
-//       <div className="card mb-4">
-//         <div className="card-body">
-//           <CAccordion flush>
-//             {receivingData.map((item, index) => (
-//               <CAccordionItem key={item._id || index}>
-//                 <CAccordionHeader>
-//                   <div className="d-flex justify-content-between w-100 me-3">
-//                     <span>
-//                       <FontAwesomeIcon icon={faBox} className="me-2" />
-//                       Tracking ID: {item.shipment?.tracking_id}
-//                     </span>
-//                     <span className="text-muted">
-//                       Received: {new Date(item.receiveDate).toLocaleDateString()}
-//                     </span>
-//                   </div>
-//                 </CAccordionHeader>
-//                 <CAccordionBody>
-//                   <div className="row g-3">
-//                     {/* Shipper Information */}
-//                     <div className="col-md-6">
-//                       <CContainer>
-//                         <CContainer>
-//                           <FontAwesomeIcon icon={faBuilding} className="me-2" />
-//                           Shipper Information
-//                         </CContainer>
-//                         <CContainer className="card-body">
-//                           <p>
-//                             <strong>Company:</strong> {item.shipper?.company_name}
-//                           </p>
-//                           <p>
-//                             <strong>Contact:</strong> {item.shipper?.contact_name}
-//                           </p>
-//                           <p>
-//                             <strong>Email:</strong> {item.shipper?.email}
-//                           </p>
-//                           <p>
-//                             <strong>Phone:</strong> {item.shipper?.phone}
-//                           </p>
-//                           <p>
-//                             <strong>Address:</strong> {item.shipper?.address}
-//                           </p>
-//                         </CContainer>
-//                       </CContainer>
-//                     </div>
-
-//                     {/* Consignee Information */}
-//                     <div className="col-md-6">
-//                       <CContainer>
-//                         <CContainer>
-//                           <FontAwesomeIcon icon={faUser} className="me-2" />
-//                           Consignee Information
-//                         </CContainer>
-//                         <CContainer className="card-body">
-//                           <p>
-//                             <strong>Company:</strong> {item.consignee?.company_name}
-//                           </p>
-//                           <p>
-//                             <strong>Contact:</strong> {item.consignee?.contact_name}
-//                           </p>
-//                           <p>
-//                             <strong>Email:</strong> {item.consignee?.email}
-//                           </p>
-//                           <p>
-//                             <strong>Phone:</strong> {item.consignee?.phone}
-//                           </p>
-//                           <p>
-//                             <strong>Address:</strong> {item.consignee?.address}
-//                           </p>
-//                         </CContainer>
-//                       </CContainer>
-//                     </div>
-
-//                     {/* Shipment Details */}
-//                     <CContainer className="col-md-6">
-//                       <CCard>
-//                         <CCardHeader>
-//                           <FontAwesomeIcon icon={faShippingFast} className="me-2" />
-//                           Shipment Details
-//                         </CCardHeader>
-//                         <CCardBody>
-//                           <p>
-//                             <strong>Description:</strong> {item.shipment?.description}
-//                           </p>
-//                           <p>
-//                             <strong>Weight:</strong> {item.shipment?.weight} kg
-//                           </p>
-//                           <p>
-//                             <strong>Dimensions:</strong> {item.shipment?.dimension?.length} x{' '}
-//                             {item.shipment?.dimension?.width} x {item.shipment?.dimension?.height}{' '}
-//                             cm
-//                           </p>
-//                           <p>
-//                             <strong>Warehouse:</strong> {getWarehouseName(item.warehouse_id)}
-//                           </p>
-//                           <p>
-//                             <strong>Status:</strong> {item.shipment?.paid}
-//                           </p>
-//                           <p>
-//                             <strong>Amount:</strong> ${item.shipment?.amount}
-//                           </p>
-//                         </CCardBody>
-//                       </CCard>
-//                     </CContainer>
-
-//                     {/* Vehicle & Shipping Information */}
-//                     <CContainer className="col-md-6">
-//                       <CCard>
-//                         <CCardHeader>
-//                           <FontAwesomeIcon icon={faTruck} className="me-2" />
-//                           Vehicle & Shipping Information
-//                         </CCardHeader>
-//                         <CCardBody>
-//                           <p>
-//                             <strong>Vehicle:</strong> {item.vehicle?.name}
-//                           </p>
-//                           <p>
-//                             <strong>Plate No:</strong> {item.vehicle?.plate_no}
-//                           </p>
-//                           <p>
-//                             <strong>Driver:</strong> {item.vehicle?.driver_name}
-//                           </p>
-//                           <p>
-//                             <strong>Shipping Type:</strong> {item.shipping?.type}
-//                           </p>
-//                           <p>
-//                             <strong>Received By:</strong> {item.receiveBy}
-//                           </p>
-//                         </CCardBody>
-//                       </CCard>
-//                     </CContainer>
-//                   </div>
-//                 </CAccordionBody>
-//               </CAccordionItem>
-//             ))}
-//           </CAccordion>
-//           {localError && <CAlert className="alert alert-danger">{localError}</CAlert>}
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default ReceivingTableHistory
-
 import React, { useState, useEffect } from 'react'
 import {
   CAccordion,
@@ -251,7 +34,7 @@ import api from '../../../../utils/api'
 import { useToast } from '../../../../components/Toast/Toast'
 
 const ReceivingTableHistory = () => {
-  const { showSuccess, showError } = useToast()
+  const { showError } = useToast()
   const [receivingData, setReceivingData] = useState([])
   const [warehouses, setWarehouses] = useState([])
   const [loading, setLoading] = useState(true)
@@ -263,7 +46,7 @@ const ReceivingTableHistory = () => {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10) // You can adjust this number
+  const [itemsPerPage] = useState(10)
 
   // handle image click to open modal
   const handleViewReceipt = (shipment) => {
@@ -272,7 +55,6 @@ const ReceivingTableHistory = () => {
       const imageUrl = `${API_URL}uploads/pickupReceipts/${shipment.photo}`
       setSelectedImage(imageUrl)
       setImageModal(true)
-      showSuccess('Receipt image loaded successfully')
     } else {
       showError('No receipt image available')
     }
@@ -280,15 +62,6 @@ const ReceivingTableHistory = () => {
 
   useEffect(() => {
     fetchReceivingData()
-  }, []) // Initial
-
-  useEffect(() => {
-    // Verify API_URL is correctly set
-    console.log('API_URL:', API_URL)
-    if (!API_URL) {
-      console.error('API_URL is not defined')
-      showError('API configuration error')
-    }
   }, [])
 
   const fetchReceivingData = async () => {

@@ -86,11 +86,6 @@ const UpdateItem = ({ warehousing, onUpdateItem }) => {
     }
   }
 
-  // Add debug logging
-  useEffect(() => {
-    console.log('Warehousing prop:', warehousing)
-  }, [warehousing])
-
   return (
     <>
       <CButton
