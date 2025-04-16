@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import api from './../../../../utils/api'
 import { getUsername } from '../../../../utils/auth'
+import axios from 'axios'
 
 const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
   const { showError, showSuccess } = useToast()
@@ -103,7 +104,7 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
     try {
       // First, get the complete shipment data
       const username = getUsername()
-      const getShipmentResponse = await api.get(
+      const getShipmentResponse = await axios.get(
         `${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/shipment/${shipment._id}`,
       )
 
@@ -158,27 +159,28 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
         warehouse_id: completeShipmentData.warehouse_id,
         // In CompleteBtnDispatching.js, modify the shipping section of receivingData:
         shipping: {
-          shipping_type: completeShipmentData.shipping.shipping_type,
+          shipping_type: completeShipmentData.shipping?.shipping_type,
           shipping_details: {
-            destination_address: completeShipmentData.shipping.shipping_details.destination_address,
-            pickup_date: completeShipmentData.shipping.shipping_details.pickup_date,
-            delivery_date: completeShipmentData.shipping.shipping_details.delivery_date,
-            vehicle_type: completeShipmentData.shipping.shipping_details.vehicle_type,
-            destination_airport: completeShipmentData.shipping.shipping_details.destination_airport,
+            destination_address:
+              completeShipmentData.shipping?.shipping_details?.destination_address || '',
+            pickup_date: completeShipmentData.shipping?.shipping_details?.pickup_date || '',
+            delivery_date: completeShipmentData.shipping?.shipping_details?.delivery_date || '',
+            vehicle_type: completeShipmentData.shipping?.shipping_details?.vehicle_type || '',
+            destination_airport:
+              completeShipmentData.shipping?.shipping_details?.destination_airport || '',
             preferred_departure_date:
-              completeShipmentData.shipping.shipping_details.preferred_departure_date,
+              completeShipmentData.shipping?.shipping_details?.preferred_departure_date || '',
             preferred_arrival_date:
-              completeShipmentData.shipping.shipping_details.preferred_arrival_date,
-            flight_type: completeShipmentData.shipping.shipping_details.flight_type,
-            loading_port: completeShipmentData.shipping.shipping_details.loading_port,
-            discharge_port: completeShipmentData.shipping.shipping_details.discharge_port,
-            sailing_date: completeShipmentData.shipping.shipping_details.sailing_date,
+              completeShipmentData.shipping?.shipping_details?.preferred_arrival_date || '',
+            flight_type: completeShipmentData.shipping?.shipping_details?.flight_type || '',
+            loading_port: completeShipmentData.shipping?.shipping_details?.loading_port || '',
+            discharge_port: completeShipmentData.shipping?.shipping_details?.discharge_port || '',
+            sailing_date: completeShipmentData.shipping?.shipping_details?.sailing_date || '',
             estimated_arrival_date:
-              completeShipmentData.shipping.shipping_details.estimated_arrival_date,
-            cargo_type: completeShipmentData.shipping.shipping_details.cargo_type,
+              completeShipmentData.shipping?.shipping_details?.estimated_arrival_date || '',
+            cargo_type: completeShipmentData.shipping?.shipping_details?.cargo_type || '',
           },
         },
-
         tracking_id: completeShipmentData.tracking_id,
         receiveDate: new Date().toISOString(),
         receiveBy: username,
@@ -211,6 +213,7 @@ const CompleteBtnDispatching = ({ shipment = {}, onSuccess = () => {} }) => {
       }
     } catch (error) {
       showError(error?.response?.data?.message || 'Error completing shipment')
+      console.error('Error completing shipment:', error)
     } finally {
       setLoading(false)
     }

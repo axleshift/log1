@@ -94,18 +94,18 @@ const WareHousing = () => {
               onRefresh={handleRefresh}
             />
           </CTabPanel>
-          {/* <CTabPanel className="p-3" itemKey="For Receiving">
+          <CTabPanel className="p-3" itemKey="For Receiving">
             <CCard>
               <CHeader>Item Reiceving</CHeader>
               <ForReicevingItems onAddItem={handleAddItem} />
             </CCard>
-          </CTabPanel> */}
-          <CTabPanel className="p-3" itemKey="Items">
+          </CTabPanel>
+          {/* <CTabPanel className="p-3" itemKey="Items">
             <CCard>
               <CHeader>Items</CHeader>
               <ItemsTableWarehouse items={items} loading={loading} error={error} />
             </CCard>
-          </CTabPanel>
+          </CTabPanel> */}
           <CTabPanel className="p-3" itemKey="Shipment">
             <CCard>
               <CHeader>Shipment</CHeader>

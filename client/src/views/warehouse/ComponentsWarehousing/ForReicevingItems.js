@@ -212,7 +212,7 @@ const ForReicevingItems = ({ onAddItem }) => {
             type="text"
             placeholder="Search by PO Number, Supplier, or Item Name"
             value={searchQuery}
-            id="searchInput"
+            id="searchInput4"
             onChange={handleSearchChange}
           />
           <CInputGroupText>
@@ -240,20 +240,20 @@ const ForReicevingItems = ({ onAddItem }) => {
             .filter((item) => !item.received)
             .map((item, index) => {
               return (
-                <CTableRow key={item._id || index}>
+                <CTableRow key={item._id || `item-${index}`}>
                   <CTableDataCell>{item.poNumber}</CTableDataCell>
                   <CTableDataCell>{new Date(item.orderDate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{new Date(item.receiveDate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{item.carrier}</CTableDataCell>
                   <CTableDataCell>{getWarehouseName(item.warehouse_id)}</CTableDataCell>
-
                   <CTableDataCell>
                     <div>{item.vendor.businessName}</div>
                     <small className="text-medium-emphasis">{item.vendor.contactNumber}</small>
                   </CTableDataCell>
                   <CTableDataCell>
-                    {item.details.map((detail) => (
-                      <div key={detail.productId}>
+                    {item.details.map((detail, index) => (
+                      <div key={`${item._id}-${detail._id || index}`}>
+                        {' '}
                         {detail.description} ( pcs: {detail.quantity} x{' '}
                         {detail.unitPrice.toFixed(2)} )
                       </div>
@@ -261,8 +261,6 @@ const ForReicevingItems = ({ onAddItem }) => {
                   </CTableDataCell>
                   <CTableDataCell>{item.received ? 'Yes' : 'No'}</CTableDataCell>
                   <CTableDataCell>
-                    {/* <AddItem item={item} onAddItem={onAddItem} mockDataReiceving={reicevingItems} /> */}
-
                     <CButton
                       color="primary"
                       className="mt-2"

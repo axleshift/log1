@@ -500,7 +500,7 @@ const TableDispatching = () => {
             <CFormInput
               type="text"
               className="mb-2"
-              id="searchInput"
+              id="searchInput9"
               placeholder="Search shipments..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
