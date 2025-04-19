@@ -49,7 +49,7 @@ const fuelLogSchema = new mongoose.Schema(
             required: true,
         },
         receiptImage: {
-            type: String, // URL to stored image
+            type: String,
             required: true,
         },
         route: {

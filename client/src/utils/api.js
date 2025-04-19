@@ -31,7 +31,7 @@ const API_KEY = import.meta.env.VITE_APP_API_KEY
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json' && 'multipart/form-data',
     'x-api-key': API_KEY,
   },
   withCredentials: true, // Enable credentials

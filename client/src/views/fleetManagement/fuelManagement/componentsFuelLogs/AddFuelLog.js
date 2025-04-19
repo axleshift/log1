@@ -56,7 +56,7 @@ const AddFuelLog = ({ onAddFuelog }) => {
     costPerLiter: '',
     totalCost: '',
     currentMileage: '',
-    receiptImage: null,
+    receiptImage: '',
     // route details
     route: {
       start: '',
@@ -200,13 +200,45 @@ const AddFuelLog = ({ onAddFuelog }) => {
     }
   }
 
+  // const handlePhotoChange = (e) => {
+  //   const file = e.target.files[0]
+  //   if (file) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       receiptImage: file,
+  //     }))
+  //     // Create preview URL
+  //     const reader = new FileReader()
+  //     reader.onloadend = () => {
+  //       setPreview(reader.result)
+  //     }
+  //     reader.readAsDataURL(file)
+  //   }
+  // }
+
   const handlePhotoChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      // Validate file type
+      if (!file.type.match('image.*')) {
+        showError('Please upload an image file')
+        e.target.value = '' // Clear the input
+        return
+      }
+
+      // Validate file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024
+      if (file.size > maxSize) {
+        showError('File size should be less than 5MB')
+        e.target.value = '' // Clear the input
+        return
+      }
+
       setFormData((prev) => ({
         ...prev,
         receiptImage: file,
       }))
+
       // Create preview URL
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -262,11 +294,20 @@ const AddFuelLog = ({ onAddFuelog }) => {
       formDataToSend.append('route[distance]', formData.route.distance)
 
       // Append receipt image
+      // if (formData.receiptImage) {
+      //   formDataToSend.append('receiptImage', formData.receiptImage)
+      // }
       if (formData.receiptImage) {
+        const maxSize = 5 * 1024 * 1024 // 5MB
+        if (formData.receiptImage.size > maxSize) {
+          showError('File size should be less than 5MB')
+          return
+        }
         formDataToSend.append('receiptImage', formData.receiptImage)
       }
-
+      console.log('receiptImage', formData.receiptImage)
       const response = await api.post('api/v1/fuelLogs/fuel-logs', formDataToSend)
+      console.log('response', response)
       if (response.data.success) {
         onAddFuelog(response.data.data)
         showSuccess(response.data.message)
@@ -518,7 +559,14 @@ const AddFuelLog = ({ onAddFuelog }) => {
             </CInputGroup>
             <CFormLabel htmlFor="receipt">Picture Of Receipts</CFormLabel>
             <CInputGroup className="mb-3">
-              <CFormInput type="file" id="receipt" accept="images/*" onChange={handlePhotoChange} />
+              <CFormInput
+                type="file"
+                id="receipt"
+                accept="image/*"
+                required // Add this
+                feedbackInvalid="Please upload a receipt image"
+                onChange={handlePhotoChange}
+              />
             </CInputGroup>
             {preview && (
               <div className="mb-3">
