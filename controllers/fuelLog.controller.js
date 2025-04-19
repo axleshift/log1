@@ -7,107 +7,172 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// export const createFuelLog = async (req, res) => {
+//     try {
+//         // Validate required fields from the request body
+//         const { vehicleId, driverId, vehicleDetails, driverDetails, date, receiptNumber, fuelQuantity, fuelType, costPerLiter, totalCost, route, notes, litersPer100km, kmPerLiter, mpg } = req.body;
+
+//         if (!vehicleId || !driverId || !fuelQuantity || !receiptNumber || !date) {
+//             if (req.file) {
+//                 try {
+//                     const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+//                     await fs.unlink(filePath);
+//                 } catch (err) {
+//                     console.error("Error deleting uploaded file:", err);
+//                 }
+//             }
+
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Vehicle, driver, Date, receipt number, and fuel quantity are required fields",
+//             });
+//         }
+
+//         const existingFuelLog = await FuelLog.findOne({ receiptNumber });
+//         if (existingFuelLog) {
+//             if (existingFuelLog.vehicleId.toString() === vehicleId) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: "Receipt number already exists for this vehicle",
+//                 });
+//             }
+//             if (req.file) {
+//                 try {
+//                     const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+//                     await fs.unlink(filePath);
+//                 } catch (error) {
+//                     console.error("Error deleting uploaded file:", error);
+//                 }
+//             }
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Receipt number already exists",
+//             });
+//         }
+//         let photoFilename = null;
+//         if (req.file) {
+//             try {
+//                 photoFilename = req.file.filename;
+//             } catch (error) {
+//                 console.error("Error handling photo:", error);
+//             }
+//         }
+//         await Vehicle.findByIdAndUpdate(req.body.vehicleId, { currentMileage: req.body.currentMileage }, { new: true });
+//         // Create new fuel log instance
+//         const fuelLog = new FuelLog({
+//             vehicleId,
+//             driverId,
+//             vehicleDetails,
+//             driverDetails,
+//             date,
+//             receiptNumber,
+//             fuelQuantity,
+//             currentMileage: req.body.currentMileage,
+//             fuelType,
+//             costPerLiter,
+//             totalCost,
+//             receiptImage: photoFilename,
+//             route,
+//             notes,
+//             litersPer100km,
+//             kmPerLiter,
+//             mpg,
+//         });
+
+//         // Save the fuel log
+//         const savedFuelLog = await fuelLog.save();
+
+//         // Return success response
+//         res.status(201).json({
+//             success: true,
+//             data: savedFuelLog,
+//             message: "Fuel log created successfully",
+//         });
+//     } catch (error) {
+//         // Handle specific validation errors
+//         if (error.name === "ValidationError") {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: Object.values(error.errors)
+//                     .map((err) => err.message)
+//                     .join(", "),
+//             });
+//         }
+//         if (req.file) {
+//             try {
+//                 const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+//                 await fs.unlink(filePath);
+//             } catch (err) {
+//                 console.error("Error deleting uploaded file:", err);
+//             }
+//         }
+
+//         // Handle other errors
+//         res.status(400).json({
+//             success: false,
+//             message: error.message,
+//         });
+//     }
+// };
+
 export const createFuelLog = async (req, res) => {
     try {
-        // Validate required fields from the request body
-        const { vehicleId, driverId, vehicleDetails, driverDetails, date, receiptNumber, fuelQuantity, fuelType, costPerLiter, totalCost, route, notes, litersPer100km, kmPerLiter, mpg } = req.body;
-
-        if (!vehicleId || !driverId || !fuelQuantity || !receiptNumber || !date) {
-            if (req.file) {
-                try {
-                    const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
-                    await fs.unlink(filePath);
-                } catch (err) {
-                    console.error("Error deleting uploaded file:", err);
-                }
-            }
-
+        // Check if file exists
+        if (!req.file) {
             return res.status(400).json({
                 success: false,
-                message: "Vehicle, driver, Date, receipt number, and fuel quantity are required fields",
+                message: "Receipt image is required",
             });
         }
 
-        const existingFuelLog = await FuelLog.findOne({ receiptNumber });
-        if (existingFuelLog) {
-            if (existingFuelLog.vehicleId.toString() === vehicleId) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Receipt number already exists for this vehicle",
-                });
-            }
-            if (req.file) {
-                try {
-                    const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
-                    await fs.unlink(filePath);
-                } catch (error) {
-                    console.error("Error deleting uploaded file:", error);
-                }
-            }
-            return res.status(400).json({
-                success: false,
-                message: "Receipt number already exists",
-            });
-        }
-        let photoFilename = null;
-        if (req.file) {
-            try {
-                photoFilename = req.file.filename;
-            } catch (error) {
-                console.error("Error handling photo:", error);
-            }
-        }
-        await Vehicle.findByIdAndUpdate(req.body.vehicleId, { currentMileage: req.body.currentMileage }, { new: true });
-        // Create new fuel log instance
+        const { vehicleId, driverId, vehicleDetails, driverDetails, date, receiptNumber, fuelQuantity, fuelType, costPerLiter, totalCost, route, notes, litersPer100km, kmPerLiter, mpg, currentMileage } = req.body;
+
+        // Parse JSON strings if needed
+        const parsedVehicleDetails = typeof vehicleDetails === "string" ? JSON.parse(vehicleDetails) : vehicleDetails;
+        const parsedDriverDetails = typeof driverDetails === "string" ? JSON.parse(driverDetails) : driverDetails;
+
+        // Create new fuel log
         const fuelLog = new FuelLog({
             vehicleId,
             driverId,
-            vehicleDetails,
-            driverDetails,
+            vehicleDetails: parsedVehicleDetails,
+            driverDetails: parsedDriverDetails,
             date,
             receiptNumber,
-            fuelQuantity,
-            currentMileage: req.body.currentMileage,
+            fuelQuantity: Number(fuelQuantity),
             fuelType,
-            costPerLiter,
-            totalCost,
-            receiptImage: photoFilename,
+            costPerLiter: Number(costPerLiter),
+            totalCost: Number(totalCost),
+            receiptImage: req.file.filename,
             route,
             notes,
-            litersPer100km,
-            kmPerLiter,
-            mpg,
+            litersPer100km: Number(litersPer100km),
+            kmPerLiter: Number(kmPerLiter),
+            mpg: Number(mpg),
+            currentMileage: Number(currentMileage),
         });
 
-        // Save the fuel log
         const savedFuelLog = await fuelLog.save();
 
-        // Return success response
+        // Update vehicle mileage
+        await Vehicle.findByIdAndUpdate(vehicleId, { currentMileage: Number(currentMileage) }, { new: true });
+
         res.status(201).json({
             success: true,
             data: savedFuelLog,
             message: "Fuel log created successfully",
         });
     } catch (error) {
-        // Handle specific validation errors
-        if (error.name === "ValidationError") {
-            return res.status(400).json({
-                success: false,
-                message: Object.values(error.errors)
-                    .map((err) => err.message)
-                    .join(", "),
-            });
-        }
+        // Clean up uploaded file if there's an error
         if (req.file) {
             try {
-                const filePath = path.join(__dirname, "../uploads/receipts", req.file.filename);
+                const filePath = path.join(__dirname, "../uploads/fuelReceipts", req.file.filename);
                 await fs.unlink(filePath);
             } catch (err) {
                 console.error("Error deleting uploaded file:", err);
             }
         }
 
-        // Handle other errors
         res.status(400).json({
             success: false,
             message: error.message,
