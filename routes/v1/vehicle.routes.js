@@ -1,5 +1,5 @@
 import express from "express";
-import { getVehicles, getRestoredVehicles, createVehicle, updateVehicle, deleteVehicle, getAvailableVehicles, inspectionVehicles, getAvailableVehicles2, getVehicleAnalytics, restoreVehicle, getAllVehiclesNotMaintenance } from "../../controllers/vehicle.controller.js";
+import { getVehicles, getRestoredVehicles, createVehicle, updateVehicle, deleteVehicle, getAvailableVehicles, inspectionVehicles, getAvailableVehicles2, getVehicleAnalytics, restoreVehicle, getAllVehiclesNotMaintenance, patchVehicleSchedule } from "../../controllers/vehicle.controller.js";
 
 const router = express.Router();
 
@@ -14,5 +14,6 @@ router.post("/", createVehicle);
 router.put("/:id", updateVehicle);
 router.patch("/:id", deleteVehicle);
 router.patch("/restore/:id", restoreVehicle);
+router.patch("/schedule/:id", patchVehicleSchedule);
 
 export default router;
