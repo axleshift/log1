@@ -22,7 +22,7 @@ import { getRole } from './../../../../utils/auth'
 
 const TableDriver = ({ driver, loading, onDeleteDriver, onUpdateDriver }) => {
   const role = getRole()
-  const adminRoles = ['manager', 'admin', 'super admin']
+  const adminRoles = ['manager', 'admin', 'super admin', 'fleet manager']
   const [localError, setLocalError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredDrivers, setFilteredDrivers] = useState([])

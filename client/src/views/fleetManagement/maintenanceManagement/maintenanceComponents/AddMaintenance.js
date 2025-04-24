@@ -263,7 +263,9 @@ const AddMaintenance = ({ onAddMaintenance }) => {
                 <option value="">Select Vehicle</option>
                 {vehicles
                   .filter(
-                    (vehicle) => vehicle.status === 'in_use' || vehicle.status === 'available',
+                    (vehicle) =>
+                      (vehicle.status === 'in_use' || vehicle.status === 'available') &&
+                      !vehicle.deleted,
                   )
                   .map((vehicle) => (
                     <option key={vehicle._id} value={vehicle._id}>
@@ -374,7 +376,6 @@ const AddMaintenance = ({ onAddMaintenance }) => {
                     placeholder="Part Name"
                     value={currentPart.partName}
                     onChange={handlePartChange}
-                    required
                   />
                   <CFormInput
                     id="parts.quantity"
@@ -383,7 +384,6 @@ const AddMaintenance = ({ onAddMaintenance }) => {
                     placeholder="Quantity"
                     value={currentPart.quantity}
                     onChange={handlePartChange}
-                    required
                   />
 
                   <CButton color="primary" onClick={handleAddPart}>

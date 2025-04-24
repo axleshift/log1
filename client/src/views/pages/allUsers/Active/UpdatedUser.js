@@ -33,7 +33,8 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
   const [preview, setPreview] = useState(null)
 
   const API_URL = import.meta.env.VITE_APP_API_URL
-  // const token = sessionStorage.getItem('accessToken')
+  // const token =import Dispatch from './../../../../../../server/models/dispatch.model';
+  sessionStorage.getItem('accessToken')
 
   useEffect(() => {
     if (user) {
@@ -200,8 +201,11 @@ const EditUser = ({ user, visible, onClose, onUpdate }) => {
             <option value="">Select Role</option>
             <option value="admin">Admin</option>
             <option value="manager">Manager</option>
-            <option value="inspector">Inspector</option>
-            <option value="driver">Driver</option>
+            <option value="chief mechanic">Chief mechanic</option>
+            <option value="fleet manager">Fleet Manager</option>
+            <option value="scheduler">Scheduler</option>
+            <option value="warehouse manager">Warehouse Manager</option>
+            <option value="receiving clerk">Receiving Clerk</option>
           </CFormSelect>
 
           <CFormInput

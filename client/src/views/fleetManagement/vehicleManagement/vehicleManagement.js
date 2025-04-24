@@ -26,7 +26,7 @@ import { getRole } from '../../../utils/auth'
 
 const VehicleManagement = () => {
   const role = getRole()
-  const roles = 'admin'
+  const adminRoles = ['super admin', 'admin', 'manager', 'fleet manager']
   const { showSuccess, showError } = useToast()
 
   const [vehicle, setVehicles] = useState([])
@@ -129,63 +129,71 @@ const VehicleManagement = () => {
 
   return (
     <>
-      <CHeader className="text-center">Vehicle Management</CHeader>
+      {role && adminRoles.includes(role) ? (
+        <>
+          <CHeader className="text-center">Vehicle Management</CHeader>
 
-      <CContainer className="m-3">
-        <AddVehicle onAddVehicle={handleAddVehicle} />
-      </CContainer>
-      <CTabs activeItemKey="Vehicle List">
-        <CTabList variant="tabs">
-          <CTab itemKey="Vehicle List">Vehicle List</CTab>
-          <CTab itemKey="Restore Vehicles">Restore Vehicles</CTab>
-        </CTabList>
-        <CTabContent>
-          <CTabPanel itemKey="Vehicle List">
-            <CCard>
-              <CHeader>Vehicle List</CHeader>
-              <CCardBody className="md-3">
-                <TableVehicle
-                  vehicle={vehicle}
-                  error={error}
-                  onDeleteVehicle={handleDeleteClick}
-                  onUpdateVehicle={handleUpdateVehicle}
-                  loading={loading}
-                />
-              </CCardBody>
-            </CCard>
-          </CTabPanel>
-          <CTabPanel itemKey="Restore Vehicles">
-            {role.includes(roles) ? (
-              <CCard>
-                <CHeader>Restore Vehicles</CHeader>
-                <CCardBody className="md-3">
-                  <RestoredVehicles
-                    restoredVehicle={restoredVehicle}
-                    onRestoreVehicle={handleRestoreVehicle}
-                  />
-                </CCardBody>
-              </CCard>
-            ) : (
-              <CAlert color="danger" className="text-center justify-content-center m-5">
-                You are not authorized to view this tab
-              </CAlert>
-            )}
-          </CTabPanel>
-        </CTabContent>
-      </CTabs>
+          <CContainer className="m-3">
+            <AddVehicle onAddVehicle={handleAddVehicle} />
+          </CContainer>
+          <CTabs activeItemKey="Vehicle List">
+            <CTabList variant="tabs">
+              <CTab itemKey="Vehicle List">Vehicle List</CTab>
+              <CTab itemKey="Restore Vehicles">Restore Vehicles</CTab>
+            </CTabList>
+            <CTabContent>
+              <CTabPanel itemKey="Vehicle List">
+                <CCard>
+                  <CHeader>Vehicle List</CHeader>
+                  <CCardBody className="md-3">
+                    <TableVehicle
+                      vehicle={vehicle}
+                      error={error}
+                      onDeleteVehicle={handleDeleteClick}
+                      onUpdateVehicle={handleUpdateVehicle}
+                      loading={loading}
+                    />
+                  </CCardBody>
+                </CCard>
+              </CTabPanel>
+              <CTabPanel itemKey="Restore Vehicles">
+                {role && adminRoles.includes(role) && role !== 'fleet manager' ? (
+                  <CCard>
+                    <CHeader>Restore Vehicles</CHeader>
+                    <CCardBody className="md-3">
+                      <RestoredVehicles
+                        restoredVehicle={restoredVehicle}
+                        onRestoreVehicle={handleRestoreVehicle}
+                      />
+                    </CCardBody>
+                  </CCard>
+                ) : (
+                  <CAlert color="danger" className="text-center justify-content-center m-5">
+                    You are not authorized to view this tab
+                  </CAlert>
+                )}
+              </CTabPanel>
+            </CTabContent>
+          </CTabs>
 
-      <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
-        <CModalHeader>Confirm Delete</CModalHeader>
-        <CModalBody>Are you sure you want to delete this vehicle?</CModalBody>
-        <CModalFooter>
-          <CButton color="danger" variant="outline" onClick={handleDeleteConfirm}>
-            Delete
-          </CButton>
-          <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
-            Cancel
-          </CButton>
-        </CModalFooter>
-      </CModal>
+          <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
+            <CModalHeader>Confirm Delete</CModalHeader>
+            <CModalBody>Are you sure you want to delete this vehicle?</CModalBody>
+            <CModalFooter>
+              <CButton color="danger" variant="outline" onClick={handleDeleteConfirm}>
+                Delete
+              </CButton>
+              <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
+                Cancel
+              </CButton>
+            </CModalFooter>
+          </CModal>
+        </>
+      ) : (
+        <CAlert color="danger" className="text-center justify-content-center m-5">
+          You do not have permission to access this page.
+        </CAlert>
+      )}
     </>
   )
 }

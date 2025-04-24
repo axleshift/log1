@@ -174,14 +174,12 @@ const Register = () => {
                       disabled={isLoading}
                     >
                       <option value="">Select Role</option>
-                      <option value="super admin">Super Admin</option>
                       <option value="admin">Admin</option>
                       <option value="manager">Manager</option>
-                      <option value="fuel manager">Fuel Manager</option>
-                      <option value="fleet coordinator">Fleet Coordinator</option>
-                      <option value="chief mechanic">Chief Mechanic</option>
-                      <option value="maintenance supervisor">Maintenance Supervisor</option>
-                      <option value="dispatcher">Dispatcher</option>
+                      <option value="chief mechanic">Chief mechanic</option>
+                      <option value="fleet manager">Fleet Manager</option>
+                      <option value="scheduler">Scheduler</option>
+                      <option value="warehouse manager">Warehouse Manager</option>
                       <option value="receiving clerk">Receiving Clerk</option>
                     </CFormSelect>
                   </CInputGroup>

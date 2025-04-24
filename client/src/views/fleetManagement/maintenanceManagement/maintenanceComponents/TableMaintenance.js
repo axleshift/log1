@@ -56,7 +56,7 @@ const TableMaintenance = ({
 }) => {
   const role = getRole()
   const { showError, showSuccess } = useToast()
-  const adminRolse = ['admin', 'chief mechanic', 'super admin']
+  const adminRolse = ['admin', 'chief mechanic', 'super admin', 'fleet manager']
   const [locaLError, setLocalError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterdMaintenance, setFilterdMaintenance] = useState([])
@@ -70,6 +70,7 @@ const TableMaintenance = ({
   const [activeItems, setActiveItems] = useState('')
   const [selectedMaintenance, setSelectedMaintenance] = useState({ checklist: [] })
   const [isLoading, setIsLoading] = useState(true)
+  const today = new Date().toISOString().split('T')[0]
 
   useEffect(() => {
     if (selectedMaintenanceId) {
@@ -293,33 +294,45 @@ const TableMaintenance = ({
                   </CDropdownToggle>
                   <CDropdownMenu>
                     <CContainer className="d-flex flex-column justify-content-center">
-                      {adminRolse.includes(role) && (
-                        <UpdateMaintenance
-                          maintenance={maintenance}
-                          onUpdateMaintenance={onUpdateMaintenance}
-                          vehicles={vehicles}
-                          disabled={maintenance.status === 'Completed'}
-                        />
-                      )}
+                      {role &&
+                        adminRolse.includes(role) &&
+                        adminRolse.filter((r) => r !== 'chief mechanic').includes(role) && (
+                          <UpdateMaintenance
+                            maintenance={maintenance}
+                            onUpdateMaintenance={onUpdateMaintenance}
+                            vehicles={vehicles}
+                            disabled={maintenance.status === 'Completed'}
+                          />
+                        )}
 
-                      <CButton
-                        color="success"
-                        className="m-1"
-                        variant="outline"
-                        onClick={() => openChecklistModal(maintenance)}
-                        disabled={maintenance.purchased === false && maintenance.parts.length > 0}
-                      >
-                        <NavIcon icon={faListCheck} /> Checklist
-                      </CButton>
+                      {role &&
+                        adminRolse.includes(role) &&
+                        adminRolse.filter((r) => r !== 'fleet manager').includes(role) && (
+                          <CButton
+                            color="success"
+                            className="m-1"
+                            variant="outline"
+                            onClick={() => openChecklistModal(maintenance)}
+                            disabled={
+                              maintenance.purchased === false && maintenance.parts.length > 0
+                            }
+                          >
+                            <NavIcon icon={faListCheck} /> Checklist
+                          </CButton>
+                        )}
 
-                      <CButton
-                        color="danger"
-                        className="m-1"
-                        variant="outline"
-                        onClick={() => onDeleteMaintenance(maintenance._id)}
-                      >
-                        <NavIcon icon={faTrash} /> Delete
-                      </CButton>
+                      {role &&
+                        adminRolse.includes(role) &&
+                        adminRolse.filter((r) => r !== 'chief mechanic').includes(role) && (
+                          <CButton
+                            color="danger"
+                            className="m-1"
+                            variant="outline"
+                            onClick={() => onDeleteMaintenance(maintenance._id)}
+                          >
+                            <NavIcon icon={faTrash} /> Delete
+                          </CButton>
+                        )}
                     </CContainer>
                   </CDropdownMenu>
                 </CDropdown>

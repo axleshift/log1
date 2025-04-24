@@ -6,7 +6,7 @@ import { getRole, getUsername } from '../../../../utils/auth'
 const CompleteButtonMaintenance = ({ onCompleted, maintenance }) => {
   const { showSuccess, showError } = useToast()
   const role = getRole()
-  const adminRoles = ['admin', 'chief mechanic']
+  const adminRoles = ['admin', 'super admin', 'chief mechanic']
 
   if (!maintenance || !maintenance.checklist) {
     return null // or return a loading state/placeholder

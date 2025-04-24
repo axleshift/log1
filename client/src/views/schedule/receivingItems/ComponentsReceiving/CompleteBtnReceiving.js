@@ -174,7 +174,7 @@
 // export default CompleteBtnReceiving
 
 // CompleteBtnReceiving.js
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use } from 'react'
 import { useToast } from '../../../../components/Toast/Toast'
 import {
   CModal,
@@ -334,7 +334,7 @@ const CompleteBtnReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       )
 
       if (createReceivingResponse.status === 201 && updateShipmentResponse.status === 200) {
-        showSuccess('Shipment completed and copied to receiving successfully')
+        showSuccess('Shipment receiving completed successfully')
         handleCloseModal()
         if (onSuccess) onSuccess()
       }

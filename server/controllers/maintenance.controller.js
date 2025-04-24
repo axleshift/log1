@@ -289,21 +289,97 @@ export const updateChecklistItem = async (req, res) => {
     }
 };
 
+// export const UpdateMaintenance = async (req, res) => {
+//     const { id } = req.params;
+//     try {
+//         const maintenance = await Maintenance.findByIdAndUpdate(id, req.body, { new: true });
+//         if (!maintenance) {
+//             return res.status(404).json({ success: false, message: "Maintenance record not found" });
+//         }
+//         if (!maintenance.vehicle || !maintenance.maintenanceType || !maintenance.description || !maintenance.startDate || !maintenance.expectedEndDate) {
+//             return res.status(400).json({ success: false, message: "All fields are required" });
+//         }
+
+//         const newMaintenance = new Maintenance(maintenance);
+//         await newMaintenance.save();
+//         res.status(200).json({ success: true, data: maintenance, message: "Maintenance record updated successfully" });
+//     } catch (error) {
+//         res.status(400).json({ success: false, message: error.message });
+//     }
+// };
+
 export const UpdateMaintenance = async (req, res) => {
     const { id } = req.params;
     try {
-        const maintenance = await Maintenance.findByIdAndUpdate(id, req.body, { new: true });
-        if (!maintenance) {
-            return res.status(404).json({ success: false, message: "Maintenance record not found" });
-        }
-        if (!maintenance.vehicle || !maintenance.maintenanceType || !maintenance.description || !maintenance.startDate || !maintenance.expectedEndDate) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
+        // First, get the original maintenance record
+        const originalMaintenance = await Maintenance.findById(id);
+        if (!originalMaintenance) {
+            return res.status(404).json({
+                success: false,
+                message: "Maintenance record not found",
+            });
         }
 
-        const newMaintenance = new Maintenance(maintenance);
-        await newMaintenance.save();
-        res.status(200).json({ success: true, data: maintenance, message: "Maintenance record updated successfully" });
+        // Update the maintenance record
+        const maintenance = await Maintenance.findByIdAndUpdate(id, req.body, { new: true });
+
+        // Validate required fields
+        if (!maintenance.vehicle || !maintenance.maintenanceType || !maintenance.description || !maintenance.startDate || !maintenance.expectedEndDate) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+        }
+
+        // Get today's date at midnight for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const newStartDate = new Date(maintenance.startDate);
+        newStartDate.setHours(0, 0, 0, 0);
+
+        const originalStartDate = new Date(originalMaintenance.startDate);
+        originalStartDate.setHours(0, 0, 0, 0);
+
+        // If the maintenance was scheduled for today but has been moved to a future date
+        if (originalStartDate.getTime() === today.getTime() && newStartDate.getTime() > today.getTime()) {
+            // Get the vehicle
+            const vehicle = await Vehicle.findById(maintenance.vehicle);
+
+            if (vehicle) {
+                // Reset vehicle status to its previous state
+                const updatedStatus = vehicle.assignedDriver ? "in_use" : "available";
+
+                // Update vehicle status
+                await Vehicle.findByIdAndUpdate(maintenance.vehicle, {
+                    status: updatedStatus,
+                });
+
+                // If there was a driver previously assigned
+                if (vehicle.assignedDriver) {
+                    // Restore driver's status and vehicle assignment
+                    await Driver.findByIdAndUpdate(vehicle.assignedDriver, {
+                        status: "assigned",
+                        assignedVehicle: vehicle._id,
+                    });
+                }
+            }
+
+            // Update maintenance status back to "Scheduled"
+            maintenance.status = "Scheduled";
+            await maintenance.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            data: maintenance,
+            message: "Maintenance record updated successfully",
+        });
     } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        console.error("Error updating maintenance:", error);
+        res.status(400).json({
+            success: false,
+            message: error.message,
+        });
     }
 };

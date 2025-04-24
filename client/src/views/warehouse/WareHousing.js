@@ -3,11 +3,23 @@ import TableWareHousing from './ComponentsWarehousing/TableWareHousing'
 import ForReicevingItems from './ComponentsWarehousing/ForReicevingItems'
 import ItemsTableWarehouse from './ComponentsWarehousing/ItemsTableWarehouse'
 import ShipmentItemWarehouse from './ComponentsWarehousing/ShipmentItemWarehouse'
-import { CCard, CHeader, CTab, CTabList, CTabs, CTabContent, CTabPanel } from '@coreui/react'
+import {
+  CCard,
+  CHeader,
+  CTab,
+  CTabList,
+  CTabs,
+  CTabContent,
+  CTabPanel,
+  CAlert,
+} from '@coreui/react'
 import api from '../../utils/api'
 import axios from 'axios'
+import { getRole } from '../../utils/auth'
 
 const WareHousing = () => {
+  const role = getRole()
+  const adminRoles = ['admin', 'super admin ', 'warehouse manager', 'receiving clerk']
   const [warehousing, setWarehousing] = useState([])
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
@@ -76,44 +88,53 @@ const WareHousing = () => {
 
   return (
     <>
-      <CTabs activeItemKey="Warehouse Items Details">
-        <CTabList variant="tabs">
-          <CTab itemKey="Warehouse Items Details">Warehouse Items Details</CTab>
-          <CTab itemKey="For Receiving">For Receiving</CTab>
-          {/* <CTab itemKey="Items">Items</CTab> */}
-          <CTab itemKey="Shipment">Warehouse Shipment Items</CTab>
-        </CTabList>
-        <CTabContent>
-          <CTabPanel className="p-3" itemKey="Warehouse Items Details">
-            <TableWareHousing
-              warehousing={warehousing}
-              loading={loading}
-              error={error}
-              onDeleteItem={handleDeleteItem}
-              onUpdateItem={handleUpdateItem}
-              onRefresh={handleRefresh}
-            />
-          </CTabPanel>
-          <CTabPanel className="p-3" itemKey="For Receiving">
-            <CCard>
-              <CHeader>Item Reiceving</CHeader>
-              <ForReicevingItems onAddItem={handleAddItem} />
-            </CCard>
-          </CTabPanel>
-          {/* <CTabPanel className="p-3" itemKey="Items">
+      {role && adminRoles.includes(role) ? (
+        <>
+          {' '}
+          <CTabs activeItemKey="Warehouse Items Details">
+            <CTabList variant="tabs">
+              <CTab itemKey="Warehouse Items Details">Warehouse Items Details</CTab>
+              <CTab itemKey="For Receiving">For Receiving</CTab>
+              {/* <CTab itemKey="Items">Items</CTab> */}
+              <CTab itemKey="Shipment">Warehouse Shipment Items</CTab>
+            </CTabList>
+            <CTabContent>
+              <CTabPanel className="p-3" itemKey="Warehouse Items Details">
+                <TableWareHousing
+                  warehousing={warehousing}
+                  loading={loading}
+                  error={error}
+                  onDeleteItem={handleDeleteItem}
+                  onUpdateItem={handleUpdateItem}
+                  onRefresh={handleRefresh}
+                />
+              </CTabPanel>
+              <CTabPanel className="p-3" itemKey="For Receiving">
+                <CCard>
+                  <CHeader>Item Reiceving</CHeader>
+                  <ForReicevingItems onAddItem={handleAddItem} />
+                </CCard>
+              </CTabPanel>
+              {/* <CTabPanel className="p-3" itemKey="Items">
             <CCard>
               <CHeader>Items</CHeader>
               <ItemsTableWarehouse items={items} loading={loading} error={error} />
             </CCard>
           </CTabPanel> */}
-          <CTabPanel className="p-3" itemKey="Shipment">
-            <CCard>
-              <CHeader>Shipment</CHeader>
-              <ShipmentItemWarehouse />
-            </CCard>
-          </CTabPanel>
-        </CTabContent>
-      </CTabs>
+              <CTabPanel className="p-3" itemKey="Shipment">
+                <CCard>
+                  <CHeader>Shipment</CHeader>
+                  <ShipmentItemWarehouse />
+                </CCard>
+              </CTabPanel>
+            </CTabContent>
+          </CTabs>
+        </>
+      ) : (
+        <CAlert color="danger" className="text-center justify-content-center m-5">
+          You do not have permission to access this page.
+        </CAlert>
+      )}
     </>
   )
 }

@@ -21,9 +21,12 @@ import {
   CTab,
   CTabContent,
   CTabPanel,
+  CAlert,
 } from '@coreui/react'
-
+import { getRole } from './../../../utils/auth'
 const MaintenanceManagement = () => {
+  const role = getRole()
+  const adminRoles = ['super admin', 'admin', 'manager', 'fleet manager', 'chief mechanic']
   const [maintenance, setMaintenance] = useState([])
   const [vehilces, setVehicles] = useState([])
   const [loading, setLoading] = useState(true)
@@ -107,53 +110,67 @@ const MaintenanceManagement = () => {
   }
   return (
     <>
-      <CContainer>
-        <CHeader>Maintenance Management</CHeader>
-        <CCard>
-          <CCardBody>
-            <CContainer>
-              <AddMaintenance onAddMaintenance={handleAddMaintenance} />
-            </CContainer>
-            <CTabs activeItemKey="Maintenance List">
-              <CTabList variant="tabs">
-                <CTab itemKey="Maintenance List">Maintenance List</CTab>
-              </CTabList>
-              <CTabContent>
-                <CTabPanel itemKey="Maintenance List">
-                  <CCardBody className="md-3">
-                    <TableMaintenance
-                      vehicles={vehilces}
-                      maintenance={maintenance}
-                      onCompleted={handleMaintenanceCompleted}
-                      error={error}
-                      onDeleteMaintenance={handleDeleteClick}
-                      onUpdateMaintenance={handleUpdateMaintenance}
-                      loading={loading}
-                      selectedMaintenanceId={selectedMaintenanceId}
-                    />
-                  </CCardBody>
-                </CTabPanel>
-              </CTabContent>
-            </CTabs>
-          </CCardBody>
-        </CCard>
-      </CContainer>
-
-      {/* Delete Confirmation Modal */}
-      <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
-        <CModalHeader>
-          <CModalTitle>Delete Maintenance</CModalTitle>
-        </CModalHeader>
-        <CModalBody>Are you sure you want to delete this maintenance?</CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
-            Cancel
-          </CButton>
-          <CButton color="danger" variant="outline" onClick={hanldeDeleteConfirm}>
-            Delete
-          </CButton>
-        </CModalFooter>
-      </CModal>
+      {role && adminRoles.includes(role) ? (
+        <>
+          {' '}
+          <CContainer>
+            <CHeader>Maintenance Management</CHeader>
+            <CCard>
+              <CCardBody>
+                <CContainer>
+                  <CContainer>
+                    {role &&
+                      adminRoles.includes(role) &&
+                      adminRoles.filter((r) => r !== 'chief mechanic').includes(role) && (
+                        <AddMaintenance onAddMaintenance={handleAddMaintenance} />
+                      )}
+                  </CContainer>
+                </CContainer>
+                <CTabs activeItemKey="Maintenance List">
+                  <CTabList variant="tabs">
+                    <CTab itemKey="Maintenance List">Maintenance List</CTab>
+                  </CTabList>
+                  <CTabContent>
+                    <CTabPanel itemKey="Maintenance List">
+                      <CCardBody className="md-3">
+                        <TableMaintenance
+                          vehicles={vehilces}
+                          maintenance={maintenance}
+                          onCompleted={handleMaintenanceCompleted}
+                          error={error}
+                          onDeleteMaintenance={handleDeleteClick}
+                          onUpdateMaintenance={handleUpdateMaintenance}
+                          loading={loading}
+                          selectedMaintenanceId={selectedMaintenanceId}
+                        />
+                      </CCardBody>
+                    </CTabPanel>
+                  </CTabContent>
+                </CTabs>
+              </CCardBody>
+            </CCard>
+          </CContainer>
+          {/* Delete Confirmation Modal */}
+          <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
+            <CModalHeader>
+              <CModalTitle>Delete Maintenance</CModalTitle>
+            </CModalHeader>
+            <CModalBody>Are you sure you want to delete this maintenance?</CModalBody>
+            <CModalFooter>
+              <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
+                Cancel
+              </CButton>
+              <CButton color="danger" variant="outline" onClick={hanldeDeleteConfirm}>
+                Delete
+              </CButton>
+            </CModalFooter>
+          </CModal>
+        </>
+      ) : (
+        <CAlert color="danger" className="text-center w-100 mx-auto mt-5 justify-content-center">
+          You are not authorized to access this page.
+        </CAlert>
+      )}
     </>
   )
 }

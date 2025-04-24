@@ -16,8 +16,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 import api from '../../../utils/api'
 import { useToast } from '../../../components/Toast/Toast'
+import { getEmail } from '../../../utils/auth'
 
 const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
+  const emailUser = getEmail()
   const { showSuccess, showErrors } = useToast()
   const [visible, setVisible] = useState(false)
   const [validated, setValidated] = useState(false)
@@ -45,8 +47,9 @@ const UpdateWarehouseLoc = ({ warehouseLoc, onUpdateWarehouseLoc }) => {
       e.stopPropagation()
     }
     setValidated(isValid)
-    const user = JSON.parse(sessionStorage.getItem('user'))
-    const email = user.email
+    // const user = JSON.parse(localStorage.getItem('user'))
+    // const email = user.
+    const email = emailUser
     if (!email) {
       setError('User email not found. Please log in again.')
       return

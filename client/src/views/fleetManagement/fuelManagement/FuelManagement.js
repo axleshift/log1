@@ -11,14 +11,18 @@ import {
   CModalBody,
   CModalFooter,
   CImage,
+  CAlert,
 } from '@coreui/react'
 import api from '../../../utils/api'
 import AddFuelLog from './componentsFuelLogs/AddFuelLog'
 import TableFuelLogs from './componentsFuelLogs/TableFuelLogs'
 import UpdateFuelLog from './componentsFuelLogs/UpdateFuelLog'
 import { useToast } from '../../../components/Toast/Toast'
+import { getRole } from '../../../utils/auth'
 
 const FuelManagement = () => {
+  const adminRolse = ['admin', 'manager', 'super admin', 'fleet manager']
+  const role = getRole()
   const API_URL = import.meta.env.VITE_APP_API_URL
   const { showSuccess, showError } = useToast()
   const [fuelLogs, setFuelLogs] = useState([])
@@ -44,7 +48,6 @@ const FuelManagement = () => {
       setFuelLogs(fuelLogsRes.data.data)
       setVehicles(vehiclesRes.data.data)
       setDrivers(driversRes.data.data)
-      showSuccess('Data fetched successfully')
     } catch (error) {
       showError(error.response?.data?.message || 'Error fetching data')
       setError(error.message)
@@ -111,94 +114,95 @@ const FuelManagement = () => {
 
   return (
     <>
-      <CContainer>
-        <CHeader>Fuel Management</CHeader>
-        <CCard>
-          <CCardBody>
-            <CContainer className="mb-3">
-              <AddFuelLog onAddFuelog={handleAddFuelLog} />
-            </CContainer>
-            <TableFuelLogs
-              fuelLogs={fuelLogs}
+      {role && adminRolse.includes(role) ? (
+        <CContainer>
+          <CHeader>Fuel Management</CHeader>
+          <CCard>
+            <CCardBody>
+              <CContainer className="mb-3">
+                <AddFuelLog onAddFuelog={handleAddFuelLog} />
+              </CContainer>
+              <TableFuelLogs
+                fuelLogs={fuelLogs}
+                vehicles={vehicles}
+                drivers={drivers}
+                loading={loading}
+                error={error}
+                onDeleteFuelLog={handleDeleteClick}
+                onUpdateFuelLog={handleUpdateClick}
+                onViewReceipt={handleViewReceipt}
+              />
+            </CCardBody>
+          </CCard>
+          {/* Update Modal */}
+          {updateModal && (
+            <UpdateFuelLog
+              fuelLog={selectedFuelLog}
+              visible={updateModal}
+              onClose={() => {
+                setUpdateModal(false)
+                setSelectedFuelLog(null)
+              }}
+              onUpdate={handleUpdateComplete}
               vehicles={vehicles}
               drivers={drivers}
-              loading={loading}
-              error={error}
-              onDeleteFuelLog={handleDeleteClick}
-              onUpdateFuelLog={handleUpdateClick}
-              onViewReceipt={handleViewReceipt}
             />
-          </CCardBody>
-        </CCard>
-        {/* Update Modal */}
-        {updateModal && (
-          <UpdateFuelLog
-            fuelLog={selectedFuelLog}
-            visible={updateModal}
+          )}
+          {/* Delete Confirmation Modal */}
+          <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
+            <CModalHeader closeButton>Confirm Delete</CModalHeader>
+            <CModalBody>
+              Are you sure you want to delete this fuel log? This action cannot be undone.
+            </CModalBody>
+            <CModalFooter>
+              <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
+                Cancel
+              </CButton>
+              <CButton color="danger" variant="outline" onClick={handleDeleteConfirm}>
+                Delete
+              </CButton>
+            </CModalFooter>
+          </CModal>
+          {/* Image View Modal */}
+          <CModal
+            visible={imageModal}
             onClose={() => {
-              setUpdateModal(false)
-              setSelectedFuelLog(null)
+              setImageModal(false)
+              setSelectedImage(null)
             }}
-            onUpdate={handleUpdateComplete}
-            vehicles={vehicles}
-            drivers={drivers}
-          />
-        )}
-        {/* Delete Confirmation Modal */}
-        <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
-          <CModalHeader closeButton>Confirm Delete</CModalHeader>
-          <CModalBody>
-            Are you sure you want to delete this fuel log? This action cannot be undone.
-          </CModalBody>
-          <CModalFooter>
-            <CButton color="secondary" variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
-            </CButton>
-            <CButton color="danger" variant="outline" onClick={handleDeleteConfirm}>
-              Delete
-            </CButton>
-          </CModalFooter>
-        </CModal>
-        {/* Image View Modal */}
-        <CModal
-          visible={imageModal}
-          onClose={() => {
-            setImageModal(false)
-            setSelectedImage(null)
-          }}
-          size="lg"
-          alignment="center"
-        >
-          <CModalHeader closeButton>Receipt Image</CModalHeader>
-          <CModalBody className="text-center">
-            {selectedImage && (
-              <CImage
-                src={selectedImage}
-                alt="Receipt"
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '70vh',
-                  objectFit: 'contain',
+            size="lg"
+            alignment="center"
+          >
+            <CModalHeader closeButton>Receipt Image</CModalHeader>
+            <CModalBody className="text-center">
+              {selectedImage && (
+                <CImage
+                  src={selectedImage}
+                  alt="Receipt"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '70vh',
+                    objectFit: 'contain',
+                  }}
+                  onError={(e) => {
+                    showError('Error loading image')
+                    e.target.src = 'placeholder-image-url.jpg' // Optional: provide a placeholder image
+                  }}
+                />
+              )}
+            </CModalBody>
+            <CModalFooter>
+              <CButton
+                color="secondary"
+                variant="outline"
+                onClick={() => {
+                  setImageModal(false)
+                  setSelectedImage(null)
                 }}
-                onError={(e) => {
-                  showError('Error loading image')
-                  e.target.src = 'placeholder-image-url.jpg' // Optional: provide a placeholder image
-                }}
-              />
-            )}
-          </CModalBody>
-          <CModalFooter>
-            <CButton
-              color="secondary"
-              variant="outline"
-              onClick={() => {
-                setImageModal(false)
-                setSelectedImage(null)
-              }}
-            >
-              Close
-            </CButton>
-            {/* <CButton
+              >
+                Close
+              </CButton>
+              {/* <CButton
               color="primary"
               variant="outline"
               onClick={() => window.open(selectedImage, '_blank')}
@@ -206,14 +210,19 @@ const FuelManagement = () => {
               Open in New Tab
             </CButton> */}
 
-            <a href={selectedImage} target="_blank" rel="noopener noreferrer">
-              <CButton color="primary" variant="outline">
-                Open in New Tab
-              </CButton>
-            </a>
-          </CModalFooter>
-        </CModal>
-      </CContainer>
+              <a href={selectedImage} target="_blank" rel="noopener noreferrer">
+                <CButton color="primary" variant="outline">
+                  Open in New Tab
+                </CButton>
+              </a>
+            </CModalFooter>
+          </CModal>
+        </CContainer>
+      ) : (
+        <CAlert color="danger" className="text-center w-100 mx-auto mt-5 justify-content-center">
+          You are not authorized to access this page.
+        </CAlert>
+      )}
     </>
   )
 }

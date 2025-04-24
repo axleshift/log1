@@ -177,7 +177,19 @@ export const getUsername = () => {
   }
   return null
 }
-
+export const getEmail = () => {
+  const accessToken = localStorage.getItem('accessToken')
+  if (accessToken) {
+    try {
+      const decodedToken = jwtDecode(accessToken)
+      return decodedToken.email
+    } catch (error) {
+      console.error('Error decoding token:', error)
+      return null
+    }
+  }
+  return null
+}
 export const logout = async () => {
   try {
     const token = localStorage.getItem('accessToken') // Change to localStorage

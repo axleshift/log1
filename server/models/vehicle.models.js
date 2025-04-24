@@ -72,6 +72,10 @@ const vehicleSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        scheduled: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,

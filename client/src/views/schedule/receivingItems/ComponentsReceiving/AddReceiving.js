@@ -111,12 +111,12 @@ const AddReceiving = ({ shipment = {}, onSuccess = () => {} }) => {
       )
 
       if (response.status === 200) {
-        showSuccess('Successfully updated warehouse status')
+        showSuccess('Successfully scheduled vehicle')
         handleCloseModal()
         if (onSuccess) onSuccess()
       }
     } catch (error) {
-      showError(error?.response?.data?.message || 'Error updating warehouse status')
+      showError(error?.response?.data?.message || 'Error scheduling vehicle')
     } finally {
       setLoading(false)
     }

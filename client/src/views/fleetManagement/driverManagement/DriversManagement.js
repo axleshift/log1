@@ -12,10 +12,14 @@ import {
   CModalFooter,
   CButton,
   CSpinner,
+  CAlert,
 } from '@coreui/react'
 import api from '../../../utils/api'
 import { useToast } from '../../../components/Toast/Toast'
+import { getRole } from '../../../utils/auth'
 const DriversManagement = () => {
+  const role = getRole()
+  const adminRoles = ['super admin', 'admin', 'manager', 'fleet manager']
   const { showError } = useToast()
   const [driver, setDrivers] = useState([])
   const [loading, setLoading] = useState(false)
@@ -74,36 +78,44 @@ const DriversManagement = () => {
   }
   return (
     <>
-      <CHeader className="text-center">Driver Management</CHeader>
-      <CContainer className="m-3">
-        <AddDriver onAddDriver={handleAddDriver} />
-      </CContainer>
-      <CCard>
-        <CHeader>Drivers list</CHeader>
-        <CCardBody className="md-3">
-          <TableDriver
-            driver={driver}
-            loading={loading}
-            error={error}
-            onDeleteDriver={handleDeleteClick}
-            onUpdateDriver={handleUpdateDriver}
-          />
-        </CCardBody>
-      </CCard>
-      <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
-        <CModalHeader closeButton>Confirm Delete</CModalHeader>
-        <CModalBody>
-          Are you sure you want to delete this driver? This action cannot be undone.
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setDeleteModal(false)}>
-            Cancel
-          </CButton>
-          <CButton color="danger" onClick={handleDeleteDriver}>
-            Delete
-          </CButton>
-        </CModalFooter>
-      </CModal>
+      {role && adminRoles.includes(role) ? (
+        <>
+          <CHeader className="text-center">Driver Management</CHeader>
+          <CContainer className="m-3">
+            <AddDriver onAddDriver={handleAddDriver} />
+          </CContainer>
+          <CCard>
+            <CHeader>Drivers list</CHeader>
+            <CCardBody className="md-3">
+              <TableDriver
+                driver={driver}
+                loading={loading}
+                error={error}
+                onDeleteDriver={handleDeleteClick}
+                onUpdateDriver={handleUpdateDriver}
+              />
+            </CCardBody>
+          </CCard>
+          <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
+            <CModalHeader closeButton>Confirm Delete</CModalHeader>
+            <CModalBody>
+              Are you sure you want to delete this driver? This action cannot be undone.
+            </CModalBody>
+            <CModalFooter>
+              <CButton color="secondary" onClick={() => setDeleteModal(false)}>
+                Cancel
+              </CButton>
+              <CButton color="danger" onClick={handleDeleteDriver}>
+                Delete
+              </CButton>
+            </CModalFooter>
+          </CModal>
+        </>
+      ) : (
+        <CAlert color="danger" className="text-center w-100 mx-auto mt-5 justify-content-center">
+          You are not authorized to access this page.
+        </CAlert>
+      )}
     </>
   )
 }
