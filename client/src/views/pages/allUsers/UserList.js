@@ -34,7 +34,10 @@ import { useNavigate } from 'react-router-dom'
 import UpdatedUser from './Active/UpdatedUser'
 import api from '../../../utils/api'
 import Login from './../login/Login'
+import { getRole } from '../../../utils/auth'
 const UserList = ({ onUpdateUser }) => {
+  const role = getRole()
+  const adminRole = 'super admin'
   const navigate = useNavigate()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -264,7 +267,7 @@ const UserList = ({ onUpdateUser }) => {
                 </CTableHead>
                 <CTableBody>
                   {currentItems
-                    .filter((item) => item.role !== 'admin')
+                    .filter((item) => item.role !== 'super admin')
                     .map((item) => (
                       <CTableRow key={item._id}>
                         <CTableDataCell>{item.username}</CTableDataCell>
@@ -289,14 +292,16 @@ const UserList = ({ onUpdateUser }) => {
                               {item.isActive ? 'Deactivate' : 'Activate'}
                             </CButton>
 
-                            <CButton
-                              variant="outline"
-                              className="me-2"
-                              color="primary"
-                              onClick={() => handleEditClick(item)}
-                            >
-                              <FontAwesomeIcon icon={faEdit} />
-                            </CButton>
+                            {role && adminRole.includes(role) && (
+                              <CButton
+                                variant="outline"
+                                className="me-2"
+                                color="primary"
+                                onClick={() => handleEditClick(item)}
+                              >
+                                <FontAwesomeIcon icon={faEdit} />
+                              </CButton>
+                            )}
                           </CContainer>
                         </CTableDataCell>
                       </CTableRow>

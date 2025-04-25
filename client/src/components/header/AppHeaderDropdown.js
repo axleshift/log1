@@ -112,7 +112,7 @@ const AppHeaderDropdown = () => {
             <CDropdownItem onClick={handleProfileClick}>
               <CIcon icon={cilUser} className="me-2" /> Profile
             </CDropdownItem>
-            {user.role === 'admin' && (
+            {user.role === 'super admin' && (
               <>
                 <CDropdownItem onClick={handleRegisterClick}>
                   <CIcon icon={cilUserPlus} className="me-2" />

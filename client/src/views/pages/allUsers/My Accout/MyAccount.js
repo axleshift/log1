@@ -37,7 +37,7 @@ const MyAccount = () => {
   })
 
   const API_URL = import.meta.env.VITE_APP_API_URL
-  const token = sessionStorage.getItem('accessToken')
+  const token = localStorage.getItem('accessToken')
 
   // Fetch user data
   const fetchUserData = async () => {
@@ -46,7 +46,7 @@ const MyAccount = () => {
       setError(null)
 
       // Get the token from sessionStorage
-      const token = sessionStorage.getItem('accessToken')
+      const token = localStorage.getItem('accessToken')
 
       const response = await api.get('api/v1/user/profile')
 
