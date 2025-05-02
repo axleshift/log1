@@ -47,7 +47,7 @@ const ReceivingAndDispatchingDashboard = () => {
       setLoading(true)
       const response = await axios.get(`${import.meta.env.VITE_APP_API_URL_LOG2}api/v1/shipment`)
       const shipmentData = response.data.shipments || []
-      console.log('Fetched shipment data:', shipmentData)
+
       if (Array.isArray(shipmentData)) {
         setShipments(shipmentData)
         calculateStats(shipmentData)
