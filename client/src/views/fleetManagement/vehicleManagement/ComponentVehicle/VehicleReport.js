@@ -335,7 +335,8 @@
 // }
 
 import React, { useState, useEffect, useRef } from 'react'
-import * as XLSX from 'xlsx'
+// import * as XLSX from 'xlsx'
+import * as XLSX from '/node_modules/xlsx/dist/xlsx.full.min.js'
 import {
   CCard,
   CCardBody,
