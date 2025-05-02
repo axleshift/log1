@@ -5,11 +5,14 @@
 
 // export default defineConfig(() => {
 //   return {
-//     base: './',
+//     base: '/',
 //     build: {
+//       rollupOptions: {
+//         external: ['xlsx'],
+//       },
 //       outDir: 'build',
-//       chunkSizeWarningLimit: 600,
-//       suppressDeprecationWarnings: true,
+//       assetsDir: 'assets',
+//       copyPublicDir: true,
 //     },
 //     css: {
 //       postcss: {
@@ -24,6 +27,7 @@
 //       exclude: [],
 //     },
 //     optimizeDeps: {
+//       force: true,
 //       esbuildOptions: {
 //         loader: {
 //           '.js': 'jsx',
@@ -79,22 +83,28 @@ export default defineConfig(() => {
     },
     optimizeDeps: {
       force: true,
+      include: ['xlsx'], // Add xlsx to included dependencies
       esbuildOptions: {
         loader: {
           '.js': 'jsx',
         },
       },
     },
-    plugins: [react()],
     resolve: {
       alias: [
         {
           find: 'src/',
           replacement: `${path.resolve(__dirname, 'src')}/`,
         },
+        // Add alias for xlsx if needed
+        {
+          find: 'xlsx',
+          replacement: 'xlsx/dist/xlsx.full.min.js',
+        },
       ],
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.scss'],
     },
+    plugins: [react()],
     server: {
       port: 5000,
       proxy: {
