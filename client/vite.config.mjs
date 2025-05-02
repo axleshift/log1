@@ -58,6 +58,9 @@ export default defineConfig(() => {
   return {
     base: '/',
     build: {
+      rollupOptions: {
+        external: ['xlsx'],
+      },
       outDir: 'build',
       assetsDir: 'assets',
       copyPublicDir: true,
