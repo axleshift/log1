@@ -51,6 +51,12 @@ const vehicleSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+
+        units: {
+            type: String,
+            enum: ["kg", "ton"],
+            default: "kg",
+        },
         status: {
             type: String,
             enum: ["available", "in_use", "maintenance", "inactive", "inspection", "forRegistration"],

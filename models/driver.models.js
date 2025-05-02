@@ -26,6 +26,11 @@ const driverSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        licenseRestriction: {
+            type: String,
+            enum: ["A", "A1", "B", "B1", "B2", "C", "D", "E", "BE"],
+            default: "C",
+        },
         status: {
             type: String,
             enum: ["available", "on_duty", "off_duty"],
