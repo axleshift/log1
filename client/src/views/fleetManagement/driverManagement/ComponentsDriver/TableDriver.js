@@ -131,6 +131,9 @@ const TableDriver = ({ driver, loading, onDeleteDriver, onUpdateDriver }) => {
               <CHeader>Address: {driver.address}</CHeader>
               <CHeader>License Number: {driver.licenseNumber}</CHeader>
               <CHeader>
+                License Restriction: {driver.licenseRestriction || 'No restriction'}
+              </CHeader>
+              <CHeader>
                 Vehicle:{' '}
                 {driver.assignedVehicle
                   ? `${driver.assignedVehicle.regisNumber} - ${driver.assignedVehicle.brand} ${driver.assignedVehicle.model}`

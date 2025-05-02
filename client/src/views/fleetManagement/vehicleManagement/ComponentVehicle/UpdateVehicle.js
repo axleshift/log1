@@ -34,6 +34,7 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
     regisExprationDate: vehicle.regisExprationDate,
     regisNumber: vehicle.regisNumber,
     type: vehicle.type,
+    units: vehicle.units,
     capacity: vehicle.capacity,
     fuelType: vehicle.fuelType,
     currentMileage: vehicle.currentMileage,
@@ -60,6 +61,11 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
   const fuelTypes = [
     { label: 'Diesel', value: 'Diesel' },
     { label: 'Gasoline', value: 'Gasoline' },
+  ]
+
+  const vehicleUnits = [
+    { label: 'kilograms', value: 'kg' },
+    { label: 'Tons', value: 'ton' },
   ]
 
   const handleEditVehicle = async (e) => {
@@ -246,6 +252,16 @@ const UpdateVehicle = ({ vehicle, onUpdateVehicle }) => {
                 required
                 onChange={handleChange}
                 options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
+              />
+              <CFormSelect
+                className="mb-3"
+                floatingLabel="Vehicle Unit"
+                placeholder="Vehicle Unit"
+                id="units"
+                value={editVehicle.units}
+                required
+                onChange={handleChange}
+                options={[{ label: 'Select Vehicle Unit', value: '' }, ...vehicleUnits]}
               />
 
               <CFormInput

@@ -12,6 +12,10 @@ import {
   CFormSelect,
   CForm,
   CInputGroup,
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
 } from '@coreui/react'
 import { CModalTitle } from '@coreui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -34,6 +38,7 @@ const AddVehicle = ({ onAddVehicle }) => {
     regisExprationDate: '',
     regisNumber: '',
     capacity: '',
+    units: '',
     fuelType: '',
     currentMileage: '',
     status: 'available',
@@ -62,9 +67,9 @@ const AddVehicle = ({ onAddVehicle }) => {
     { label: 'Gasoline', value: 'Gasoline' },
   ]
 
-  const options = [
-    { label: 'Maintenance', value: 'maintenance' },
-    { label: 'In Use', value: 'in_use' },
+  const vehicleUnits = [
+    { label: 'kilograms', value: 'kg' },
+    { label: 'Tons', value: 'ton' },
   ]
   const handleAddVehicle = async (e) => {
     const form = e.currentTarget
@@ -232,7 +237,16 @@ const AddVehicle = ({ onAddVehicle }) => {
                     onChange={handleChange}
                     options={[{ label: 'Select Vehicle Type', value: '' }, ...vehicleTypes]}
                   />
-
+                  <CFormSelect
+                    className="mb-3"
+                    floatingLabel="Vehicle Units"
+                    placeholder="Vehicle Unit"
+                    id="units"
+                    value={newVehicle.units}
+                    required
+                    onChange={handleChange}
+                    options={[{ label: 'Select Vehicle Unit', value: '' }, ...vehicleUnits]}
+                  />
                   <CFormInput
                     className="mb-2"
                     type="number"

@@ -19,6 +19,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import AddVehicle from './ComponentVehicle/AddVehicle'
 import TableVehicle from './ComponentVehicle/TableVehicle'
+import VehicleReport from './ComponentVehicle/VehicleReport'
 import api from '../../../utils/api'
 import { useToast } from '../../../components/Toast/Toast'
 import RestoredVehicles from './ComponentVehicle/RestoredVehicles'
@@ -140,6 +141,7 @@ const VehicleManagement = () => {
             <CTabList variant="tabs">
               <CTab itemKey="Vehicle List">Vehicle List</CTab>
               <CTab itemKey="Restore Vehicles">Restore Vehicles</CTab>
+              <CTab itemKey="Vehicle Report">Vehicle Report</CTab>
             </CTabList>
             <CTabContent>
               <CTabPanel itemKey="Vehicle List">
@@ -172,6 +174,14 @@ const VehicleManagement = () => {
                     You are not authorized to view this tab
                   </CAlert>
                 )}
+              </CTabPanel>
+              <CTabPanel itemKey="Vehicle Report">
+                <CCard>
+                  <CHeader>Vehicle Report</CHeader>
+                  <CCardBody className="md-3">
+                    <VehicleReport vehicle={vehicle} />
+                  </CCardBody>
+                </CCard>
               </CTabPanel>
             </CTabContent>
           </CTabs>

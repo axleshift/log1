@@ -34,6 +34,7 @@ const AddDrivers = ({ onAddDriver }) => {
     phone: '',
     address: '',
     licenseNumber: '',
+    licenseRestriction: '',
     status: 'available',
     assignedVehicle: '',
   }
@@ -98,7 +99,17 @@ const AddDrivers = ({ onAddDriver }) => {
       setLoading(false)
     }
   }
-
+  const options = [
+    { value: 'A', label: 'A' },
+    { value: 'A1', label: 'A1' },
+    { value: 'B', label: 'B' },
+    { value: 'B1', label: 'B1' },
+    { value: 'B2', label: 'B2' },
+    { value: 'C', label: 'C' },
+    { value: 'D', label: 'D' },
+    { value: 'E', label: 'E' },
+    { value: 'BE', label: 'BE' },
+  ]
   const NavIcon = ({ icon }) => {
     const [isHovering, setIsHovering] = useState(false)
 
@@ -214,6 +225,22 @@ const AddDrivers = ({ onAddDriver }) => {
                   value={newDriver.licenseNumber}
                   onChange={handleChange}
                 />
+                <CFormSelect
+                  className="mb-3"
+                  floatingLabel="License Type"
+                  label="License Type"
+                  id="licenseRestriction"
+                  required
+                  value={newDriver.licenseRestriction}
+                  onChange={handleChange}
+                >
+                  <option value={null}>Select License Type</option>
+                  {options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </CFormSelect>
 
                 <CFormSelect
                   className="mb-3"

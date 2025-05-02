@@ -33,6 +33,7 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
     phone: driver.phone,
     address: driver.address,
     licenseNumber: driver.licenseNumber,
+    licenseRestriction: driver.licenseRestriction,
     status: driver.status,
     assignedVehicle: driver.assignedVehicle,
   }
@@ -92,6 +93,18 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
       setLoading(false)
     }
   }
+
+  const options2 = [
+    { value: 'A', label: 'A' },
+    { value: 'A1', label: 'A1' },
+    { value: 'B', label: 'B' },
+    { value: 'B1', label: 'B1' },
+    { value: 'B2', label: 'B2' },
+    { value: 'C', label: 'C' },
+    { value: 'D', label: 'D' },
+    { value: 'E', label: 'E' },
+    { value: 'BE', label: 'BE' },
+  ]
 
   const options = [
     { value: 'available', label: 'Available' },
@@ -210,6 +223,23 @@ const UpdateDriver = ({ driver, onUpdateDriver }) => {
                 value={updateDriver.licenseNumber}
                 onChange={handleChange}
               />
+
+              <CFormSelect
+                className="mb-3"
+                floatingLabel="License Type"
+                label="License Type"
+                id="licenseRestriction"
+                required
+                value={updateDriver.licenseRestriction}
+                onChange={handleChange}
+              >
+                <option value={null}>Select License Type</option>
+                {options2.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </CFormSelect>
               <CFormSelect
                 className="mb-3"
                 floatingLabel="Status"

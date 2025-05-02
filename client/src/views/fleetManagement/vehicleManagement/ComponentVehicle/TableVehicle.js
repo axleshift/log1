@@ -221,7 +221,9 @@ const TableVehicle = ({ vehicle, error, loading, onDeleteVehicle, onUpdateVehicl
               <CHeader>Model: {vehicle.model}</CHeader>
               <CHeader>Year: {vehicle.year}</CHeader>
               <CHeader>Type: {vehicle.type}</CHeader>
-              <CHeader>Capacity: {vehicle.capacity}</CHeader>
+              <CHeader>
+                Capacity: {vehicle.units}: {vehicle.capacity}
+              </CHeader>
               <CHeader>
                 Status: {options.find((option) => option.value === vehicle.status).label}
               </CHeader>
