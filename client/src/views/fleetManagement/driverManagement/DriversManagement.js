@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import AddDriver from './ComponentsDriver/AddDrivers'
 import TableDriver from './ComponentsDriver/TableDriver'
+import DriversReport from './ComponentsDriver/DriversReport'
 import {
   CCard,
   CCardBody,
   CContainer,
   CHeader,
-  CModal,
-  CModalHeader,
-  CModalBody,
-  CModalFooter,
-  CButton,
+  CTabs,
+  CTabList,
+  CTab,
+  CTabPanel,
+  CTabContent,
   CSpinner,
   CAlert,
 } from '@coreui/react'
 import api from '../../../utils/api'
 import { useToast } from '../../../components/Toast/Toast'
 import { getRole } from '../../../utils/auth'
+
 const DriversManagement = () => {
   const role = getRole()
   const adminRoles = ['super admin', 'admin', 'manager', 'fleet manager']
@@ -24,8 +26,6 @@ const DriversManagement = () => {
   const [driver, setDrivers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [deleteModal, setDeleteModal] = useState(false)
-  const [selectedLogId, setSelectedLogId] = useState(null)
 
   const fetchDrivers = async () => {
     setLoading(true)
@@ -54,28 +54,15 @@ const DriversManagement = () => {
     setDrivers((preDrivers) => [...preDrivers, newDriver])
     fetchDrivers()
   }
-  const handleDeleteClick = (id) => {
-    setSelectedLogId(id)
-    setDeleteModal(true)
-  }
-
-  const handleDeleteDriver = (driverId) => {
-    setDrivers((preDrivers) => preDrivers.filter((driver) => driver._id !== driverId))
-  }
-
-  const handleUpdateDriver = (updatedDriver) => {
-    setDrivers((preDrivers) =>
-      preDrivers.map((driver) => (driver._id === updatedDriver._id ? updatedDriver : driver)),
-    )
-  }
 
   if (loading) {
     return (
-      <div className="text-center  ">
+      <div className="text-center">
         <CSpinner color="primary" size="sm" />
       </div>
     )
   }
+
   return (
     <>
       {role && adminRoles.includes(role) ? (
@@ -84,32 +71,34 @@ const DriversManagement = () => {
           <CContainer className="m-3">
             <AddDriver onAddDriver={handleAddDriver} />
           </CContainer>
-          <CCard>
-            <CHeader>Drivers list</CHeader>
-            <CCardBody className="md-3">
-              <TableDriver
-                driver={driver}
-                loading={loading}
-                error={error}
-                onDeleteDriver={handleDeleteClick}
-                onUpdateDriver={handleUpdateDriver}
-              />
-            </CCardBody>
-          </CCard>
-          <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
-            <CModalHeader closeButton>Confirm Delete</CModalHeader>
-            <CModalBody>
-              Are you sure you want to delete this driver? This action cannot be undone.
-            </CModalBody>
-            <CModalFooter>
-              <CButton color="secondary" onClick={() => setDeleteModal(false)}>
-                Cancel
-              </CButton>
-              <CButton color="danger" onClick={handleDeleteDriver}>
-                Delete
-              </CButton>
-            </CModalFooter>
-          </CModal>
+          <CTabs activeItemKey="Driver List">
+            <CTabList variant="tabs">
+              <CTab itemKey="Driver List">Driver List</CTab>
+              <CTab itemKey="Driver Report">Driver Report</CTab>
+            </CTabList>
+            <CTabContent>
+              <CTabPanel itemKey="Driver List">
+                <CCard>
+                  <CHeader>Drivers List</CHeader>
+                  <CCardBody className="md-3">
+                    <TableDriver
+                      driver={driver}
+                      loading={loading}
+                      error={error}
+                    />
+                  </CCardBody>
+                </CCard>
+              </CTabPanel>
+              <CTabPanel itemKey="Driver Report">
+                <CCard>
+                  <CHeader>Driver Report</CHeader>
+                  <CCardBody className="md-3">
+                    <DriversReport />
+                  </CCardBody>
+                </CCard>
+              </CTabPanel>
+            </CTabContent>
+          </CTabs>
         </>
       ) : (
         <CAlert color="danger" className="text-center w-100 mx-auto mt-5 justify-content-center">
