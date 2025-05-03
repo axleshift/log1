@@ -93,7 +93,7 @@ const DriversManagement = () => {
                 <CCard>
                   <CHeader>Driver Report</CHeader>
                   <CCardBody className="md-3">
-                    <DriversReport />
+                    <DriversReport driver={driver} />
                   </CCardBody>
                 </CCard>
               </CTabPanel>
