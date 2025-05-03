@@ -81,11 +81,7 @@ const DriversManagement = () => {
                 <CCard>
                   <CHeader>Drivers List</CHeader>
                   <CCardBody className="md-3">
-                    <TableDriver
-                      driver={driver}
-                      loading={loading}
-                      error={error}
-                    />
+                    <TableDriver driver={driver} loading={loading} error={error} />
                   </CCardBody>
                 </CCard>
               </CTabPanel>
