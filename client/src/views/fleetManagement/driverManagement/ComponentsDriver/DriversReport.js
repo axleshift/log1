@@ -17,7 +17,7 @@ import {
   CButtonGroup,
   CImage,
 } from '@coreui/react'
-import * as XLSX from 'xlsx'
+import * as XLSX from '/node_modules/xlsx/dist/xlsx.full.min.js'
 import CIcon from '@coreui/icons-react'
 import { cilCloudDownload } from '@coreui/icons'
 import Frieght from '../../../../assets/images/Freight.png'
